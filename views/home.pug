@@ -19,8 +19,11 @@ body
 		.list-group-item span{
 			font-size:12px;
 		}
-		.list-group-item span.tiny{
+		.list-group-item span.tiny, textarea.tiny{
 			font-size:8px;
+		}
+		textarea.tiny{
+			height:25px;
 		}
 		.clipboard{
 			width:100%;
@@ -46,9 +49,13 @@ body
 					.col
 						input.form-control.name(v-model="item.name",placeholder="Name")
 					.col
+						input.form-control(v-model="item.type",placeholder="Type")
+					.col
 						input.form-control(v-model="item.path",placeholder="Path")
 					.col
 						button.form-control(@click="newItem") New
+			.col-12
+				textarea.tiny.form-control(disabled, v-html="resourceUrl")
 		div#editor
 
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js")
@@ -82,6 +89,7 @@ body
 				newItem(){
 					var self = this;
 					Object.keys(this.item).forEach(k=>self.item[k]='');
+					this.item.type= 'vueComponent'
 					this.editor.setValue(this.item.code);
 				},
 				loadClipBoard(){
@@ -95,6 +103,7 @@ body
 					this.editor.setValue(this.item.code);
 				},
 				save(){
+					var self= this;
 					httpPost('/rpc/save-file',this.item).then(r=>{
 						self.updateItems();
 						console.info(r);
@@ -111,6 +120,9 @@ body
 				}
 			},
 			computed:{
+				resourceUrl(){
+					return `https://simback.herokuapp.com/resource/${this.item.type}/${this.item.name}?ext=js`
+				},
 				canSave(){
 					return !!this.item.name && !!this.item.code
 				}
@@ -119,6 +131,7 @@ body
 				var self = this;
 				editor = self.editor = ace.edit("editor");
 				editor.setTheme("ace/theme/monokai");
+				editor.session.setMode('ace/mode/javascript');
 				editor.session.setOptions({
 					wrap: true,
 					tabSize: 4,
