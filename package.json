@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "scripts":{
-    "start":"node index.js"
+  "scripts": {
+    "start": "node index.js"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "lodash": "^4.17.10",
+    "mongoose": "^5.1.4",
     "pug": "^2.0.3"
   }
 }
