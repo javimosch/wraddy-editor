@@ -52,7 +52,8 @@ app.get('/resource/:type/:name', async (req, res) => {
 				type: req.params.type
 			}).exec();
 			code = compileCode(file.code, true,{
-				minified: req.query.minified==='1'
+				minified: req.query.minified==='1',
+				type: file.type
 			});
 			cache[file.name]= code;
 		}
@@ -76,7 +77,9 @@ app.post('/rpc/fetch', parseJson, async (req, res) => {
 
 app.post('/rpc/save-file', parseJson, async (req, res) => {
 	try {
-		cache[req.body.name]= compileCode(req.body.code, true);
+		cache[req.body.name]= compileCode(req.body.code, true, {
+			type: req.body.type
+		});
 		mongoose.model('simback_file').findOneAndUpdate({
 			_id: req.body._id //,
 			//name: req.body.name
@@ -111,7 +114,10 @@ function compileFileWithVars(filePath, vars = {}, req) {
 }
 
 
-function compileCode(code, browser = false, opts = {minified:false}) {
+function compileCode(code, browser = false, opts = {minified:false, type: 'javascript'}) {
+	if(!['javasript','vueComponent'].includes(opts.type)){
+		return code;
+	}
 	var targets = {
 		"node": "6.0"
 	};
