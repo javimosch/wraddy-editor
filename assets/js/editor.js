@@ -105,7 +105,7 @@ new Vue({
 		updateItems() {
 			var self = this;
 			httpPost('/rpc/fetch/', {
-				type: ['vueComponent', 'javascript']
+				type: ['vueComponent', 'javascript','route','middleware','view','markdown']
 			}).then(data => {
 				self.items = data;
 			}).catch(console.warn);
