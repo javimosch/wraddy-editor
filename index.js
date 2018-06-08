@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-	res.sendView('home');
+	res.sendView('editor');
 });
 
 app.use(parseJson, (req, res, next) => {
