@@ -152,7 +152,7 @@ new Vue({
 			}
 		},
 		resourceUrl() {
-			return `https://simback.herokuapp.com/resource/${this.item.type}/${this.item.name}?ext=js`
+			return `https://blank-editor.herokuapp.com/resource/${this.item.type}/${this.item.name}?ext=js`
 		},
 		canSave() {
 			return !!this.item.name && !!this.item.code && !!this.item.type
