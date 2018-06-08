@@ -33,7 +33,7 @@ body
 			font-size:12px;
 		}
 		.list-group-item span.tiny, textarea.tiny{
-			font-size:8px;
+			font-size:11px;
 		}
 		textarea.tiny{
 			height:25px;
@@ -143,6 +143,10 @@ body
 			color:snow;
 			font-size:12px;
 		}
+		p.note{
+			font-size: 14px;
+			font-weight: 100;
+		}
 	#app
 		#leftSidebar(ref="leftSidebar")
 			button.btn.btn-primary.mx-auto.d-block.mt-2(@click="toggleLeftSidebar") Close (esc or cmd+shift+L)
@@ -189,9 +193,11 @@ body
 							span(v-html="item.name")
 							span.tiny.d-block(v-html="item.type")
 			.col-12.col-lg-6.p-2
-				p You can format the code with cmd+shift+B				
-				p To cancel and create a blank file press (cmd+shift+x)
-				p Types are (javascript, vueComponent, route, view, function, middleware, schedule)
+				p.note You can format the code with cmd+shift+B				
+				p.note To cancel and create a blank file press (cmd+shift+x)
+				p.note Types are (javascript, vueComponent, route, view, function, middleware, schedule)
+				p.note Served files (public url) are transpiled so ES7 syntax is available.
+				p.note You can scroll to top and bottom quickly by pressing cmd+up+up and cmd+down+down
 			.col-12
 				footer
 					p.m-0 Blank
