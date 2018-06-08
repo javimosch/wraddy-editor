@@ -16,6 +16,20 @@ new Vue({
 		}
 	},
 	methods: {
+		toggleLeftSidebar(){
+			if($(this.$refs.leftSidebar).hasClass('active')){
+				$(this.$refs.leftSidebar).removeClass('active');
+			}else{
+				$(this.$refs.leftSidebar).addClass('active');
+			}
+		},
+		toggleRightSidebar(){
+			if($(this.$refs.rightSidebar).hasClass('active')){
+				$(this.$refs.rightSidebar).removeClass('active');
+			}else{
+				$(this.$refs.rightSidebar).addClass('active');
+			}
+		},
 		newItem(msg) {
 			var self = this;
 			Object.keys(this.item).forEach(k => self.item[k] = '');
@@ -105,11 +119,25 @@ new Vue({
 			}
 		},
 		bindOnEscapeCloseSearch() {
-			$(document).keyup(this.onEscapeCloseSearch.bind(this));
+			$(document).on('keyup',this.onEscapeCloseSearch.bind(this));
+		},
+		onEscapeCloseSidebars(e){
+			if (e.keyCode == 27) {
+				if($(this.$refs.leftSidebar).hasClass('active')){
+					$(this.$refs.leftSidebar).removeClass('active')
+				}
+				if($(this.$refs.rightSidebar).hasClass('active')){
+					$(this.$refs.rightSidebar).removeClass('active')
+				}
+			}
+		},
+		bindOnEscapeCloseSidebars(){
+			$(document).on('keyup',this.onEscapeCloseSidebars.bind(this));	
 		}
 	},
 	destroyed() {
 		$(document).off('keyup', this.onEscapeCloseSearch);
+		$(document).off('keyup', this.onEscapeCloseSidebars);
 	},
 	computed: {
 		filteredItems() {
@@ -133,6 +161,7 @@ new Vue({
 	mounted() {
 		var self = this;
 		self.bindOnEscapeCloseSearch();
+		self.bindOnEscapeCloseSidebars();
 		editor = self.editor = ace.edit("editor");
 		editor.setTheme("ace/theme/monokai");
 		editor.session.setMode('ace/mode/javascript');
@@ -143,7 +172,7 @@ new Vue({
 		});
 		editor.setOptions({
 			enableLiveAutocompletion: true,
-			fontSize: "12pt",
+			fontSize: "10pt",
 			showPrintMargin: false
 		});
 
@@ -157,6 +186,29 @@ new Vue({
 				$(self.$refs.searchModal).addClass('active');
 				self.$refs.searchInput.focus();
 				self.updateItems();
+			},
+			readOnly: false
+		});
+		
+		editor.commands.addCommand({
+			name: 'toggleRightSidebar',
+			bindKey: {
+				win: 'Alt-Shift-P',
+				mac: 'Command-Shift-P'
+			},
+			exec: function(editor) {
+				self.toggleRightSidebar();
+			},
+			readOnly: false
+		});
+		editor.commands.addCommand({
+			name: 'toggleLeftSidebar',
+			bindKey: {
+				win: 'Alt-Shift-L',
+				mac: 'Command-Shift-L'
+			},
+			exec: function(editor) {
+				self.toggleLeftSidebar();
 			},
 			readOnly: false
 		});
