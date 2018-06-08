@@ -1,5 +1,14 @@
 //||
 //`
+
+function beautifyAceEditor(editor) {
+	var content = editor.session.getValue();
+	editor.setValue(js_beautify(content, {
+		indent_char: "\t",
+		indent_size: 1
+	}));
+}
+
 function httpPost(url, data){
 	return new Promise((resolve, reject)=>{
 		if(!data){
