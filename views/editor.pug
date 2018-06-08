@@ -53,6 +53,7 @@ body
 		.search{
 			max-height: 350px;
 			overflow: scroll;
+			transition: all .5s ease;
 		}
 		.search.active{
 			position: fixed;
@@ -62,7 +63,8 @@ body
 			max-height: calc(100vh);
 			background: white;
 			overflow: scroll;
-			right: 0;
+			left: 50%;
+			margin-left: -125px;
 		}
 		.search-input{
 			display: block;
@@ -79,7 +81,7 @@ body
 		}
 		.search .list-group-item{
 		    padding: 10px;
-			background: slategrey;
+			background: #333;
 			color: white;
 		    color
 		    border-radius: 0px;
@@ -123,8 +125,8 @@ body
 			margin-top:-15px;
 			min-height: calc(100vh);
 			position: fixed;
-			width:230px;
-			right:-230px;
+			width:calc(50vw);
+			right:calc(-50vw);
 			z-index: 999999;
 			transition: all .5s ease;
 			background-color:snow;
