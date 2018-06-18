@@ -67,7 +67,7 @@ app.get('/resource/:type/:name', async (req, res) => {
 app.post('/rpc/fetch', parseJson, async (req, res) => {
 	try {
 		let list = await mongoose.model('simback_file').find({
-			type: req.body.type
+			//type: req.body.type
 		}).exec();
 		res.status(200).json(list);
 	} catch (err) {
@@ -149,7 +149,8 @@ const schema = new mongoose.Schema({
 	type: {
 		type: String,
 		required: true,
-		enum: ['view', 'function', 'route', 'vueComponent']
+		//enum: ['view', 'function', 'route', 'vueComponent']
+		//javascript, vueComponent, route, view, function, middleware, schedule)
 	},
 	code: {
 		type: String,
