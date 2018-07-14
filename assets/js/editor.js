@@ -16,6 +16,19 @@ new Vue({
 		}
 	},
 	methods: {
+		togglePreview(){
+			var htmlString=`<body>
+				<script>
+					${this.item.code}
+				</script>
+			</body>`.split(' ').join('')
+			.replace(new RegExp(' ', 'g'), '')
+			.replace(/(?:\r\n|\r|\n)/g, '')
+			.replace(new RegExp(' ', 'g'), '')
+			.split(' ').join('')
+			var myIFrame = this.$refs.previewIframe
+			myIFrame.src="javascript:'"+htmlString+"'";
+		},
 		toggleLeftSidebar(){
 			if($(this.$refs.leftSidebar).hasClass('active')){
 				$(this.$refs.leftSidebar).removeClass('active');

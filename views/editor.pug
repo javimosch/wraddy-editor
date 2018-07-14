@@ -154,6 +154,9 @@ body
 		#rightSidebar(ref="rightSidebar")
 			button.btn.btn-primary.mx-auto.d-block.mt-2(@click="toggleRightSidebar") Close (esc or cmd+shift+P)
 			p.mt-3.p-2 Here you will be able to preview your code.
+			button(@click="togglePreview") Run
+			iframe#iframe(ref="previewIframe")
+
 		p#fileName(v-html="item.name")
 		.row.no-gutters
 			.col-12
