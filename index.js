@@ -77,6 +77,9 @@ app.post('/rpc/fetch', parseJson, async (req, res) => {
 
 app.post('/rpc/save-file', parseJson, async (req, res) => {
 	try {
+		if(!req.body._id){
+			delete req.body._id;
+		}
 		cache[req.body.name]= compileCode(req.body.code, true, {
 			type: req.body.type
 		});
@@ -146,6 +149,7 @@ const schema = new mongoose.Schema({
 		index: true
 	},
 	path: String,
+	tags: [String],
 	type: {
 		type: String,
 		required: true,

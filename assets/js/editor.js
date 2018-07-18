@@ -11,7 +11,8 @@ new Vue({
 				type: 'vueComponent',
 				name: '',
 				path: '',
-				code: ''
+				code: '',
+				tags:''
 			}
 		}
 	},
@@ -88,7 +89,10 @@ new Vue({
 		save() {
 			return new Promise((resolve, reject) => {
 				var self = this;
-				httpPost('/rpc/save-file', this.item).then(r => {
+				var data = Object.assign({}, this.item)
+				data.tags = data.tags instanceof Array ? data.tags : data.tags.trim().split(',')
+				data.tags = data.tags.map(t=>t.trim())
+				httpPost('/rpc/save-file', data).then(r => {
 					self.updateItems();
 
 					new Noty({
