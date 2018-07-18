@@ -45,17 +45,17 @@ app.use(parseJson, (req, res, next) => {
 app.get('/resource/:type/:name', async (req, res) => {
 	// http://localhost:3000/resource/vueComponent/tma-benefits-progress?ext=js
 	try {
-		var code = cache[req.params.name]||''
-		if(!code){
+		var code = cache[req.params.name] || ''
+		if (!code) {
 			var file = await mongoose.model('simback_file').findOne({
 				name: req.params.name,
 				type: req.params.type
 			}).exec();
-			code = compileCode(file.code, true,{
-				minified: req.query.minified==='1',
+			code = compileCode(file.code, true, {
+				minified: req.query.minified === '1',
 				type: file.type
 			});
-			cache[file.name]= code;
+			cache[file.name] = code;
 		}
 		res.type('.' + req.query.ext)
 		res.send(code);
@@ -77,18 +77,24 @@ app.post('/rpc/fetch', parseJson, async (req, res) => {
 
 app.post('/rpc/save-file', parseJson, async (req, res) => {
 	try {
-		if(!req.body._id){
+		if (!req.body._id) {
 			delete req.body._id;
 		}
-		cache[req.body.name]= compileCode(req.body.code, true, {
+		cache[req.body.name] = compileCode(req.body.code, true, {
 			type: req.body.type
 		});
-		mongoose.model('simback_file').findOneAndUpdate({
-			_id: req.body._id //,
-			//name: req.body.name
-		}, _.omit(req.body, ['_id', '__v']), {
-			upsert: true
-		}).exec();
+
+		var payload = _.omit(req.body, ['_id', '__v', 'createdAt', 'updatedAt'])
+		if (!req.body._id) {
+			await mongoose.model('simback_file').create(payload)
+		} else {
+			await mongoose.model('simback_file').findOneAndUpdate({
+				_id: req.body._id //,
+				//name: req.body.name
+			}, payload, {
+				upsert: true
+			}).exec();
+		}
 		res.status(200).json(req.body);
 	} catch (err) {
 		handleError(err, res)
@@ -113,12 +119,16 @@ app.listen(PORT, function() {
 
 
 function compileFileWithVars(filePath, vars = {}, req) {
-	return pug.compileFile(path.join(process.cwd(), 'views', filePath.replace('.pug', '') + '.pug'))(vars)
+	var p = path.join(process.cwd(), 'views', filePath.replace('.pug', '') + '.pug')
+	return pug.compileFile(p)(vars)
 }
 
 
-function compileCode(code, browser = false, opts = {minified:false, type: 'javascript'}) {
-	if(!['javasript','vueComponent'].includes(opts.type)){
+function compileCode(code, browser = false, opts = {
+	minified: false,
+	type: 'javascript'
+}) {
+	if (!['javasript', 'vueComponent'].includes(opts.type)) {
 		return code;
 	}
 	var targets = {

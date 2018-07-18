@@ -8,7 +8,7 @@ new Vue({
 		||`,
 			item: {
 				_id: null,
-				type: 'vueComponent',
+				type: 'javascript',
 				name: '',
 				path: '',
 				code: '',
@@ -47,7 +47,7 @@ new Vue({
 		newItem(msg) {
 			var self = this;
 			Object.keys(this.item).forEach(k => self.item[k] = '');
-			this.item.type = 'vueComponent'
+			this.item.type = 'javascript'
 			this.editor.setValue(this.item.code);
 			new Noty({
 				type: 'warning',
