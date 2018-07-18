@@ -1,6 +1,6 @@
 head
 
-	title Blank
+	title Backdit
 
 	link(rel='shortcut icon', href='/favicon.ico', type='image/x-icon')
 	link(rel='icon', href='/favicon.ico', type='image/x-icon')
@@ -179,6 +179,9 @@ body
 					.col.mr-1
 						button.btn.btn-primary.border-0.form-control(@click="newItem") Save and New (cmd+shift+k)
 			.col-12.p-2
+				h6 Tags
+				textarea.tiny.form-control(placeholder="middleware, forest-root", v-model="item.tags")
+			.col-12.p-2
 				h6 Public url
 				textarea.tiny.form-control(disabled, v-html="resourceUrl")
 			.col-12.p-2
@@ -203,7 +206,7 @@ body
 				p.note You can scroll to top and bottom quickly by pressing cmd+up+up and cmd+down+down
 			.col-12
 				footer
-					p.m-0 Blank
+					p.m-0 Backdit
 		
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js")
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js")
