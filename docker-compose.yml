@@ -1,6 +1,7 @@
 version: "3"
 services:
   app:
+      container_name: editor-wedev-org
       image: node:alpine
       volumes:
         - ./:/app
@@ -9,10 +10,10 @@ services:
         NODE_ENV: production
         VIRTUAL_HOST: editor.wedev.org
         VIRTUAL_PORT: 3000
+        LETSENCRYPT_HOST: editor.wedev.org
+        LETSENCRYPT_EMAIL: arancibiajav@gmail.com
       ports:
         - 3000:3000
-      expose:
-        - 3000
       command: npm run start
 networks:
   default:
