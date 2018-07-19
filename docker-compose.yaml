@@ -14,7 +14,8 @@ services:
         LETSENCRYPT_EMAIL: arancibiajav@gmail.com
       ports:
         - 3500:3500
-      command: npm run start
+      command: node app/index.js
+      restart: always
 networks:
   default:
     external:
