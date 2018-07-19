@@ -5,9 +5,8 @@
   "license": "MIT",
   "author": "arancibiajav@gmail.com",
   "scripts": {
-    "predocker": "npm install",
-    "start": "pm2 start app/index.js --name root",
-    "docker":"npx nodemon --exec 'node app/index.js || touch app.index.js' -e js,jsx,html --watch app --ignore app/views/dynamic",
+    "prestart": "npm install",
+    "start": "npx pm2 start app/index.js --name root",
     "dev": "npx nodemon --exec 'node app/index.js' -e js,jsx,html --watch app --ignore app/views/dynamic"
   },
   "dependencies": {
@@ -19,6 +18,7 @@
     "lodash": "^4.17.10",
     "mongoose": "^5.1.4",
     "nodemon": "^1.18.3",
+    "pm2": "^3.0.0",
     "pug": "^2.0.3",
     "require-from-string": "^2.0.2",
     "require-install": "^0.3.3",

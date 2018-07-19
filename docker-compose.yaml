@@ -14,7 +14,7 @@ services:
         LETSENCRYPT_EMAIL: arancibiajav@gmail.com
       ports:
         - 3500:3500
-      command: npm run docker
+      command: npm run start
       restart: always
 networks:
   default:
