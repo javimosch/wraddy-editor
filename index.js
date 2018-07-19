@@ -1,8 +1,7 @@
 require('dotenv').config({
 	silent: true
 });
-const express = require('express')
-const app = express()
+
 const bodyParser = require('body-parser');
 const parseJson = bodyParser.json({
 	limit: '50mb'
@@ -18,6 +17,14 @@ const path = require('path');
 var cache = {};
 
 mongoose.set('debug', true);
+const express = require('express')
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
+io.on('connection', function (socket) {
+  console.log('Socket connected')
+});
 
 app.use('/', express.static(path.join(process.cwd(), 'assets')));
 
@@ -95,6 +102,7 @@ app.post('/rpc/save-file', parseJson, async (req, res) => {
 				upsert: true
 			}).exec();
 		}
+		io.emit('save-file')
 		res.status(200).json(req.body);
 	} catch (err) {
 		handleError(err, res)
@@ -113,7 +121,7 @@ mongoose.connect(DB_URI, {
 	}
 });
 
-app.listen(PORT, function() {
+server.listen(PORT, function() {
 	console.log('Listening on http://localhost:' + PORT)
 })
 
