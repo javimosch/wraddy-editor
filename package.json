@@ -1,0 +1,28 @@
+{
+  "name": "root",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "author": "arancibiajav@gmail.com",
+  "scripts": {
+    "prestart_disabled": "npm install",
+    "start": "pm2 start app/index.js --name root",
+    "dev": "npx nodemon --exec 'node app/index.js' -e js,jsx,html --watch app --ignore app/views/dynamic"
+  },
+  "dependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "lodash": "^4.17.10",
+    "mongoose": "^5.1.4",
+    "nodemon": "^1.18.3",
+    "pug": "^2.0.3",
+    "require-from-string": "^2.0.2",
+    "require-install": "^0.3.3",
+    "sander": "^0.6.0",
+    "shelljs": "^0.8.2",
+    "socket.io-client": "^2.1.1"
+  }
+}
