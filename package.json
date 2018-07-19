@@ -5,8 +5,9 @@
   "license": "MIT",
   "author": "arancibiajav@gmail.com",
   "scripts": {
-    "prestart_disabled": "npm install",
+    "predocker": "npm install",
     "start": "pm2 start app/index.js --name root",
+    "docker":"npx nodemon --exec 'node app/index.js || touch app.index.js' -e js,jsx,html --watch app --ignore app/views/dynamic",
     "dev": "npx nodemon --exec 'node app/index.js' -e js,jsx,html --watch app --ignore app/views/dynamic"
   },
   "dependencies": {
