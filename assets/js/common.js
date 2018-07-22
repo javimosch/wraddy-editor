@@ -31,6 +31,9 @@ function httpPost(url, data){
 						detail: xhr
 					});
 				}
+				if(!response){
+					return resolve(response)
+				}
 				if(response.err){
 					reject(response.err);
 				}else{

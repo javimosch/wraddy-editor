@@ -4,8 +4,10 @@ new Vue({
 		return {
 			filter: '',
 			items: [],
+			saveModal:false,
 			clipboard: `This is a clipboard
 		||`,
+			clipboardEnabled:false,
 			item: {
 				_id: null,
 				type: 'javascript',
@@ -13,10 +15,86 @@ new Vue({
 				path: '',
 				code: '',
 				tags:''
+			},
+			project:'',
+			treeInit:false,
+			projectSelector:''
+		}
+	},
+	watch:{
+		"project": function(v){
+			if(v){
+				window.localStorage.setItem('project', v)
 			}
 		}
 	},
 	methods: {
+		async mountTree(){
+			let tree = await httpPost('/rpc/getTree', {
+				project: this.project
+			})
+			let treeEl = $(this.$refs.tree)
+			treeEl.on("changed.jstree", async(e, data) =>{
+				if(data.action === 'deselect_all'){
+					return;
+				}
+				console.log(data)
+				let f = await httpPost('/rpc/getFile', {
+					_id: data.node.id
+				})
+				this.select(f)
+			});
+			console.log('MOUNTING TREE', this.project)
+			if(!this.treeInit){
+				treeEl.jstree({
+					'core': {
+						'data': [
+							this.mapDirectoryTreeToJsTreeNode(tree)
+						]
+					}
+				});
+				this.treeInit=true
+			}else{
+				treeEl.jstree(true).settings.core.data = this.mapDirectoryTreeToJsTreeNode(tree);
+				treeEl.jstree(true).refresh();
+			}
+			
+		},
+		loadProjectFromCache(){
+			var pr = window.localStorage.getItem('project')
+			if(pr){
+				this.project = pr
+				this.mountTree()
+				this.projectSelector = this.project
+			}
+		},
+		mapDirectoryTreeToJsTreeNode(item, index) {
+			return {
+				id: item._id,
+				text: item.name,
+				data: {
+					name: item.name,
+				},
+				icon: item.type === 'file' ? "far fa-file-word" : undefined,
+				state: {
+					opened: item.opened ? item.opened : false,
+					selected: false
+				},
+				children: (item.children || []).map((v,i)=>this.mapDirectoryTreeToJsTreeNode(v,i))
+			}
+		},
+		projectSelect(evt){
+			var v = evt.target.value
+			if(v === 'new'){
+				window.location.href="/create-project"
+			}
+			if(v===''){
+				return;
+			}else{
+				this.project = v
+			}
+			this.mountTree()
+		},
 		togglePreview(){
 			var htmlString=`<body>
 				<script>
@@ -44,11 +122,14 @@ new Vue({
 				$(this.$refs.rightSidebar).addClass('active');
 			}
 		},
+		openClipboard(){
+
+		},
 		newItem(msg) {
 			var self = this;
 			Object.keys(this.item).forEach(k => self.item[k] = '');
 			this.item.type = 'javascript'
-			this.editor.setValue(this.item.code);
+			this.editor.setValue(this.item.code, -1);
 			new Noty({
 				type: 'warning',
 				timeout: 1000,
@@ -74,6 +155,7 @@ new Vue({
 			}
 		},
 		select(item) {
+			this.filter = ''
 			var self = this;
 			if (this.item._id && this.item.code!=self.lastLoadedCode) {
 				return this.save().then(() => {
@@ -82,7 +164,7 @@ new Vue({
 				});
 			}
 			Object.assign(this.item, item);
-			this.editor.setValue(this.item.code);
+			this.editor.setValue(this.item.code, -1);
 			self.lastLoadedCode= this.item.code;
 			this.closeSearchModal();
 		},
@@ -90,11 +172,14 @@ new Vue({
 			return new Promise((resolve, reject) => {
 				var self = this;
 				var data = Object.assign({}, this.item)
+				if(this.project){
+					data.project=this.project
+				}
 				data.tags = data.tags instanceof Array ? data.tags : data.tags.trim().split(',')
 				data.tags = data.tags.map(t=>t.trim())
 				httpPost('/rpc/save-file', data).then(r => {
 					self.updateItems();
-
+					self.afterSave()
 					new Noty({
 						type: 'info',
 						timeout: 2000,
@@ -103,6 +188,7 @@ new Vue({
 						layout: "bottomRight"
 					}).show();
 					resolve();
+					self.saveModal = false
 					console.info(r);
 				}).catch(err => {
 
@@ -119,6 +205,9 @@ new Vue({
 				});
 			})
 		},
+		afterSave(){
+			this.mountTree()
+		},
 		updateItems() {
 			var self = this;
 			httpPost('/rpc/fetch/', {
@@ -129,17 +218,40 @@ new Vue({
 		},
 		closeSearchModal() {
 			$(this.$refs.searchModal).removeClass('active');
+			$(this.$refs.searchModal).toggle(false)
 		},
 		onEscapeCloseSearch(e) {
 			if (e.keyCode == 27) {
-				this.closeSearchModal();
+				//this.closeSearchModal();
 			}
+		},
+		onEscapeCloseModals(e){
+			if (e.keyCode == 27) {
+				//this.saveModal = false
+			}	
+		},
+		bindOnEscapeCloseModals(){
+			$(document).on('keyup',this.onEscapeCloseModals.bind(this));
 		},
 		bindOnEscapeCloseSearch() {
 			$(document).on('keyup',this.onEscapeCloseSearch.bind(this));
 		},
 		onEscapeCloseSidebars(e){
 			if (e.keyCode == 27) {
+
+				if($(this.$refs.searchModal).hasClass('active')){
+					return this.closeSearchModal()
+				}
+
+				if(this.clipboardEnabled){
+					return this.clipboardEnabled=false
+				}
+
+				if(this.saveModal){
+					this.saveModal = false
+					return;
+				}
+
 				if($(this.$refs.leftSidebar).hasClass('active')){
 					$(this.$refs.leftSidebar).removeClass('active')
 				}
@@ -154,6 +266,7 @@ new Vue({
 	},
 	destroyed() {
 		$(document).off('keyup', this.onEscapeCloseSearch);
+		$(document).off('keyup', this.onEscapeCloseModals);
 		$(document).off('keyup', this.onEscapeCloseSidebars);
 	},
 	computed: {
@@ -169,7 +282,7 @@ new Vue({
 			}
 		},
 		resourceUrl() {
-			return `https://blank-editor.herokuapp.com/resource/${this.item.type}/${this.item.name}?ext=js`
+			return `https://editor.wedev.org/resource/${this.item.type}/${this.item.name}?ext=js`
 		},
 		canSave() {
 			return !!this.item.name && !!this.item.code && !!this.item.type
@@ -177,6 +290,7 @@ new Vue({
 	},
 	mounted() {
 		var self = this;
+		self.bindOnEscapeCloseModals()
 		self.bindOnEscapeCloseSearch();
 		self.bindOnEscapeCloseSidebars();
 		editor = self.editor = ace.edit("editor");
@@ -200,7 +314,7 @@ new Vue({
 				mac: 'Command-Shift-O'
 			},
 			exec: function(editor) {
-				$(self.$refs.searchModal).addClass('active');
+				$(self.$refs.searchModal).toggle(true).addClass('active');
 				self.$refs.searchInput.focus();
 				self.updateItems();
 			},
@@ -259,7 +373,17 @@ new Vue({
 			},
 			exec: function(editor) {
 				if (self.canSave) {
+					if(!self.saveModal){
+						return self.saveModal = true;
+					}
 					self.save();
+				}else{
+					if(!self.item.name){
+						self.saveModal = true;	
+						self.$refs.name.focus()
+					}else{
+						self.saveModal = true;	
+					}
 				}
 			},
 			readOnly: false
@@ -278,5 +402,6 @@ new Vue({
 		editor.on("change", data => self.item.code = editor.getValue())
 		self.updateItems();
 		self.loadClipBoard();
+		self.loadProjectFromCache()
 	}
 });

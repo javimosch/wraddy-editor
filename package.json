@@ -7,7 +7,7 @@
   "scripts": {
     "prestart": "npm install",
     "start": "node index.js",
-    "dev": "npx nodemon --exec 'node index.js' -e js,jsx,html,pug --watch . --ignore node_modules"
+    "dev": "npx nodemon --exec 'node index.js' -e js,jsx,html,pug --watch . --ignore node_modules --ignore app/views/dynamic"
   },
   "dependencies": {
     "babel-core": "^6.26.3",
@@ -15,10 +15,16 @@
     "body-parser": "^1.18.3",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "helmet": "^3.12.1",
     "lodash": "^4.17.10",
+    "moment": "^2.22.2",
     "mongoose": "^5.1.4",
     "nodemon": "^1.18.3",
     "pug": "^2.0.3",
+    "require-from-string": "^2.0.2",
+    "require-install": "^0.3.3",
+    "sander": "^0.6.0",
+    "shelljs": "^0.8.2",
     "socket.io": "^2.1.1"
   }
 }

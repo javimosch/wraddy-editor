@@ -1,0 +1,229 @@
+.fnt-12 {
+    font-size: 12px;
+}
+
+.ProjectSelector select {
+    background: transparent;
+    border: 0px;
+    outline: 0px;
+    font-family: Roboto, sans-serif;
+    min-height: 41px;
+    line-height: 41px;
+    height: 41px!important;
+    font-weight: 300;
+    text-align: center;
+    min-width: 200px;
+}
+
+.ProjectSelector select:active,
+.ProjectSelector select:hover,
+.ProjectSelector select:focus {
+    outline: 0px;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.ProjectSelector label {
+    margin: 0px;
+    display: block;
+    min-height: 41px;
+    line-height: 41px;
+    font-family: Roboto, sans-serif;
+    font-weight: 100;
+    text-align: right;
+}
+
+
+.TreeSelector li {
+    font-size: 15px;
+    font-family: Roboto, sans-serif;
+    font-weight: 300;
+}
+
+
+
+/*REVIEW*/
+
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: snow;
+}
+
+#app {}
+
+#editor {
+    width: 100;
+    font-size: 12pt;
+    min-width: 100%;
+    min-height: 100vh;
+}
+
+.list-group-item span {
+    font-size: 12px;
+}
+
+.list-group-item span.tiny,
+textarea.tiny {
+    font-size: 12px;
+}
+
+textarea.tiny {
+    min-height: 120px;
+}
+
+.clipboard {
+    width: 100%;
+    height: 50px;
+}
+
+.clipboard,
+.clipboard:active,
+.clipboard:focus {
+    background: #333;
+    color: white;
+    min-height: 350px;
+}
+
+.name {
+    min-width: 230px;
+}
+
+.search {
+    max-height: 350px;
+    overflow: scroll;
+    transition: all .5s ease;
+}
+
+.search.active {
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    width: 250px;
+    max-height: calc(100vh);
+    background: white;
+    overflow: scroll;
+    left: 50%;
+    margin-left: -125px;
+}
+
+.search-input {
+    display: block;
+    background: dimgrey;
+    border: 0px;
+    color: white;
+    font-size: 14px;
+}
+
+.search-input::placeholder {
+    color: white;
+}
+
+.search.active .search-input {
+    display: block;
+}
+
+.search .list-group-item {
+    padding: 10px;
+    background: #333;
+    color: white;
+    color border-radius: 0px;
+    margin: 0px;
+    cursor: pointer;
+}
+
+.search .list-group-item,
+.search-input {
+    border-top-left-radius: 0px!important;
+    border-top-right-radius: 0px!important;
+    border-bottom-left-radius: 0px!important;
+    border-bottom-right-radius: 0px!important;
+}
+
+#fileName {
+    position: fixed;
+    top: 0px;
+    width: 200px;
+    left: 50%;
+    text-align: center;
+    color: white;
+    line-height: 11px;
+    font-size: 8px;
+    z-index: 99999;
+    background: slateblue;
+    margin: 0 auto;
+    display: block;
+    margin-left: -100px;
+    border-radius: 0px 0px 10px 10px;
+}
+
+#leftSidebar {
+    min-height: calc(100vh);
+    position: initial;
+    width: 230px;
+    margin-left: -230px;
+    z-index: 999999;
+    transition: all .5s ease;
+    background-color: snow;
+}
+
+#leftSidebar.active {
+    margin-left: 0px;
+}
+
+#rightSidebar {
+    min-height: calc(100vh);
+    position: fixed;
+    width: calc(50vw);
+    right: calc(-50vw);
+    z-index: 999999;
+    transition: all .5s ease;
+    background-color: snow;
+}
+
+#rightSidebar.active {
+    right: 0px;
+}
+
+footer {
+    background-color: snow;
+}
+
+footer p {
+    text-align: center;
+    padding: 5px;
+    font-size: 12px;
+}
+
+p.note {
+    font-size: 14px;
+    font-weight: 100;
+}
+
+.modalOverlay {
+    position: fixed;
+    z-index: 99999;
+    background: rgba(255, 255, 255, 0.8);
+    height: calc(100vh);
+    width: 100%;
+    left: 0px;
+    top: 0px;
+}
+
+.modalX {
+    position: fixed;
+    z-index: 9999999;
+    width: 320px;
+    margin-left: -160px;
+    left: 50%;
+    top: calc(16vh);
+    height: calc(80vh);
+    max-height: fit-content;
+    min-height: 300px;
+    background: snow;
+    border: 10px solid #333;
+}
+
+.ToolbarIcon {
+    font-size: x-small;
+}
