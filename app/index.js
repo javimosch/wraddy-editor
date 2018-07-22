@@ -271,7 +271,7 @@ function configureStaticRoutes() {
 
 function configureFunctions() {
 	getFiles({
-		types:['function']
+		types: ['function']
 	}).then(res => {
 		res.forEach(file => {
 			try {
@@ -302,7 +302,14 @@ function configureServices() {
 				if (!app.service) {
 					app.service = {}
 				}
-				app.service[name] = impl
+				if (typeof impl === 'function') {
+					impl(app).then(result => {
+						app.service[name] = result
+					})
+				} else {
+					app.service[name] = impl
+				}
+
 			} catch (err) {
 				console.error(err.stack)
 			}
