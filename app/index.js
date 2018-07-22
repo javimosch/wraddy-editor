@@ -122,7 +122,7 @@ function configureDynamicMiddlewares() {
 			try {
 				console.log('Loading middleware', file.name)
 				var mod = requireFromString(file.code)
-				app.use(mod)
+				app.use(mod(app))
 			} catch (err) {
 				console.error(err.stack)
 			}
