@@ -3,6 +3,7 @@ require('dotenv').config({
 });
 const express = require('express')
 const app = express()
+const server = require('http').Server(app);
 const bodyParser = require('body-parser');
 const parseForm = bodyParser.urlencoded({
 	limit: '50mb',
@@ -21,6 +22,10 @@ const path = require('path');
 const VIEWS_BASE_DIR = __dirname
 const sander = require('sander')
 const requireFromString = require('require-from-string');
+
+app._server = server
+var require_install = require('require-install');
+app.requireInstall = require_install
 
 var socket
 if (process.env.SOCKET_URI) {
@@ -115,14 +120,22 @@ function configureDynamicViews() {
 
 function configureDynamicMiddlewares() {
 	getFiles({
-		tags: ['middleware']
+		types: ['middleware']
 	}).then(res => {
 		console.log('Middlewares', res.length)
 		res.forEach(file => {
 			try {
 				console.log('Loading middleware', file.name)
 				var mod = requireFromString(file.code)
-				app.use(mod(app))
+				var middleware = mod(app)
+				if (middleware instanceof Promise) {
+					middleware.then(impl => {
+						app.use(impl)
+					}).catch(err => console.error(err.stack))
+				} else {
+					app.use(middleware)
+				}
+
 			} catch (err) {
 				console.error(err.stack)
 			}
@@ -337,7 +350,7 @@ function configureDynamicRoutes() {
 }
 
 function onRouteDefinitionFinish() {
-	app.listen(PORT, function() {
+	server.listen(PORT, function() {
 		console.log('Listening on http://localhost:' + PORT)
 	})
 }
