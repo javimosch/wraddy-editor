@@ -1,14 +1,14 @@
 version: "3"
 services:
   app:
-      container_name: obraonline_wedev_org
+      container_name: __container__
       image: node:alpine
       volumes:
         - ./:/app
       working_dir: /app
       env_file: ./.env
       ports:
-        - 3500
+        - __port__
       command: npm run start
       restart: always
 networks:

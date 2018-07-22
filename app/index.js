@@ -23,16 +23,16 @@ const sander = require('sander')
 const requireFromString = require('require-from-string');
 
 var socket
-if(process.env.SOCKET_URI){
+if (process.env.SOCKET_URI) {
 	socket = require('socket.io-client')(process.env.SOCKET_URI);
 }
 
-socket.on('connect', function(){
+socket.on('connect', function() {
 	console.log('Socket online')
 });
-socket.on('event', function(data){});
-socket.on('disconnect', function(){});
-socket.on('save-file', function(){
+socket.on('event', function(data) {});
+socket.on('disconnect', function() {});
+socket.on('save-file', function() {
 	console.log('SAVE FILE, EXIT')
 	process.exit(0)
 });
@@ -47,25 +47,56 @@ app.data = {
 
 mongoose.set('debug', true);
 
-configureMiddlewares()
-configureStaticRoutes()
-configureDatabase()
-configureDynamicMiddlewares()
-//->configureServices
-//->configureDynamicRoutes
-//->onRouteDefinitionFinish
-//-> server listen
-configureDynamicViews()
+configureDatabase().then(() => {
+	configureMiddlewares()
+	configureStaticRoutes()
+	configureDynamicMiddlewares()
+	//->configureFunctions
+	//->configureServices
+	//->configureDynamicRoutes
+	//->onRouteDefinitionFinish
+	//-> server listen
+	configureDynamicViews()
+})
+
+async function getFiles(options) {
+	var {
+		types,
+		tags
+	} = options;
+	var pr = await mongoose.model('simback_project').findOne({
+		name: process.env.PROJECT,
+	});
+	if (types && !(types instanceof Array)) {
+		types = [types];
+	}
+	var conditions = {
+		_id: {
+			$in: pr.files
+		}
+	};
+	var or = {}
+	if (types && types.length > 0) {
+		or.type = {
+			$in: types
+		}
+	}
+	if (tags && tags.length > 0) {
+		or.tags = {
+			$in: tags
+		}
+	}
+	conditions.$or = [or, {
+		tags: {
+			$in: ['core']
+		}
+	}]
+	return await mongoose.model('simback_file').find(conditions).exec()
+}
 
 function configureDynamicViews() {
-	mongoose.model('simback_file').find({
-		$and: [{
-			tags: {
-				$in: ['forest-root']
-			}
-		}, {
-			type: 'pug'
-		}]
+	getFiles({
+		types: ['pug']
 	}).then(res => {
 		console.log('Views', res.length)
 		res.forEach(file => {
@@ -83,16 +114,8 @@ function configureDynamicViews() {
 }
 
 function configureDynamicMiddlewares() {
-	mongoose.model('simback_file').find({
-		$and: [{
-			tags: {
-				$in: ['forest-root']
-			}
-		}, {
-			tags: {
-				$in: ['middleware']
-			}
-		}]
+	getFiles({
+		tags: ['middleware']
 	}).then(res => {
 		console.log('Middlewares', res.length)
 		res.forEach(file => {
@@ -104,7 +127,7 @@ function configureDynamicMiddlewares() {
 				console.error(err.stack)
 			}
 		})
-		configureServices()
+		configureFunctions()
 	})
 }
 
@@ -133,6 +156,8 @@ function configureMiddlewares() {
 
 
 function configureStaticRoutes() {
+
+	/*
 	app.post('/login', parseForm, (req, res) => {
 		if (req.body.password === process.env.ROOT_PASSWORD) {
 			app.data.logged = true
@@ -168,7 +193,7 @@ function configureStaticRoutes() {
 		} else {
 			res.sendView('login');
 		}
-	});
+	});*/
 
 
 
@@ -207,15 +232,36 @@ function configureStaticRoutes() {
 
 	app.post('/rpc/save-file', parseJson, async (req, res) => {
 		try {
-			cache[req.body.name] = compileCode(req.body.code, true, {
-				type: req.body.type
-			});
-			mongoose.model('simback_file').findOneAndUpdate({
-				_id: req.body._id //,
-				//name: req.body.name
-			}, _.omit(req.body, ['_id', '__v']), {
-				upsert: true
-			}).exec();
+			if (!req.body._id) {
+				delete req.body._id;
+			}
+			delete cache[req.body.name];
+			var payload = _.omit(req.body, ['_id', '__v', 'createdAt', 'updatedAt'])
+			if (!req.body._id) {
+				var d = await mongoose.model('simback_file').create(payload)
+				payload._id = d._id
+			} else {
+				await mongoose.model('simback_file').findOneAndUpdate({
+					_id: req.body._id //,
+					//name: req.body.name
+				}, payload, {
+					upsert: true
+				}).exec();
+				payload._id = req.body._id
+			}
+
+
+			mongoose.model('simback_project').findOneAndUpdate({
+				name: process.env.PROJECT,
+				'files._id': {
+					$ne: payload._id
+				}
+			}, {
+				$addToSet: {
+					files: payload._id
+				}
+			})
+
 			res.status(200).json(req.body);
 		} catch (err) {
 			handleError(err, res)
@@ -223,17 +269,30 @@ function configureStaticRoutes() {
 	});
 }
 
+function configureFunctions() {
+	getFiles({
+		types:['function']
+	}).then(res => {
+		res.forEach(file => {
+			try {
+				console.log('Loading function', file.name)
+				var mod = requireFromString(file.code)
+				if (!app.fn) {
+					app.fn = {}
+				}
+				app.fn[file.name] = mod
+			} catch (err) {
+				console.error(err.stack)
+			}
+		})
+		configureServices();
+	})
+
+}
+
 function configureServices() {
-	mongoose.model('simback_file').find({
-		$and: [{
-			tags: {
-				$in: ['forest-root']
-			}
-		}, {
-			tags: {
-				$in: ['service']
-			}
-		}]
+	getFiles({
+		types: ['service']
 	}).then(res => {
 		console.log('Services', res.length)
 		res.forEach(file => {
@@ -253,16 +312,8 @@ function configureServices() {
 }
 
 function configureDynamicRoutes() {
-	mongoose.model('simback_file').find({
-		$and: [{
-			tags: {
-				$in: ['forest-root']
-			}
-		}, {
-			tags: {
-				$in: ['route']
-			}
-		}]
+	getFiles({
+		types: ['route']
 	}).then(res => {
 		console.log('Routes', res.length)
 		res.forEach(file => {
@@ -291,62 +342,80 @@ function handleError(err, res, status = 500) {
 
 
 function configureDatabase() {
-	if (!DB_URI) {
-		console.error('DB_URI required')
-		process.exit(0)
-	}
-	mongoose.connect(DB_URI, {
-		server: {
-			reconnectTries: Number.MAX_VALUE,
-			reconnectInterval: 1000
+	return new Promise((resolve, reject) => {
+		if (!DB_URI) {
+			console.error('DB_URI required')
+			process.exit(0)
 		}
-	});
+		mongoose.connect(DB_URI, {
+			server: {
+				reconnectTries: Number.MAX_VALUE,
+				reconnectInterval: 1000
+			}
+		});
 
-	const schema = new mongoose.Schema({
-		name: {
-			type: String,
-			required: true,
-			unique: true,
-			index: true
-		},
-		path: String,
-		tags: [String],
-		type: {
-			type: String,
-			required: true,
-			//enum: ['view', 'function', 'route', 'vueComponent']
-			//javascript, vueComponent, route, view, function, middleware, schedule)
-		},
-		code: {
-			type: String,
-			required: true
-		}
-	}, {
-		timestamps: true,
-		toObject: {}
-	});
-	mongoose.model('simback_file', schema);
-
-
-	mongoose.model('simback_file').find({
-		$and: [{
-			tags: {
-				$in: ['forest-root']
+		const schema = new mongoose.Schema({
+			name: {
+				type: String,
+				required: true,
+				unique: true,
+				index: true
+			},
+			path: String,
+			tags: [String],
+			type: {
+				type: String,
+				required: true,
+				//enum: ['view', 'function', 'route', 'vueComponent']
+				//javascript, vueComponent, route, view, function, middleware, schedule)
+			},
+			code: {
+				type: String,
+				required: true
 			}
 		}, {
-			tags: {
-				$in: ['schema']
-			}
-		}]
-	}).then(res => {
-		res.forEach(file => {
-			try {
-				console.log('Loading schema', file.name)
-				var mod = requireFromString(file.code)
-				mod(mongoose)
-			} catch (err) {
-				console.error(err.stack)
-			}
+			timestamps: true,
+			toObject: {}
+		});
+		mongoose.model('simback_file', schema);
+
+
+
+		mongoose.model('simback_project', new mongoose.Schema({
+			name: {
+				type: String,
+				required: true,
+				unique: true,
+				index: true
+			},
+			files: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'simback_file'
+			}],
+			users: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'simback_user'
+			}],
+		}, {
+			timestamps: true,
+			toObject: {}
+		}));
+
+
+
+		getFiles({
+			types: ['schema']
+		}).then(res => {
+			res.forEach(file => {
+				try {
+					console.log('Loading schema', file.name)
+					var mod = requireFromString(file.code)
+					mod(mongoose)
+				} catch (err) {
+					console.error(err.stack)
+				}
+			})
+			resolve();
 		})
 	})
 }
@@ -367,7 +436,7 @@ function compileCode(code, browser = false, opts = {
 	minified: false,
 	type: 'javascript'
 }) {
-	if (!['javascript', 'vueComponent'].includes(opts.type)) {
+	if (!['javascript', 'component'].includes(opts.type)) {
 		return code;
 	}
 	var targets = {
@@ -389,7 +458,3 @@ function compileCode(code, browser = false, opts = {
 		]
 	}).code;
 }
-
-
-
-//mongoose.model('simback_file').remove({}).exec()
