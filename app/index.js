@@ -22,6 +22,7 @@ const path = require('path');
 const VIEWS_BASE_DIR = __dirname
 const sander = require('sander')
 const requireFromString = require('require-from-string');
+const cors = require('cors')
 
 app._server = server
 var require_install = require('require-install');
@@ -97,6 +98,21 @@ async function getFiles(options) {
 		}
 	}]
 	return await mongoose.model('simback_file').find(conditions).exec()
+}
+async function getFunction(name) {
+	var pr = await mongoose.model('simback_project').findOne({
+		name: process.env.PROJECT,
+	});
+	var conditions = {
+		_id: {
+			$in: pr.files
+		},
+		type:{
+			$in:['rpc','function']
+		},
+		name
+	};
+	return await mongoose.model('simback_file').findOne(conditions).exec()
 }
 
 function configureDynamicViews() {
@@ -280,6 +296,27 @@ function configureStaticRoutes() {
 			handleError(err, res)
 		}
 	});
+
+
+	app.post('/rpc/:name', cors(), parseJson, async (req, res) => {
+		if(!req.params.name){
+			return res.status(500).send((new Error('Name required')).stack)
+		}
+		let doc = await getFunction(req.params.name)
+		try {
+			var mod = requireFromString(doc.code)
+			var fn = mod(app)
+			fn.apply({}, [req.body]).then(r => {
+				res.status(200).json(r)
+			}).catch(err => {
+				console.error(err.stack)
+				res.status(500).send(err.stack)
+			})
+		} catch (err) {
+			console.error(err.stack)
+			res.status(500).send()
+		}
+	})
 }
 
 function configureFunctions() {
