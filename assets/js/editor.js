@@ -18,7 +18,9 @@ new Vue({
 			},
 			project:'',
 			treeInit:false,
-			projectSelector:''
+			projectSelector:'',
+			rawLogs:'',
+			logsModal:false
 		}
 	},
 	watch:{
@@ -29,12 +31,20 @@ new Vue({
 		}
 	},
 	methods: {
+		async openLogsModal(){
+			this.logsModal = true
+			await httpPost(DROPLET_ADMIN_URI+'rpc/enableProjectLogs', {
+					project: this.project
+			},{
+				withCredentials: false
+			})
+		},
 		async mountTree(){
 			let tree = await httpPost('/rpc/getTree', {
 				project: this.project
 			})
 			let treeEl = $(this.$refs.tree)
-			treeEl.on("changed.jstree", async(e, data) =>{
+			treeEl.off("changed.jstree").on("changed.jstree", async(e, data) =>{
 				if(data.action === 'deselect_all'){
 					return;
 				}
@@ -60,11 +70,11 @@ new Vue({
 			}
 			
 		},
-		loadProjectFromCache(){
+		async loadProjectFromCache(){
 			var pr = window.localStorage.getItem('project')
 			if(pr){
 				this.project = pr
-				this.mountTree()
+				await this.mountTree()
 				this.projectSelector = this.project
 			}
 		},
@@ -83,7 +93,7 @@ new Vue({
 				children: (item.children || []).map((v,i)=>this.mapDirectoryTreeToJsTreeNode(v,i))
 			}
 		},
-		projectSelect(evt){
+		async projectSelect(evt){
 			var v = evt.target.value
 			if(v === 'new'){
 				window.location.href="/create-project"
@@ -93,7 +103,7 @@ new Vue({
 			}else{
 				this.project = v
 			}
-			this.mountTree()
+			await this.mountTree()
 		},
 		togglePreview(){
 			var htmlString=`<body>
@@ -177,9 +187,9 @@ new Vue({
 				}
 				data.tags = data.tags instanceof Array ? data.tags : data.tags.trim().split(',')
 				data.tags = data.tags.map(t=>t.trim())
-				httpPost('/rpc/save-file', data).then(r => {
+				httpPost('/rpc/save-file', data).then(async r => {
 					self.updateItems();
-					self.afterSave()
+					await self.afterSave()
 					new Noty({
 						type: 'info',
 						timeout: 2000,
@@ -205,8 +215,8 @@ new Vue({
 				});
 			})
 		},
-		afterSave(){
-			this.mountTree()
+		async afterSave(){
+			await this.mountTree()
 		},
 		updateItems() {
 			var self = this;
@@ -238,6 +248,10 @@ new Vue({
 		},
 		onEscapeCloseSidebars(e){
 			if (e.keyCode == 27) {
+
+				if(this.logsModal){
+					return this.logsModal =false
+				}
 
 				if($(this.$refs.searchModal).hasClass('active')){
 					return this.closeSearchModal()

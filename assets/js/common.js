@@ -9,7 +9,8 @@ function beautifyAceEditor(editor) {
 	}));
 }
 
-function httpPost(url, data){
+function httpPost(url, data, options){
+	var withCredentials = options && options.withCredentials == false ? false : true
 	return new Promise((resolve, reject)=>{
 		if(!data){
 			data = {};
@@ -22,7 +23,7 @@ function httpPost(url, data){
 	            data: JSON.stringify(data),
     			contentType: 'application/json; charset=utf-8',
 	            xhrFields: {
-	                withCredentials: true
+	                withCredentials: withCredentials
 	            }
 			}).always(function (response,status, xhr) {
 				if(status=='error'){

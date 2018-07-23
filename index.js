@@ -19,6 +19,7 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const requireFromString = require('require-from-string');
 const sander = require('sander')
+const cors = require('cors')
 var cache = {};
 mongoose.set('debug', true);
 io.on('connection', function(socket) {
@@ -29,6 +30,11 @@ app.data = {
 	views: {},
 	dynamicViewsPath: '/app/views/dynamic'
 }
+
+app._server = server
+var require_install = require('require-install');
+app.requireInstall = require_install
+
 app.lazyFn = (n) => {
 	return async (req, res, next) => {
 		return app.fn[n](req, res, next)
@@ -52,15 +58,17 @@ app.waitForService = async (n) => {
 	}
 }
 connectDatabase()
-loadRoutes()
-server.listen(PORT, function() {
-	console.log('Listening on http://localhost:' + PORT)
+loadModels().then(() => {
+	configureDynamicRoutes().then(() => {
+		loadRoutes()
+		server.listen(PORT, function() {
+			console.log('Listening on http://localhost:' + PORT)
+		})
+		updateViews()
+		configureFunctions()
+		configureServices()
+	})
 })
-loadModels()
-updateViews()
-configureFunctions()
-configureServices()
-
 
 function connectDatabase() {
 	mongoose.connect(DB_URI, {
@@ -71,6 +79,34 @@ function connectDatabase() {
 	});
 }
 
+async function getFiles(type) {
+	var pr = await mongoose.model('simback_project').findOne({
+		name: process.env.PROJECT,
+	});
+	var conditions = {
+		_id: {
+			$in: pr.files
+		},
+		type
+	};
+	return await mongoose.model('simback_file').find(conditions).exec()
+}
+
+async function configureDynamicRoutes() {
+	let res = await getFiles('route')
+	console.log('Routes', res.length)
+	res.forEach(file => {
+		try {
+			console.log('Loading route', file.name)
+			var mod = requireFromString(file.code)
+			mod(app)
+		} catch (err) {
+			console.error(err.stack)
+		}
+	})
+	return;
+}
+
 function loadRoutes() {
 
 	app.use('/', express.static(path.join(process.cwd(), 'assets')));
@@ -78,35 +114,37 @@ function loadRoutes() {
 	app.use((req, res, next) => {
 		res.sendView = (name, data = {}) => {
 			try {
+				data.DROPLET_ADMIN_URI = process.env.DROPLET_ADMIN_URI;
 				res.send(compileFileWithVars(name, data, req));
 			} catch (err) {
 				console.log(err);
 				res.status(500).send(err.stack);
 			}
 		}
-		res.sendDynamicView = (name, data, fail = ()=>{}) => {
+		res.sendDynamicView = (name, data, fail = () => {}) => {
 			mongoose.model('simback_file').findOne({
 				name
 			}).then(file => {
-				if(!file){
-					console.error('view',name,'do not exists')
-					if(fail){
+				if (!file) {
+					console.error('view', name, 'do not exists')
+					if (fail) {
 						fail()
-					}else{
+					} else {
 						res.status(500).send('unable to resolve view')
 					}
 				}
 				try {
 					res.send(compileWithVars(file.code, data, {
+						DROPLET_ADMIN_URI: process.env.DROPLET_ADMIN_URI,
 						filename: name,
-						basedir: process.cwd()+'/app/views/dynamic'
+						basedir: process.cwd() + '/app/views/dynamic'
 					}));
 				} catch (err) {
 					console.log(err);
 					res.status(500).send(err.stack);
-					if(fail){
+					if (fail) {
 						fail()
-					}else{
+					} else {
 						res.status(500).send('unable to resolve view')
 					}
 				}
@@ -217,7 +255,7 @@ function loadRoutes() {
 			projects: await app.service.bauiQueries.getProjects()
 		}
 		//res.sendDynamicView('editor-view',vars, ()=>{
-			res.sendView('editor-view', vars);	
+		res.sendView('editor-view', vars);
 		//})
 	});
 
@@ -248,7 +286,7 @@ function loadRoutes() {
 		next();
 	})
 
-	app.get('/resource/:type/:name', async (req, res) => {
+	app.get('/resource/:type/:name', cors(), async (req, res) => {
 		// http://localhost:3000/resource/vueComponent/tma-benefits-progress?ext=js
 		try {
 			var code = cache[req.params.name] || ''
@@ -282,8 +320,10 @@ function handleError(err, res, status = 500) {
 function compileFileWithVars(filePath, vars = {}, req) {
 	var p = path.join(process.cwd(), app.data.dynamicViewsPath, filePath.replace('.pug', '') + '.pug')
 	var p2 = path.join(process.cwd(), 'views', filePath.replace('.pug', '') + '.pug')
+	//p = p2
 	if (!sander.existsSync(p) && sander.existsSync(p2)) {
 		p = p2
+		//p2 = p
 	}
 	return pug.compileFile(p)(vars)
 }
@@ -291,7 +331,6 @@ function compileFileWithVars(filePath, vars = {}, req) {
 function compileWithVars(raw, vars = {}, options = {}) {
 	return pug.compile(raw, options)(vars)
 }
-
 
 function compileCode(code, browser = false, opts = {
 	minified: false,
@@ -320,61 +359,61 @@ function compileCode(code, browser = false, opts = {
 	}).code;
 }
 
-
-
 function loadModels() {
+	return new Promise((resolve, reject) => {
+		const schema = new mongoose.Schema({
+			name: {
+				type: String,
+				required: true,
+				unique: true,
+				index: true
+			},
+			path: String,
+			tags: [String],
+			type: {
+				type: String,
+				required: true,
+				//enum: ['view', 'function', 'route', 'vueComponent']
+				//javascript, vueComponent, route, view, function, middleware, schedule)
+			},
+			code: {
+				type: String,
+				required: true
+			}
+		}, {
+			timestamps: true,
+			toObject: {}
+		});
+		mongoose.model('simback_file', schema);
 
-	const schema = new mongoose.Schema({
-		name: {
-			type: String,
-			required: true,
-			unique: true,
-			index: true
-		},
-		path: String,
-		tags: [String],
-		type: {
-			type: String,
-			required: true,
-			//enum: ['view', 'function', 'route', 'vueComponent']
-			//javascript, vueComponent, route, view, function, middleware, schedule)
-		},
-		code: {
-			type: String,
-			required: true
-		}
-	}, {
-		timestamps: true,
-		toObject: {}
-	});
-	mongoose.model('simback_file', schema);
 
-
-	mongoose.model('simback_file').find({
-		$and: [{
-			$or: [{
-				tags: {
-					$in: ['forest-root']
-				}
+		mongoose.model('simback_file').find({
+			$and: [{
+				$or: [{
+					tags: {
+						$in: ['forest-root']
+					}
+				}, {
+					tags: {
+						$in: ['core']
+					}
+				}]
 			}, {
 				tags: {
-					$in: ['core']
+					$in: ['schema']
 				}
 			}]
-		}, {
-			tags: {
-				$in: ['schema']
-			}
-		}]
-	}).then(res => {
-		res.forEach(file => {
-			try {
-				console.log('Loading schema', file.name)
-				var mod = requireFromString(file.code)
-				mod(mongoose)
-			} catch (err) {
-				console.error(err.stack)
-			}
+		}).then(res => {
+			res.forEach(file => {
+				try {
+					console.log('Loading schema', file.name)
+					var mod = requireFromString(file.code)
+					mod(mongoose)
+				} catch (err) {
+					console.error(err.stack)
+				}
+			})
+			resolve();
 		})
 	})
 }
