@@ -1,3 +1,5 @@
+console.log('INIT')
+
 require('dotenv').config({
 	silent: true
 });
@@ -29,6 +31,7 @@ var require_install = require('require-install');
 app.requireInstall = require_install
 
 const io = require('socket.io')(server);
+app.io = io
 io.on('connection', function(socket) {
 	console.log('Socket connected')
 });
@@ -36,17 +39,17 @@ io.on('connection', function(socket) {
 var socket
 if (process.env.SOCKET_URI) {
 	socket = require('socket.io-client')(process.env.SOCKET_URI);
+	socket.on('connect', function() {
+		console.log('Socket online')
+	});
+	socket.on('event', function(data) {});
+	socket.on('disconnect', function() {});
+	socket.on('save-file', function() {
+		console.log('SAVE FILE, EXIT')
+		process.exit(0)
+	});
 }
 
-socket.on('connect', function() {
-	console.log('Socket online')
-});
-socket.on('event', function(data) {});
-socket.on('disconnect', function() {});
-socket.on('save-file', function() {
-	console.log('SAVE FILE, EXIT')
-	process.exit(0)
-});
 
 
 var cache = {};
@@ -199,7 +202,7 @@ function configureDynamicMiddlewares() {
 }
 
 function configureMiddlewares() {
-	app.use('/', express.static(path.join(process.cwd(), 'assets')));
+	
 
 	app.use((req, res, next) => {
 		req.logged = app.data.logged || false;
@@ -342,6 +345,7 @@ function configureStaticRoutes() {
 			if (payload.type.includes('function')) {
 				configureFunctions()
 			}
+			console.log('SEND', 'save-file')
 			io.emit('save-file')
 			res.status(200).json(req.body);
 		} catch (err) {
@@ -489,6 +493,7 @@ function configureDynamicRoutes() {
 }
 
 function onRouteDefinitionFinish() {
+	app.use('/', express.static(path.join(process.cwd(), 'assets')));
 	server.listen(PORT, function() {
 		console.log('Listening on http://localhost:' + PORT)
 	})
