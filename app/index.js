@@ -44,7 +44,12 @@ if (process.env.SOCKET_URI) {
 	});
 	socket.on('event', function(data) {});
 	socket.on('disconnect', function() {});
-	socket.on('save-file', function() {
+	socket.on('save-file', function(p) {
+		if (p && p.prs && !p.prs.includes(process.env.PROJECT)) {
+			return console.log('ANOTHER PR SAVE FILE, IGNORE');
+		}else{
+			console.log('PR SAVE FILE, EXIT')
+		}
 		console.log('SAVE FILE, EXIT')
 		process.exit(0)
 	});
@@ -202,7 +207,7 @@ function configureDynamicMiddlewares() {
 }
 
 function configureMiddlewares() {
-	
+
 
 	app.use((req, res, next) => {
 		req.logged = app.data.logged || false;
@@ -346,7 +351,14 @@ function configureStaticRoutes() {
 				configureFunctions()
 			}
 			console.log('SEND', 'save-file')
-			io.emit('save-file')
+
+			var prs = await mongoose.model('simback_project').find({
+				'files._id': payload._id
+			})
+
+			io.emit('save-file', {
+				prs
+			})
 			res.status(200).json(req.body);
 		} catch (err) {
 			console.error('ERROR', err.stack)
