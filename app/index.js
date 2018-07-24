@@ -28,6 +28,11 @@ app._server = server
 var require_install = require('require-install');
 app.requireInstall = require_install
 
+const io = require('socket.io')(server);
+io.on('connection', function(socket) {
+	console.log('Socket connected')
+});
+
 var socket
 if (process.env.SOCKET_URI) {
 	socket = require('socket.io-client')(process.env.SOCKET_URI);
@@ -49,6 +54,42 @@ var cache = {};
 app.data = {
 	logged: false,
 	views: {}
+}
+
+
+app.lazyFn = (n) => {
+	return async (req, res, next) => {
+		return app.fn[n](req, res, next)
+	}
+}
+app.wait = (seconds) => {
+	return new Promise((resolve, reject) => {
+		setTimeout(() => resolve(), seconds * 1000)
+	})
+}
+app.waitForFunction = async (n) => {
+	if (app.function && app.function[n]) {
+		return
+	} else {
+		for (var x = 1; x <= 20; x++) {
+			await app.wait(1)
+			if (app.function && app.function[n]) {
+				return
+			}
+		}
+	}
+}
+app.waitForService = async (n) => {
+	if (app.service && app.service[n]) {
+		return
+	} else {
+		for (var x = 1; x <= 20; x++) {
+			await app.wait(1)
+			if (app.service && app.service[n]) {
+				return
+			}
+		}
+	}
 }
 
 mongoose.set('debug', true);
@@ -73,6 +114,9 @@ async function getFiles(options) {
 	var pr = await mongoose.model('simback_project').findOne({
 		name: process.env.PROJECT,
 	});
+	if (!pr) {
+		throw new Error('PR not found!')
+	}
 	if (types && !(types instanceof Array)) {
 		types = [types];
 	}
@@ -81,22 +125,16 @@ async function getFiles(options) {
 			$in: pr.files
 		}
 	};
-	var or = {}
 	if (types && types.length > 0) {
-		or.type = {
+		conditions.type = {
 			$in: types
 		}
 	}
 	if (tags && tags.length > 0) {
-		or.tags = {
+		conditions.tags = {
 			$in: tags
 		}
 	}
-	conditions.$or = [or, {
-		tags: {
-			$in: ['core']
-		}
-	}]
 	return await mongoose.model('simback_file').find(conditions).exec()
 }
 async function getFunction(name) {
@@ -107,8 +145,8 @@ async function getFunction(name) {
 		_id: {
 			$in: pr.files
 		},
-		type:{
-			$in:['rpc','function']
+		type: {
+			$in: ['rpc', 'function']
 		},
 		name
 	};
@@ -186,43 +224,42 @@ function configureMiddlewares() {
 
 function configureStaticRoutes() {
 
-	/*
-	app.post('/login', parseForm, (req, res) => {
-		if (req.body.password === process.env.ROOT_PASSWORD) {
-			app.data.logged = true
+	app.get('/asset/:type/:name', async (req, res) => {
+		var mongoose = require('mongoose')
+		app.cache = app.cache || {}
+		var cache = app.cache
+		var id = () => {
+			return `${process.env.PROJECT}_${req.params.type}_${req.params.name}`
 		}
-		res.redirect('/')
-	})
-
-	app.get('/restart-process', (req, res) => {
-		if (!req.logged) {
-			res.redirect('/')
+		try {
+			var code = cache[id()] || ''
+			if (!code) {
+				var pr = await mongoose.model('simback_project').findOne({
+					name: process.env.PROJECT,
+				});
+				var file = await mongoose.model('simback_file').findOne({
+					name: req.params.name,
+					type: req.params.type,
+					_id: {
+						$in: pr.files
+					}
+				}).exec();
+				if (!file) {
+					return res.send(`console.warn("WARN","File not found","${process.env.PROJECT}","${req.params.type}","${req.params.name}");`)
+				}
+				code = compileCode(file.code, true, {
+					minified: req.query.minified === '1',
+					type: file.type
+				});
+				cache[id()] = code;
+			}
+			res.type('.' + req.query.ext)
+			res.send(code);
+		} catch (err) {
+			console.error('ERROR', err.stack)
+			res.send(err.stack);
 		}
-		res.redirect('/')
-		setTimeout(function() {
-			console.log('graceful process restart')
-			process.exit(0)
-		}, 1000)
 	})
-
-	app.get('/logout', (req, res) => {
-		app.data.logged = false
-		res.redirect('/')
-	})
-
-	app.get('/', async (req, res) => {
-		if (req.logged) {
-			let sitesExists = await sander.exists(path.join(process.cwd(), 'sites'))
-			let sites = (sitesExists && (await sander.readdir(path.join(process.cwd(), 'sites')))) || []
-
-			res.sendView('dashboard', {
-				sites,
-				sitesExists
-			});
-		} else {
-			res.sendView('login');
-		}
-	});*/
 
 
 
@@ -259,6 +296,60 @@ function configureStaticRoutes() {
 		}
 	})
 
+	app.post('/save-editor-file', parseJson, async (req, res) => {
+		try {
+			if (!req.body._id) {
+				delete req.body._id;
+			}
+			delete cache[req.body.name];
+			var payload = _.omit(req.body, ['_id', '__v', 'createdAt', 'updatedAt'])
+			if (!req.body._id) {
+				var d = await mongoose.model('simback_file').create(payload)
+				payload._id = d._id
+			} else {
+				await mongoose.model('simback_file').findOneAndUpdate({
+					_id: req.body._id //,
+					//name: req.body.name
+				}, payload, {
+					upsert: true
+				}).exec();
+				payload._id = req.body._id
+			}
+			if (req.body.project) {
+				let doc = await mongoose.model('simback_project').findById(req.body.project).exec()
+				if (doc) {
+
+					var conditions = {
+						_id: req.body.project,
+						'files._id': {
+							$ne: payload._id
+						}
+					};
+					var update = {
+						$addToSet: {
+							files: payload._id
+						}
+					}
+					await mongoose.model('simback_project').findOneAndUpdate(conditions, update).exec()
+				}
+			}
+			if (payload.type === 'pug') {
+				configureDynamicViews()
+			}
+			if (payload.tags.includes('service')) {
+				configureServices()
+			}
+			if (payload.type.includes('function')) {
+				configureFunctions()
+			}
+			io.emit('save-file')
+			res.status(200).json(req.body);
+		} catch (err) {
+			console.error('ERROR', err.stack)
+			res.status(500).send(err.stack)
+		}
+	});
+
 	app.post('/rpc/save-file', parseJson, async (req, res) => {
 		try {
 			if (!req.body._id) {
@@ -279,33 +370,44 @@ function configureStaticRoutes() {
 				payload._id = req.body._id
 			}
 
+			if (req.body.project) {
+				let doc = await mongoose.model('simback_project').findById(req.body.project).exec()
+				if (doc) {
 
-			mongoose.model('simback_project').findOneAndUpdate({
-				name: process.env.PROJECT,
-				'files._id': {
-					$ne: payload._id
+					var conditions = {
+						_id: req.body.project,
+						'files._id': {
+							$ne: payload._id
+						}
+					};
+					var update = {
+						$addToSet: {
+							files: payload._id
+						}
+					}
+					await mongoose.model('simback_project').findOneAndUpdate(conditions, update).exec()
 				}
-			}, {
-				$addToSet: {
-					files: payload._id
-				}
-			})
+			}
 
 			res.status(200).json(req.body);
 		} catch (err) {
-			handleError(err, res)
+			console.error(err.stack)
+			res.status(500).send(err.stack)
 		}
 	});
 
 
 	app.post('/rpc/:name', cors(), parseJson, async (req, res) => {
-		if(!req.params.name){
+		if (!req.params.name) {
 			return res.status(500).send((new Error('Name required')).stack)
 		}
 		let doc = await getFunction(req.params.name)
 		try {
 			var mod = requireFromString(doc.code)
 			var fn = mod(app)
+			if (!fn.apply) {
+				throw new Error('Not a function: ' + fn.toString())
+			}
 			fn.apply({}, [req.body]).then(r => {
 				res.status(200).json(r)
 			}).catch(err => {
@@ -314,7 +416,7 @@ function configureStaticRoutes() {
 			})
 		} catch (err) {
 			console.error(err.stack)
-			res.status(500).send()
+			res.status(500).send(err.stack)
 		}
 	})
 }
@@ -445,6 +547,7 @@ function configureDatabase() {
 				unique: true,
 				index: true
 			},
+			envs: Object,
 			files: [{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: 'simback_file'
@@ -453,6 +556,27 @@ function configureDatabase() {
 				type: mongoose.Schema.Types.ObjectId,
 				ref: 'simback_user'
 			}],
+		}, {
+			timestamps: true,
+			toObject: {}
+		}));
+
+		mongoose.model('simback_package', new mongoose.Schema({
+			name: {
+				type: String,
+				required: true,
+				unique: true,
+				index: true
+			},
+			project: {
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'simback_project',
+				index: true
+			},
+			files: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'simback_file'
+			}]
 		}, {
 			timestamps: true,
 			toObject: {}
