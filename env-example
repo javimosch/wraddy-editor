@@ -7,3 +7,4 @@ VIRTUAL_PORT=__port__
 PORT=__port__
 LETSENCRYPT_EMAIL=arancibiajav@gmail.com
 PROJECT=__project__
+DROPLET_ADMIN_URI=http://178.128.254.49:8083/
