@@ -8,7 +8,7 @@ sander.writeFileSync(process.cwd()+'/docker-compose.yaml',f)
 f = sander.readFileSync(process.cwd()+'/env-example').toString('utf-8')
 f = f
 	.split('__domain__').join(argv.domain)
-	.replace('__port__', argv.port)
+	.split('__port__').join(argv.port)
 	.replace('__db__', argv.db)
 	.replace('__socket__', argv.socket)
 	.replace('__project__', argv.project)

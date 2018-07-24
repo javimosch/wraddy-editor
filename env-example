@@ -4,5 +4,6 @@ DB_URI=__db__
 SOCKET_URI=__socket__
 NODE_ENV=production
 VIRTUAL_PORT=__port__
+PORT=__port__
 LETSENCRYPT_EMAIL=arancibiajav@gmail.com
 PROJECT=__project__
