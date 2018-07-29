@@ -1,4 +1,0 @@
-PORT=3001
-DB_URI=mongodb://admin:pass@178.128.254.49:27017/wrapkend
-DROPLET_ADMIN_URI=http://178.128.254.49:8083/
-PROJECT=editor.wedev.org

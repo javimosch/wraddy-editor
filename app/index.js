@@ -46,9 +46,7 @@ if (process.env.SOCKET_URI) {
 	socket.on('disconnect', function() {});
 	socket.on('save-file', function(p) {
 		if (p && p.prs && !p.prs.includes(process.env.PROJECT)) {
-			return console.log('ANOTHER PR SAVE FILE, IGNORE');
-		}else{
-			console.log('PR SAVE FILE, EXIT')
+			return console.log('ANOTHER PR SAVE FILE, IGNORE', process.env.PROJECT, p.prs);
 		}
 		console.log('SAVE FILE, EXIT')
 		process.exit(0)
