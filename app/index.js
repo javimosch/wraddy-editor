@@ -33,19 +33,19 @@ app.requireInstall = require_install
 const io = require('socket.io')(server);
 app.io = io
 io.on('connection', function(socket) {
-	console.log('Socket connected')
+	console.log('Socket client connected')
 });
 
 var socket
 if (process.env.SOCKET_URI) {
 	socket = require('socket.io-client')(process.env.SOCKET_URI);
 	socket.on('connect', function() {
-		console.log('Socket online')
+		console.log('Socket connected to host',process.env.SOCKET_URI)
 	});
 	socket.on('event', function(data) {});
 	socket.on('disconnect', function() {});
 	socket.on('save-file', function(p) {
-		if (p && p.prs && !p.prs.includes(process.env.PROJECT)) {
+		if (p && p.prs && p.prs.length>0 && !p.prs.includes(process.env.PROJECT)) {
 			return console.log('ANOTHER PR SAVE FILE, IGNORE', process.env.PROJECT, p.prs);
 		}
 		console.log('SAVE FILE, EXIT')
@@ -350,10 +350,10 @@ function configureStaticRoutes() {
 			}
 			console.log('SEND', 'save-file')
 
-			var prs = await mongoose.model('simback_project').find({
-				'files._id': payload._id
-			})
-
+			var prs = (await mongoose.model('simback_project').find({
+				'files': payload._id
+			})).map(pr=>pr._id)
+			console.log('socket save-file prs', prs)
 			io.emit('save-file', {
 				prs
 			})
