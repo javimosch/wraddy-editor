@@ -201,12 +201,13 @@ a {
     font-weight: bold;
     font-style: inherit;
 }
-.HomeSearch::placeholder { 
+
+.HomeSearch::placeholder {
     font-family: Roboto, sans-serif;
     font-weight: 100;
     font-size: 10px;
     font-style: italic;
-    opacity:0.8;
+    opacity: 0.8;
 }
 
 .SmallInput:hover,
@@ -218,7 +219,7 @@ a {
     box-shadow: none;
     outline: 0px;
     border-color: gainsboro;
-    opacity:1;
+    opacity: 1;
 }
 
 .HomeTitle:focus,
@@ -236,7 +237,7 @@ a {
     letter-spacing: 11px;
     position: relative;
     left: 3px;
-    font-variant: unicase;
+    text-transform: uppercase;
     border: 0px;
     font-size: 30px;
 }
