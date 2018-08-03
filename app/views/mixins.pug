@@ -1,0 +1,31 @@
+mixin top(title)
+	head
+		title!=`${title} - Wrapkend CI2`
+
+		link(rel='shortcut icon', href='/favicon.ico', type='image/x-icon')
+		link(rel='icon', href='/favicon.ico', type='image/x-icon')
+		link(rel="stylesheet", 
+		href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700|Open+Sans:300,400,600,700")
+		link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css")
+		link(rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous')
+		link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css')
+		link(rel='stylesheet' href="/css/styles.css")
+
+mixin bottom()
+	//nothing yet
+
+mixin scripts(name)
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js")
+	script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js")
+	script(async src="https://pro.fontawesome.com/releases/v5.0.8/js/all.js")
+	script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js')
+	script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js')
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ext-language_tools.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify.min.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify-css.min.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.min.js")
+	script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js")
+	script(src="/js/common.js")
+	script(src=`/js/${name}.js` type="module")

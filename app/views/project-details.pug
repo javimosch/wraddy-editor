@@ -1,0 +1,30 @@
+include mixins.pug
+
++top(project?project.label||project.name:'New Project')
+body
+	#app
+		.row.no-gutters
+			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
+				.form.ProjectsForm.container
+					.row.position-relative
+						.col-12
+							a.Button.btn.btn-primary(href="/projects") Projects
+							a.Button.btn.btn-primary.ml-2(:href="'/?projectId='+pr._id" v-show="pr._id") Editor
+						.col-12.mt-5
+							label.SmallLabel Name
+							input.SmallInput.form-control.email(v-model="pr.name")
+						.col-12.mt-3
+							label.SmallLabel Label
+							input.SmallInput.form-control.email(v-model="pr.label")
+						.col-12.mt-3
+							label.SmallLabel Brief description
+							input.SmallInput.form-control.email(v-model="pr.shortText")
+						.col-12.mt-4.position-relative()
+							p.ShortErrorMessage(v-html="err" v-show="err")
+						.col-12.mt-5
+							button.Button.btn.btn-primary(:disabled="!ableToSave" @click="save") Save
+						
+	script.
+		window.project = JSON.parse(`!{JSON.stringify(project)}`)
+	+scripts('project')
++bottom()

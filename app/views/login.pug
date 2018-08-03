@@ -1,3 +1,26 @@
-form(action="/login" method="post")
-	input(type="password", name="password")
-	button login
+include mixins.pug
+
++top('Login')
+body
+	#app
+		.row.no-gutters
+			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
+				.form.LoginForm(action="/login" method="post")
+					.row.position-relative
+						.col-12
+							label.SmallLabel Email
+							input.SmallInput.form-control.email(v-model="email")
+						.col-12.mt-2
+							label.SmallLabel Password
+							input.SmallInput.form-control.password(v-model="password" type="password")
+						.col-12.mt-1
+							a(href="/register") Create account
+						.col-12.mt-1
+							a(href="/reset-password") Reset password
+						.col-12.mt-3
+								button.Button.btn.btn-primary.mx-auto.d-block(@click="login") Enter
+						.col-12.mt-4.position-relative()
+							p.ShortErrorMessage(v-html="err" v-show="err")
+
+	+scripts('login')
++bottom()

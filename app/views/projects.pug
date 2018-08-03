@@ -1,0 +1,21 @@
+include mixins.pug
+
++top('Projects')
+body
+	#app
+		.row.no-gutters
+			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
+				.form.ProjectsForm.container
+					.row.no-gutters.position-relative
+						each pr, index in projects
+							.col-12.clearfix.ProjectItem.d-flex.justify-content-left.align-items-center
+								h4.ProjectItemText.m-0.text-center.float-left!=`${pr.name}`
+								div.ProjectItemIcon.float-right.ml-3
+									a(href="/?projectId="+pr._id)
+										i.fas.fa-folder-open
+								div.ProjectItemIcon.float-right.ml-2
+									a(href=`/project/${pr._id}/edit`)
+										i.fas.fa-edit
+
+	+scripts('projects')
++bottom()

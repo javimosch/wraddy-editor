@@ -1,18 +1,16 @@
-console.log('INIT')
-
 require('dotenv').config({
-	silent: true
+    silent: true
 });
 const express = require('express')
 const app = express()
 const server = require('http').Server(app);
 const bodyParser = require('body-parser');
 const parseForm = bodyParser.urlencoded({
-	limit: '50mb',
-	extended: false
+    limit: '50mb',
+    extended: false
 })
 const parseJson = bodyParser.json({
-	limit: '50mb'
+    limit: '50mb'
 })
 const _ = require('lodash');
 const pug = require('pug');
@@ -25,632 +23,383 @@ const VIEWS_BASE_DIR = __dirname
 const sander = require('sander')
 const requireFromString = require('require-from-string');
 const cors = require('cors')
-
-app._server = server
 var require_install = require('require-install');
 app.requireInstall = require_install
-
-const io = require('socket.io')(server);
-app.io = io
-io.on('connection', function(socket) {
-	console.log('Socket client connected')
-});
-
-var socket
-if (process.env.SOCKET_URI) {
-	socket = require('socket.io-client')(process.env.SOCKET_URI);
-	socket.on('connect', function() {
-		console.log('Socket connected to host',process.env.SOCKET_URI)
-	});
-	socket.on('event', function(data) {});
-	socket.on('disconnect', function() {});
-	socket.on('save-file', function(p) {
-		if (p && p.prs && p.prs.length>0 && !p.prs.includes(process.env.PROJECT)) {
-			return console.log('ANOTHER PR SAVE FILE, IGNORE', process.env.PROJECT, p.prs);
-		}
-		console.log('SAVE FILE, EXIT')
-		process.exit(0)
-	});
-}
+mongoose.set('debug', process.env.MONGODB_DEBUG === '0' ? false : true);
 
 
 
-var cache = {};
-
-app.data = {
-	logged: false,
-	views: {}
-}
-
-
-app.lazyFn = (n) => {
-	return async (req, res, next) => {
-		return app.fn[n](req, res, next)
-	}
-}
-app.wait = (seconds) => {
-	return new Promise((resolve, reject) => {
-		setTimeout(() => resolve(), seconds * 1000)
-	})
-}
-app.waitForFunction = async (n) => {
-	if (app.function && app.function[n]) {
-		return
-	} else {
-		for (var x = 1; x <= 20; x++) {
-			await app.wait(1)
-			if (app.function && app.function[n]) {
-				return
-			}
-		}
-	}
-}
-app.waitForService = async (n) => {
-	if (app.service && app.service[n]) {
-		return
-	} else {
-		for (var x = 1; x <= 20; x++) {
-			await app.wait(1)
-			if (app.service && app.service[n]) {
-				return
-			}
-		}
-	}
-}
-
-mongoose.set('debug', true);
-
-configureDatabase().then(() => {
-	configureMiddlewares()
-	configureStaticRoutes()
-	configureDynamicMiddlewares()
-	//->configureFunctions
-	//->configureServices
-	//->configureDynamicRoutes
-	//->onRouteDefinitionFinish
-	//-> server listen
-	configureDynamicViews()
-})
-
-async function getFiles(options) {
-	var {
-		types,
-		tags
-	} = options;
-	var pr = await mongoose.model('simback_project').findOne({
-		name: process.env.PROJECT,
-	});
-	if (!pr) {
-		throw new Error('PR not found!')
-	}
-	if (types && !(types instanceof Array)) {
-		types = [types];
-	}
-	var conditions = {
-		_id: {
-			$in: pr.files
-		}
-	};
-	if (types && types.length > 0) {
-		conditions.type = {
-			$in: types
-		}
-	}
-	if (tags && tags.length > 0) {
-		conditions.tags = {
-			$in: tags
-		}
-	}
-	return await mongoose.model('simback_file').find(conditions).exec()
-}
-async function getFunction(name) {
-	var pr = await mongoose.model('simback_project').findOne({
-		name: process.env.PROJECT,
-	});
-	var conditions = {
-		_id: {
-			$in: pr.files
-		},
-		type: {
-			$in: ['rpc', 'function']
-		},
-		name
-	};
-	return await mongoose.model('simback_file').findOne(conditions).exec()
-}
-
-function configureDynamicViews() {
-	getFiles({
-		types: ['pug']
-	}).then(res => {
-		console.log('Views', res.length)
-		res.forEach(file => {
-			try {
-				file.name = file.name.split('.')[0]
-				console.log('Loading view', file.name)
-				app.data.views[file.name] = file.code
-				sander.writeFileSync(path.join(process.cwd(), 'app/views/dynamic', file.name + '.pug'), file.code)
-			} catch (err) {
-				console.error(err.stack)
-			}
-		})
-
-	})
-}
-
-function configureDynamicMiddlewares() {
-	getFiles({
-		types: ['middleware']
-	}).then(res => {
-		console.log('Middlewares', res.length)
-		res.forEach(file => {
-			try {
-				console.log('Loading middleware', file.name)
-				var mod = requireFromString(file.code)
-				var middleware = mod(app)
-				if (middleware instanceof Promise) {
-					middleware.then(impl => {
-						app.use(impl)
-					}).catch(err => console.error(err.stack))
-				} else {
-					app.use(middleware)
-				}
-
-			} catch (err) {
-				console.error(err.stack)
-			}
-		})
-		configureFunctions()
-	})
+function compileFileWithVars(filePath, vars = {}, req) {
+    var p = path.join(VIEWS_BASE_DIR, 'views', filePath.replace('.pug', '') + '.pug')
+    if (sander.existsSync(p)) {
+        return pug.compileFile(p)(vars)
+    } else {
+        p = path.join(VIEWS_BASE_DIR, 'views/dynamic', filePath.replace('.pug', '') + '.pug')
+        if (sander.existsSync(p)) {
+            return pug.compileFile(p)(vars)
+        } else {
+        	return `View ${filePath} not found`
+        }
+    }
 }
 
 function configureMiddlewares() {
-
-
-	app.use((req, res, next) => {
-		req.logged = app.data.logged || false;
-		res.sendView = (name, data = {}) => {
-			try {
-				res.send(compileFileWithVars(name, data, req));
-			} catch (err) {
-				console.log(err);
-				res.status(500).send('Ups');
-			}
-		}
-		next();
-	});
-
-	app.use(parseJson, (req, res, next) => {
-		console.log('REQ', req.method, req.url, Object.keys(req.body).map(k => k + (!req.body ? ':Empty' : '')).join(', '))
-		next();
-	})
+    cookieParser = app.requireInstall('cookie-parser')
+    app.use(cookieParser())
+    app.use((req, res, next) => {
+        res.sendView = (name, data = {}) => {
+            data.user = req.user || {}
+            try {
+                res.send(compileFileWithVars(name, data, req));
+            } catch (err) {
+                console.log('ERROR', err.stack);
+                res.status(500).send(err.stack);
+            }
+        }
+        next();
+    });
+    app.use(async(req, res, next) => {
+        try {
+            if (!req.cookies) {
+                console.log('WARN: cookie-parser required')
+            }
+            let auth = req.cookies && req.cookies.auth
+            if (auth) {
+                var atob = app.requireInstall('atob')
+                auth = atob(auth)
+                auth = JSON.parse(auth)
+                let doc = await require('mongoose').model('cloud_user').findOne({
+                    email: auth.email,
+                    password: auth.password
+                }).exec()
+                if (doc) {
+                    console.log('authenticate ok')
+                    req.user = doc;
+                }
+            }
+            next()
+        } catch (err) {
+            console.error(err.stack)
+            res.send(err.stack)
+        }
+    })
 }
 
 
+configureDatabase().then(() => {
 
-function configureStaticRoutes() {
-
-	app.get('/asset/:type/:name', async (req, res) => {
-		var mongoose = require('mongoose')
-		app.cache = app.cache || {}
-		var cache = app.cache
-		var id = () => {
-			return `${process.env.PROJECT}_${req.params.type}_${req.params.name}`
-		}
-		try {
-			var code = cache[id()] || ''
-			if (!code) {
-				var pr = await mongoose.model('simback_project').findOne({
-					name: process.env.PROJECT,
-				});
-				var file = await mongoose.model('simback_file').findOne({
-					name: req.params.name,
-					type: req.params.type,
-					_id: {
-						$in: pr.files
-					}
-				}).exec();
-				if (!file) {
-					return res.send(`console.warn("WARN","File not found","${process.env.PROJECT}","${req.params.type}","${req.params.name}");`)
-				}
-				code = compileCode(file.code, true, {
-					minified: req.query.minified === '1',
-					type: file.type
-				});
-				cache[id()] = code;
-			}
-			res.type('.' + req.query.ext)
-			res.send(code);
-		} catch (err) {
-			console.error('ERROR', err.stack)
-			res.send(err.stack);
-		}
-	})
+    configureMiddlewares()
 
 
+    app.use(parseJson, (req, res, next) => {
+        console.log('REQ', req.method, req.url, Object.keys(req.body).map(k => k + (!req.body ? ':Empty' : '')).join(', '))
+        next();
+    })
 
-	app.get('/resource/:type/:name', async (req, res) => {
-		// http://localhost:3000/resource/vueComponent/tma-benefits-progress?ext=js
-		try {
-			var code = cache[req.params.name] || ''
-			if (!code) {
-				var file = await mongoose.model('simback_file').findOne({
-					name: req.params.name,
-					type: req.params.type
-				}).exec();
-				code = compileCode(file.code, true, {
-					minified: req.query.minified === '1',
-					type: file.type
-				});
-				cache[file.name] = code;
-			}
-			res.type('.' + req.query.ext)
-			res.send(code);
-		} catch (err) {
-			handleError(err, res, 404);
-		}
-	})
+    app.get('/', async(req, res) => {
+        if (!req.user) {
+            return res.redirect('/login')
+        }
+        if(!req.query.projectId){
+            res.redirect('/projects');
+        }
+        res.sendView('home', {
+            fileTypes: ['javascript', 'function', 'middleware', 'pug', 'route', 'markdown'],
+            project: await mongoose.model('project').findById(req.query.projectId).exec()
+        })
+    })
+    app.get('/projects', async(req, res) => {
+        if (!req.user) {
+            return res.redirect('/login')
+        }
+        res.sendView('projects', {
+            projects: await mongoose.model('project').find({
+                users: {
+                    $in: [req.user._id]
+                }
+            }).exec()
+        })
+    })
+    app.get('/project/:id/edit', async(req, res) => {
+        if (!req.user) {
+            return res.redirect('/login')
+        }
+        res.sendView('project-details', {
+            project: await mongoose.model('project').findById(req.params.id).exec()
+        })
+    })
+    app.get('/login', (req, res) => {
+        if (req.user) {
+            return res.redirect('/')
+        }
+        res.sendView('login', {
 
-	app.post('/rpc/fetch', parseJson, async (req, res) => {
-		try {
-			let list = await mongoose.model('simback_file').find({
-				//type: req.body.type
-			}).exec();
-			res.status(200).json(list);
-		} catch (err) {
-			handleError(err, res)
-		}
-	})
+        })
+    })
+    app.post('/login', parseJson, async(req, res) => {
+        try {
+            let doc = await require('mongoose').model('cloud_user').findOne({
+                email: req.body.email,
+                password: req.body.password
+            })
+            if (doc) {
+                var btoa = app.requireInstall('btoa')
+                res.cookie('auth', btoa(JSON.stringify({
+                    email: req.body.email,
+                    password: req.body.password
+                })))
+                return res.status(200).send()
+            }
+            res.json({
+                err: "Invalid credentials"
+            })
+        } catch (err) {
+            console.error('ERROR', err.stack)
+            res.json({
+                err: "Server error"
+            })
+        }
+    })
 
-	app.post('/save-editor-file', parseJson, async (req, res) => {
-		try {
-			if (!req.body._id) {
-				delete req.body._id;
-			}
-			delete cache[req.body.name];
-			var payload = _.omit(req.body, ['_id', '__v', 'createdAt', 'updatedAt'])
-			if (!req.body._id) {
-				var d = await mongoose.model('simback_file').create(payload)
-				payload._id = d._id
-			} else {
-				await mongoose.model('simback_file').findOneAndUpdate({
-					_id: req.body._id //,
-					//name: req.body.name
-				}, payload, {
-					upsert: true
-				}).exec();
-				payload._id = req.body._id
-			}
-			if (req.body.project) {
-				let doc = await mongoose.model('simback_project').findById(req.body.project).exec()
-				if (doc) {
-
-					var conditions = {
-						_id: req.body.project,
-						'files._id': {
-							$ne: payload._id
-						}
-					};
-					var update = {
-						$addToSet: {
-							files: payload._id
-						}
-					}
-					await mongoose.model('simback_project').findOneAndUpdate(conditions, update).exec()
-				}
-			}
-			if (payload.type === 'pug') {
-				configureDynamicViews()
-			}
-			if (payload.tags.includes('service')) {
-				configureServices()
-			}
-			if (payload.type.includes('function')) {
-				configureFunctions()
-			}
-			console.log('SEND', 'save-file')
-
-			var prs = (await mongoose.model('simback_project').find({
-				'files': payload._id
-			})).map(pr=>pr._id)
-			console.log('socket save-file prs', prs)
-			io.emit('save-file', {
-				prs
-			})
-			res.status(200).json(req.body);
-		} catch (err) {
-			console.error('ERROR', err.stack)
-			res.status(500).send(err.stack)
-		}
-	});
-
-	app.post('/rpc/save-file', parseJson, async (req, res) => {
-		try {
-			if (!req.body._id) {
-				delete req.body._id;
-			}
-			delete cache[req.body.name];
-			var payload = _.omit(req.body, ['_id', '__v', 'createdAt', 'updatedAt'])
-			if (!req.body._id) {
-				var d = await mongoose.model('simback_file').create(payload)
-				payload._id = d._id
-			} else {
-				await mongoose.model('simback_file').findOneAndUpdate({
-					_id: req.body._id //,
-					//name: req.body.name
-				}, payload, {
-					upsert: true
-				}).exec();
-				payload._id = req.body._id
-			}
-
-			if (req.body.project) {
-				let doc = await mongoose.model('simback_project').findById(req.body.project).exec()
-				if (doc) {
-
-					var conditions = {
-						_id: req.body.project,
-						'files._id': {
-							$ne: payload._id
-						}
-					};
-					var update = {
-						$addToSet: {
-							files: payload._id
-						}
-					}
-					await mongoose.model('simback_project').findOneAndUpdate(conditions, update).exec()
-				}
-			}
-
-			res.status(200).json(req.body);
-		} catch (err) {
-			console.error(err.stack)
-			res.status(500).send(err.stack)
-		}
-	});
+    app.get('/logout', (req, res) => {
+        res.cookie('auth', '')
+        res.redirect('/')
+    })
 
 
-	app.post('/rpc/:name', cors(), parseJson, async (req, res) => {
-		if (!req.params.name) {
-			return res.status(500).send((new Error('Name required')).stack)
-		}
-		let doc = await getFunction(req.params.name)
-		try {
-			var mod = requireFromString(doc.code)
-			var fn = mod(app)
-			if (!fn.apply) {
-				throw new Error('Not a function: ' + fn.toString())
-			}
-			fn.apply({}, [req.body]).then(r => {
-				res.status(200).json(r)
-			}).catch(err => {
-				console.error(err.stack)
-				res.status(500).send(err.stack)
-			})
-		} catch (err) {
-			console.error(err.stack)
-			res.status(500).send(err.stack)
-		}
-	})
-}
+    app.post('/search', parseJson, async(req, res) => {
+        try {
+            let text = (req.body.text || '').toLowerCase();
+            let list = await mongoose.model('file').find({
+                $or: [
+                    { name: new RegExp(text, 'i') },
+                    { type: new RegExp(text, 'i') }
+                ]
+            }).select('_id name type').exec();
+            res.status(200).json(list);
+        } catch (err) {
+            handleError(err, res, true)
+        }
+    })
 
-function configureFunctions() {
-	getFiles({
-		types: ['function']
-	}).then(res => {
-		res.forEach(file => {
-			try {
-				console.log('Loading function', file.name)
-				var mod = requireFromString(file.code)
-				if (!app.fn) {
-					app.fn = {}
-				}
-				app.fn[file.name] = mod
-			} catch (err) {
-				console.error(err.stack)
-			}
-		})
-		configureServices();
-	})
+    app.post('/getFile', parseJson, async(req, res) => {
+        try {
+            let _id = req.body._id;
+            let single = await mongoose.model('file').findOne({
+                _id
+            }).select('_id name type code').exec();
+            res.status(200).json(single);
+        } catch (err) {
+            handleError(err, res, true)
+        }
+    })
 
-}
+    app.post('/saveFile', parseJson, async(req, res) => {
+        try {
+            if (!req.body._id) {
+                delete req.body._id;
+            }
+            var payload = _.omit(req.body, ['_id', '__v', 'createdAt', 'updatedAt'])
+            if (!req.body._id) {
+                var d = await mongoose.model('file').create(payload)
+                payload._id = d._id
+            } else {
+                await mongoose.model('file').findOneAndUpdate({
+                    _id: req.body._id
+                }, payload, {
+                    upsert: true
+                }).exec();
+                payload._id = req.body._id
+            }
+            res.status(200).json(req.body);
+        } catch (err) {
+            handleError(err, res, true)
+        }
+    });
 
-function configureServices() {
-	getFiles({
-		types: ['service']
-	}).then(res => {
-		console.log('Services', res.length)
-		res.forEach(file => {
-			try {
-				console.log('Loading service', file.name)
-				var [name, impl] = requireFromString(file.code)
-				if (!app.service) {
-					app.service = {}
-				}
-				if (typeof impl === 'function') {
-					impl(app).then(result => {
-						app.service[name] = result
-					})
-				} else {
-					app.service[name] = impl
-				}
+    app.post('/saveProject', parseJson, async(req, res) => {
+        try {
+            if (!req.body._id) {
+                delete req.body._id;
+            }
+            var payload = _.omit(req.body, ['_id', '__v', 'createdAt', 'updatedAt'])
+            if (!req.body._id) {
+                var d = await mongoose.model('project').create(payload)
+                payload._id = d._id
+            } else {
+                await mongoose.model('project').findOneAndUpdate({
+                    _id: req.body._id
+                }, payload, {
+                    upsert: true
+                }).exec();
+                payload._id = req.body._id
+            }
+            res.status(200).json(req.body);
+        } catch (err) {
+            handleError(err, res, true)
+        }
+    });
 
-			} catch (err) {
-				console.error(err.stack)
-			}
-		})
-		configureDynamicRoutes()
-	})
-}
+    app.use('/', express.static(path.join(process.cwd(), 'assets')));
 
-function configureDynamicRoutes() {
-	getFiles({
-		types: ['route']
-	}).then(res => {
-		console.log('Routes', res.length)
-		res.forEach(file => {
-			try {
-				console.log('Loading route', file.name)
-				var mod = requireFromString(file.code)
-				mod(app)
-			} catch (err) {
-				console.error(err.stack)
-			}
-		})
-		onRouteDefinitionFinish()
-	})
-}
+    server.listen(PORT, function() {
+        console.log('Listening on http://localhost:' + PORT)
+    })
 
-function onRouteDefinitionFinish() {
-	app.use('/', express.static(path.join(process.cwd(), 'assets')));
-	server.listen(PORT, function() {
-		console.log('Listening on http://localhost:' + PORT)
-	})
-}
+})
 
-function handleError(err, res, status = 500) {
-	console.error(err);
-	res.status(status).json(err.stack);
+
+
+function handleError(err, res, isApi, status = 500) {
+    console.error('ERROR', err.stack);
+    if (isApi) {
+        res.status(200).json(err.stack);
+    } else {
+        res.redirect('/?err=' + err.message)
+    }
 }
 
 
 function configureDatabase() {
-	return new Promise((resolve, reject) => {
-		if (!DB_URI) {
-			console.error('DB_URI required')
-			process.exit(0)
-		}
-		mongoose.connect(DB_URI, {
-			server: {
-				reconnectTries: Number.MAX_VALUE,
-				reconnectInterval: 1000
-			}
-		});
+    return new Promise((resolve, reject) => {
+        if (!DB_URI) {
+            console.error('DB_URI required')
+            process.exit(0)
+        }
+        mongoose.connect(DB_URI, {
+            server: {
+                reconnectTries: Number.MAX_VALUE,
+                reconnectInterval: 1000
+            }
+        });
 
-		const schema = new mongoose.Schema({
-			name: {
-				type: String,
-				required: true,
-				unique: true,
-				index: true
-			},
-			path: String,
-			tags: [String],
-			type: {
-				type: String,
-				required: true,
-				//enum: ['view', 'function', 'route', 'vueComponent']
-				//javascript, vueComponent, route, view, function, middleware, schedule)
-			},
-			code: {
-				type: String,
-				required: true
-			}
-		}, {
-			timestamps: true,
-			toObject: {}
-		});
-		mongoose.model('simback_file', schema);
+        const schema = new mongoose.Schema({
+            name: {
+                type: String,
+                required: true,
+                index: true
+            },
+            tags: [String],
+            type: {
+                type: String,
+                required: true,
+            },
+            code: {
+                type: String,
+                required: true
+            }
+        }, {
+            timestamps: true,
+            toObject: {}
+        });
+        mongoose.model('file', schema);
 
 
+        mongoose.model('project', new mongoose.Schema({
+            name: {
+                type: String,
+                required: true,
+                unique: true,
+                index: true
+            },
+            label: {
+                type: String,
+            },
+            shortText: {
+                type: String,
+            },
+            domain: {
+                type: String
+            },
+            privateKey: {
+                type: String,
+                index: true
+            },
+            users: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'cloud_user',
+                index: true
+            }],
+            usersRights: Object,
+            files: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'file'
+            }],
+            description: {
+                type: String,
+                default: ''
+            },
+            settings: {
+                type: Object,
+                default: {}
+            },
+        }, {
+            timestamps: true,
+            toObject: {}
+        }));
 
-		mongoose.model('simback_project', new mongoose.Schema({
-			name: {
-				type: String,
-				required: true,
-				unique: true,
-				index: true
-			},
-			envs: Object,
-			files: [{
-				type: mongoose.Schema.Types.ObjectId,
-				ref: 'simback_file'
-			}],
-			users: [{
-				type: mongoose.Schema.Types.ObjectId,
-				ref: 'simback_user'
-			}],
-		}, {
-			timestamps: true,
-			toObject: {}
-		}));
-
-		mongoose.model('simback_package', new mongoose.Schema({
-			name: {
-				type: String,
-				required: true,
-				unique: true,
-				index: true
-			},
-			project: {
-				type: mongoose.Schema.Types.ObjectId,
-				ref: 'simback_project',
-				index: true
-			},
-			files: [{
-				type: mongoose.Schema.Types.ObjectId,
-				ref: 'simback_file'
-			}]
-		}, {
-			timestamps: true,
-			toObject: {}
-		}));
-
-
-
-		getFiles({
-			types: ['schema']
-		}).then(res => {
-			res.forEach(file => {
-				try {
-					console.log('Loading schema', file.name)
-					var mod = requireFromString(file.code)
-					mod(mongoose)
-				} catch (err) {
-					console.error(err.stack)
-				}
-			})
-			resolve();
-		})
-	})
+        configureDatabaseUserScheme(mongoose, app)
+        resolve();
+    })
 }
 
+function configureDatabaseUserScheme(mongoose, app) {
+    const schema = new mongoose.Schema({
+        email: {
+            type: String,
+            unique: true,
+            index: true
+        },
+        enabled: {
+            type: Boolean,
+            default: false,
+        },
+        type: {
+            type: "String",
+            default: 'normal'
+        },
+        password: {
+            type: String
+        }
+    }, {
+        timestamps: true,
+        toObject: {}
+    });
 
-function compileFileWithVars(filePath, vars = {}, req) {
-	var p = path.join(VIEWS_BASE_DIR, 'views', filePath.replace('.pug', '') + '.pug')
-	if (sander.existsSync(p)) {
-		return pug.compileFile(p)(vars)
-	} else {
-		p = path.join(VIEWS_BASE_DIR, 'views/dynamic', filePath.replace('.pug', '') + '.pug')
-		return pug.compileFile(p)(vars)
-	}
-}
+    schema.statics.createDefaultAccounts = async function() {
+        try {
+            var sequential = app.requireInstall('promise-sequential')
+            var defaultRoots = ['arancibiajav@gmail.com']
+            console.log('createDefaultAccounts')
+            await sequential(defaultRoots.map(email => {
+                return async() => {
+                    console.log('search', email)
+                    var doc = await mongoose.model('cloud_user').findOne({
+                        email
+                    }).exec()
+                    if (doc) {
+                        doc.password = 'root'
+                        doc.enabled = true;
+                        doc.type = "root"
+                        doc.save()
+                    } else {
+                        await mongoose.model('cloud_user').create({
+                            email,
+                            enabled: true,
+                            type: "root",
+                            password: 'root'
+                        })
+                    }
+                }
+            }))
+        } catch (err) {
+            console.error('ERROR', err.stack)
+            return false;
+        }
+        return true;
+    };
 
 
-function compileCode(code, browser = false, opts = {
-	minified: false,
-	type: 'javascript'
-}) {
-	if (!['javascript', 'component'].includes(opts.type)) {
-		return code;
-	}
-	var targets = {
-		"node": "6.0"
-	};
-	if (browser) {
-		delete targets.node;
-		//targets.browsers = ["5%", "last 2 versions", "Firefox ESR", "not dead"];
-		targets.chrome = '30';
-	}
-	return require('babel-core').transform(code, {
-		minified: opts.minified,
-		babelrc: false,
-		sourceMaps: 'inline',
-		presets: [
-			["env", {
-				"targets": targets
-			}]
-		]
-	}).code;
+
+    mongoose.model('cloud_user', schema);
 }
