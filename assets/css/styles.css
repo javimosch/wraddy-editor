@@ -96,6 +96,7 @@ a {
     background: transparent;
     z-index: 99999;
     left: 5px;
+    opacity: 0.1;
 }
 
 .NavButton:hover {
@@ -103,6 +104,7 @@ a {
     background: mediumslateblue;
     color: white!important;
     font-weight: 400;
+    opacity: 1;
 }
 
 .EditorHeader {
@@ -313,7 +315,7 @@ input {
     width: 30%;
     float: left;
     height: calc(100vh);
-    overflow-y: hidden;
+    overflow-y: scroll;
     position: relative;
 }
 

@@ -233,7 +233,7 @@ async function selectFile(file) {
     this.searchText = '';
     this.searchResults = []
     this.selectedFileOriginal = Object.assign({}, this.selectedFile)
-    this.editor.session.setMode(getAceMode(file.type));
+    this.editor.session.setMode(getAceMode(single.type));
     qs('fileId', single._id)
 }
 
