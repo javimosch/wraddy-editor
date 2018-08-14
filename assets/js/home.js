@@ -206,7 +206,10 @@ function editorState() {
 
 async function saveSelectedFile() {
     try {
-        let newFile = await httpPost('/saveFile', this.selectedFile)
+        let newFile = await httpPost('/saveFile', {
+            project: this.project._id,
+            file: this.selectedFile
+        })
         this.selectedFile._id = newFile._id
         this.selectedFileOriginal = Object.assign({}, this.selectedFile)
         this.updateFileDirtyState()

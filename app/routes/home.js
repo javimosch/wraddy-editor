@@ -8,6 +8,9 @@ module.exports = {
             if (!req.query.projectId) {
                 res.redirect('/projects');
             }
+
+            app.srv.projectSockets.markAsAlive(req.query.projectId)
+
             res.sendView('home', {
                 fileTypes: ['javascript', 'function', 'middleware', 'pug', 'route', 'markdown','css'],
                 project: await app.fn.mongooseModel('project').findById(req.query.projectId).exec()

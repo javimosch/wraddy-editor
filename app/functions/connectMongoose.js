@@ -2,6 +2,7 @@ module.exports = app => () => {
 	const DB_URI = process.env.DB_URI
 	const mongoose = require('mongoose');
 	mongoose.set('debug', process.env.MONGODB_DEBUG === '0' ? false : true);
+	console.log('MONGODB_DEBUG', process.env.MONGODB_DEBUG)
 	app.mongoose = mongoose
 	if (!DB_URI) {
 		console.error('DB_URI required')

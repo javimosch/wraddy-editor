@@ -26,7 +26,6 @@ module.exports = app => {
 
 		responseMethods.forEach(i => {
 			res[i.name] = i.res(req, res, app);
-			console.log('ADDED', i.name, typeof res[i.name])
 		})
 
 		next();

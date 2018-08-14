@@ -15,7 +15,7 @@ module.exports = {
 					password: auth.password
 				}).exec()
 				if (doc) {
-					console.log('authenticate ok')
+					//console.log('authenticate ok')
 					req.user = doc;
 				}
 			}
