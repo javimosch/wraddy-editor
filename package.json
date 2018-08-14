@@ -22,6 +22,7 @@
     "mongoose": "^5.1.4",
     "nodemon": "^1.18.3",
     "pm2": "^3.0.0",
+    "promise-sequential": "^1.1.1",
     "pug": "^2.0.3",
     "require-from-string": "^2.0.2",
     "require-install": "^0.3.3",
@@ -29,6 +30,7 @@
     "shelljs": "^0.8.2",
     "socket.io": "^2.1.1",
     "socket.io-client": "^2.1.1",
+    "uniqid": "^5.0.3",
     "yargs": "^12.0.1"
   }
 }

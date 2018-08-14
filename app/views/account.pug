@@ -1,0 +1,18 @@
+include mixins.pug
+
++top('Account')
+body
+	#app
+		+nav()
+		.row.no-gutters
+			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
+				.form.LoginForm(action="/login" method="post")
+					.row.position-relative
+						.col-12
+							label.SmallLabel Email
+							input.SmallInput.form-control.email(value=user.email disabled)
+						.col-12.mt-3
+							p.AccountStat.mb-0!=`You own ${organizations}/${maxOrganizations} organizations and ${projects}/${maxProjects} projects.`
+
+	+scripts('account')
++bottom()

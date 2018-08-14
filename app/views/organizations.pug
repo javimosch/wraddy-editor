@@ -1,0 +1,26 @@
+include mixins.pug
+
++top('Organizations')
+body
+	#app
+		+nav()
+		.row.no-gutters
+			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
+				.form.OrganizationsForm.container
+					.row.no-gutters.position-relative
+						.col-12.mb-3.pl-3
+							a.Button.btn.btn-primary(href="/organizations/new") Create
+						
+						- if(organizations.length>0)
+							each pr, index in organizations
+								.col-12.clearfix.NiceItem
+									div.d-flex.justify-content-left.align-items-center.float-left
+										h4.NiceItemText.m-0.text-center.float-left!=`${pr.name}`
+									div.NiceItemIcon.float-right.mr-2.d-flex.justify-content-left.align-items-center.float-right
+										a(href=`/organization/${pr._id}/edit`)
+											i.fas.fa-edit
+						- else
+							.col-12.d-flex.justify-content-center.align-items-center(style="min-height:300px")
+								h1.OrganizationsEmptyText Create your first organization
+	+scripts('projects')
++bottom()

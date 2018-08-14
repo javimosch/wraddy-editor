@@ -43,9 +43,15 @@ function ableToSave() {
 async function save() {
     try {
         this.processing=true
-        await httpPost('/saveProject', this.pr)
-        this.processing=false
+        let r = await httpPost('/saveProject', this.pr)
+        if(r.err){
+            throw new Error(r.err)
+        }
+        if(!this.pr._id){
+            window.location.href="/projects"
+        }
     } catch (err) {
         this.err = err.message ? err.message : err
     }
+    this.processing=false
 }

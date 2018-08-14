@@ -10,7 +10,17 @@ mixin top(title)
 		link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css")
 		link(rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous')
 		link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css')
+		link(href='https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/themes/default/style.min.css',rel="stylesheet")
 		link(rel='stylesheet' href="/css/styles.css")
+
+mixin nav()
+	.EditorHeader()
+		a.NavButton.btn(href="/account" ) Account
+		//a.NavButton.btn(href="/organizations" ) Organizations
+		a.NavButton.btn(href="/projects") Projects
+		- if(user.type==='root')
+			a.NavButton.btn(href="/manager") Manager
+		a.NavButton.btn.float-right(href="/logout") Logout
 
 mixin bottom()
 	//nothing yet
@@ -27,5 +37,6 @@ mixin scripts(name)
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.min.js")
 	script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/jstree.min.js")
 	script(src="/js/common.js")
 	script(src=`/js/${name}.js` type="module")

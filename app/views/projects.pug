@@ -3,19 +3,26 @@ include mixins.pug
 +top('Projects')
 body
 	#app
+		+nav()
 		.row.no-gutters
 			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
 				.form.ProjectsForm.container
 					.row.no-gutters.position-relative
-						each pr, index in projects
-							.col-12.clearfix.ProjectItem.d-flex.justify-content-left.align-items-center
-								h4.ProjectItemText.m-0.text-center.float-left!=`${pr.name}`
-								div.ProjectItemIcon.float-right.ml-3
-									a(href="/?projectId="+pr._id)
-										i.fas.fa-folder-open
-								div.ProjectItemIcon.float-right.ml-2
-									a(href=`/project/${pr._id}/edit`)
-										i.fas.fa-edit
-
+						.col-12.mb-3.pl-3
+							a.Button.btn.btn-primary(href="/projects/create") Create
+						- if(projects.length>0)
+							each pr, index in projects
+								.col-12.clearfix.NiceItem
+									div.d-flex.justify-content-left.align-items-center.float-left
+										h4.NiceItemText.m-0.text-center.float-left!=`${pr.name}`
+									div.NiceItemIcon.float-right.ml-2.mr-2.d-flex.justify-content-left.align-items-center.float-right
+										a(href="/?projectId="+pr._id)
+											i.fas.fa-folder-open
+									div.NiceItemIcon.float-right.d-flex.justify-content-left.align-items-center.float-right
+										a(href=`/project/${pr._id}/edit`)
+											i.fas.fa-edit
+						- else
+							.col-12.d-flex.justify-content-center.align-items-center(style="min-height:300px")
+								h1.OrganizationsEmptyText Create your first project
 	+scripts('projects')
 +bottom()

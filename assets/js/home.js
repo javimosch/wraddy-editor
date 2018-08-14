@@ -1,5 +1,3 @@
-
-
 new Vue({
     el: "#app",
     data: function() {
@@ -8,29 +6,36 @@ new Vue({
             editor: null,
             searchText: '',
             searchResults: [],
-            selectedFile: {},
+            selectedFile: {
+                code: ''
+            },
             selectedFileIsDirty: false,
             selectedFileOriginal: {},
-            headerIsVisible: false
+            headerIsVisible: false,
+            treeInit:false
         }
     },
     computed: {
         editorState,
-        ableToSaveFile
+
     },
     methods: {
+        ableToSaveFile,
         search,
         selectFile,
         fileTypeChange,
         updateFileDirtyState,
         saveSelectedFile,
-        toggleHeader
+        toggleHeader,
+        newFile,
+        mountTree,
+        mapDirectoryTreeToJsTreeNode
     },
-    mounted() {
+    async mounted() {
         initEditor(this)
         loadFileFromQueryString(this)
         loadHeaderStateFromLocalStorage(this);
-
+        await this.mountTree()
         window.$(this.$refs.header).fadeIn(true)
     },
     watch: {
@@ -39,8 +44,81 @@ new Vue({
     }
 });
 
-function limitProjectTitleLength(v){
-    if(v.length>8) this.project.label = this.project.label.substring(0,7)
+function mapDirectoryTreeToJsTreeNode(item, index) {
+    return {
+        id: item._id,
+        text: item.name,
+        data: {
+            name: item.name,
+        },
+        icon: item._type === 'file' ? "far fa-file-word" : undefined,
+        state: {
+            opened: item.opened ? item.opened : false,
+            selected: false
+        },
+        children: (item.children || []).map((v, i) => this.mapDirectoryTreeToJsTreeNode(v, i))
+    }
+}
+
+function getAceMode(type) {
+    if (['javascript', 'function', 'code', 'rpc', 'route', 'service', 'middleware', 'schema'].includes(type))
+        return "ace/mode/javascript"
+    else if (['css', 'style', 'scss'].includes(type))
+        return "ace/mode/css"
+    else if (['pug'].includes(type))
+        return "ace/mode/jade"
+    else if (['json'].includes(type))
+        return "ace/mode/json"
+    else if (['html'].includes(type))
+        return "ace/mode/html"
+    else if (['python'].includes(type))
+        return "ace/mode/python"
+    else if (['php'].includes(type))
+        return "ace/mode/php"
+    return ""
+}
+
+
+async function mountTree() {
+    let tree = await httpPost('/rpc/getTree', {
+        project: this.project._id
+    })
+    let treeEl = $(this.$refs.tree)
+    treeEl.off("changed.jstree").on("changed.jstree", async (e, data) => {
+        if (data.action === 'deselect_all') {
+            return;
+        }
+        console.log(data)
+        let f = await httpPost('/rpc/getFile', {
+            _id: data.node.id
+        })
+        this.selectFile(f)
+    });
+    console.log('MOUNTING TREE', this.project)
+    if (!this.treeInit) {
+        treeEl.jstree({
+            'core': {
+                'data': [
+                    this.mapDirectoryTreeToJsTreeNode(tree)
+                ]
+            }
+        });
+        this.treeInit = true
+    } else {
+        treeEl.jstree(true).settings.core.data = this.mapDirectoryTreeToJsTreeNode(tree);
+        treeEl.jstree(true).refresh();
+    }
+}
+
+function newFile() {
+    closeFile(this)
+    this.selectedFile = Object.assign(this.selectedFile, {
+        _id: 'new'
+    })
+}
+
+function limitProjectTitleLength(v) {
+    if (v.length > 8) this.project.label = this.project.label.substring(0, 7)
 }
 
 function formatCodeCommand(vm) {
@@ -70,7 +148,7 @@ function toggleHeader() {
 }
 
 function ableToSaveFile() {
-    return this.selectedFile && this.selectedFile._id && this.selectedFile.name && this.selectedFile.type && this.selectedFileIsDirty
+    return this.selectedFile && this.selectedFile._id && this.selectedFile.name && this.selectedFile.type && this.selectedFileIsDirty && !!this.selectedFile.code
 }
 
 function fileTypeChange() {
@@ -93,6 +171,12 @@ function loadFileFromQueryString(vm) {
     }
 }
 
+function closeFile(vm) {
+    vm.selectedFile = {}
+    vm.editor.setValue('', -1)
+    qsRemove('fileId')
+}
+
 function closeFileShorcut(vm) {
     return {
         name: 'cancel',
@@ -101,8 +185,7 @@ function closeFileShorcut(vm) {
             mac: 'Command-Shift-X'
         },
         exec: (editor) => {
-            vm.selectedFile = {}
-            editor.setValue('', -1)
+            closeFile(vm)
         },
         readOnly: false
     };
@@ -122,9 +205,22 @@ function editorState() {
 }
 
 async function saveSelectedFile() {
-    await httpPost('/saveFile', this.selectedFile)
-    this.selectedFileOriginal = Object.assign({}, this.selectedFile)
-    this.updateFileDirtyState()
+    try {
+        let newFile = await httpPost('/saveFile', this.selectedFile)
+        this.selectedFile._id = newFile._id
+        this.selectedFileOriginal = Object.assign({}, this.selectedFile)
+        this.updateFileDirtyState()
+        this.mountTree()
+    } catch (err) {
+        console.warn(err);
+        new Noty({
+            type: 'info',
+            timeout: 5000,
+            text: 'Try later',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+    }
 }
 
 async function selectFile(file) {
@@ -137,6 +233,7 @@ async function selectFile(file) {
     this.searchText = '';
     this.searchResults = []
     this.selectedFileOriginal = Object.assign({}, this.selectedFile)
+    this.editor.session.setMode(getAceMode(file.type));
     qs('fileId', single._id)
 }
 
@@ -148,7 +245,8 @@ function searchText(v) {
 
 async function search() {
     let data = await httpPost('/search', {
-        text: this.searchText
+        text: this.searchText,
+        project: this.project._id
     })
     this.searchResults = data
     console.log('search', this.searchText, data)
@@ -166,8 +264,9 @@ function initEditor(vm) {
     editor.on("change", data => {
         vm.selectedFile.code = editor.getValue()
         vm.updateFileDirtyState()
+        vm.$forceUpdate()
     })
     editor.commands.addCommand(closeFileShorcut(vm));
     editor.commands.addCommand(formatCodeCommand(vm));
-    
+
 }

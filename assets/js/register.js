@@ -8,30 +8,26 @@ new Vue({
         }
     },
     computed: {
-        
+        canRegister
     },
     methods: {
-        login
+        register
     },
     mounted() {
-        loadLastEmail(this)
     },
     watch: {
 
     }
 });
 
-function loadLastEmail(vm){
-    let email = window.localStorage.getItem('email')
-    if(email){
-        vm.email= email;
-    }
+function canRegister(){
+    return !!this.email && !!this.password
 }
 
-async function login() {
+async function register() {
     try {
         window.localStorage.setItem('email', this.email)
-        await httpPost('/login', { email: this.email, password: this.password })
+        await httpPost('/register', { email: this.email, password: this.password })
         window.location.href="/"
     } catch (err) {
         this.err = err.message ? err.message : err;

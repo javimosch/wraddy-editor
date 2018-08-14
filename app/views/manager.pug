@@ -1,0 +1,36 @@
+include mixins.pug
+
++top('Manager')
+body
+	#app
+		+nav()
+		.row.no-gutters
+			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
+				.form.LoginForm()
+					.row.position-relative
+						.col-12.mt-3
+							h5.text-center Scripts
+							button.Button.btn.btn-primary.mx-auto.d-block(@click="runRpc('ownAllProjects')") ownAllProjects
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('everyUserHasAtLeastOneOrganization')") everyUserHasAtLeastOneOrganization
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('syncUsersOrganizations')") syncUsersOrganizations
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('numberOfOrganizations')") numberOfOrganizations
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('relationOrganizationUsers')") relationOrganizationUsers
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('relationUserOrganizations')") relationUserOrganizations
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('fixOrganizationUsersRights')") fixOrganizationUsersRights
+							
+
+							
+							
+							
+						.col-12.mt-4.position-relative(@click="err=''")
+							p.ShortErrorMessage(v-html="err" v-show="err")
+						.col-12.mt-4.position-relative(@click="result=''")
+							p.ShortErrorMessage(v-html="result" v-show="result")
+
+	+scripts('manager')
++bottom()

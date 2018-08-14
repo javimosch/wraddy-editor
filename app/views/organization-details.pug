@@ -1,6 +1,6 @@
 include mixins.pug
 
-+top(project?project.label||project.name:'New Project')
++top(project?project.label||project.name:'New Organization')
 body
 	#app
 		+nav()
@@ -9,7 +9,8 @@ body
 				.form.ProjectsForm.container
 					.row.position-relative
 						.col-12
-							a.Button.btn.btn-primary(:href="'/?projectId='+pr._id" v-show="pr._id") Editor
+							a.Button.btn.btn-primary(href="/projects") Projects
+							a.Button.btn.btn-primary.ml-2(:href="'/?projectId='+pr._id" v-show="pr._id") Editor
 						.col-12.mt-5
 							label.SmallLabel Name
 							input.SmallInput.form-control.email(v-model="pr.name")
