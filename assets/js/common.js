@@ -90,11 +90,9 @@ function enableAutoResizeSidebar() {
     $(document).mouseup(function(e) {
         if (dragging) {
             var percentage = (e.pageX / window.innerWidth) * 100;
-            var mainPercentage = 100 - percentage;
-
-
-            $('#SidebarLayout').css("width", percentage + "%");
-            $('#MainLayout').css("width", mainPercentage + "%");
+            let px = window.innerWidth * percentage / 100
+            $('#SidebarLayout').css("width", px + "px");
+            $('#MainLayout').css("width", "calc(100vw - "+px+"px)");
             $('#ghostbar').remove();
             $(document).unbind('mousemove');
             dragging = false;

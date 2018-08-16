@@ -1,5 +1,5 @@
 require('dotenv').config({
-    silent: true
+	silent: true
 });
 const express = require('express')
 const app = express()
@@ -10,17 +10,18 @@ const fs = require('fs');
 const PORT = process.env.PORT || 3000;
 const path = require('path');
 const cors = require('cors')
-require('./bootstraps')(app)
-require('./functions')(app)
-app.fn.connectMongoose();
-require('./schemas')(app)
-require('./services')(app).then(() => {
-    cookieParser = app.requireInstall('cookie-parser')
-    app.use(cookieParser())
-    require('./middlewares')(app)
-    require('./routes')(app)
-    app.use('/', express.static(path.join(process.cwd(), 'assets')));
-    server.listen(PORT, function() {
-        console.log('Listening on http://localhost:' + PORT)
-    })
+require('./bootstraps')(app).then(() => {
+	require('./functions')(app)
+	app.fn.connectMongoose();
+	require('./schemas')(app)
+	require('./services')(app).then(() => {
+		cookieParser = app.requireInstall('cookie-parser')
+		app.use(cookieParser())
+		require('./middlewares')(app)
+		require('./routes')(app)
+		app.use('/', express.static(path.join(process.cwd(), 'assets')));
+		server.listen(PORT, function() {
+			console.log('Listening on http://localhost:' + PORT)
+		})
+	})
 })

@@ -25,4 +25,20 @@ module.exports = app => {
 		timestamps: true,
 		toObject: {}
 	}));
+
+	mongoose.model('organization_files', new mongoose.Schema({
+		organization: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'organization',
+			index: true
+		},
+		file: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'file',
+			index: true
+		}
+	}, {
+		timestamps: true,
+		toObject: {}
+	}));
 }

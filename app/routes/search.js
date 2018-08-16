@@ -17,6 +17,11 @@ module.exports = app => {
 				}
 			}
 
+			if(req.user.type!=='root'){
+				
+			}
+
+
 			let list = await app.mongoose.model('file').find(conditions).select('_id name type').exec();
 			res.status(200).json(list);
 		} catch (err) {

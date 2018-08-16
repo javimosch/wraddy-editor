@@ -249,7 +249,7 @@ function searchText(v) {
 async function search() {
     let data = await httpPost('/search', {
         text: this.searchText,
-        project: this.project._id
+        //project: this.project._id
     })
     this.searchResults = data
     console.log('search', this.searchText, data)

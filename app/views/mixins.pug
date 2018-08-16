@@ -1,6 +1,8 @@
 mixin top(title)
 	head
-		title!=`${title} - WC2`
+		- 
+			title = title||$meta&&$meta.title||''
+		title!=title?`${title} - Wrapkend BaaS`:`Wrapkend BaaS`
 
 		link(rel='shortcut icon', href='https://res.cloudinary.com/paris7510/image/upload/v1532975869/wrapkend/logos/favicon.png', type='image/x-icon')
 		link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css")
@@ -10,16 +12,36 @@ mixin top(title)
 		link(rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous')
 		link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css')
 		link(href='https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/themes/default/style.min.css',rel="stylesheet")
+		link(rel='stylesheet' href="/css/fonts.css")
+		link(rel='stylesheet' href="/css/layout.css")
 		link(rel='stylesheet' href="/css/styles.css")
+
+mixin editorNav()
+	.EditorHeader(:class="!headerIsVisible?'hidden':''" style="display: none" ref="header")
+		a.NavButton.btn(@click="newFile") New File
+		a.NavButton.btn.float-right(href="/projects" :class="!headerIsVisible?'WithSidebar':''") Projects
+		.EditorHeaderToggle(@click="toggleHeader")
+			div(v-show="headerIsVisible")
+				i.fas.fa-angle-double-up
+			div(v-show="!headerIsVisible")
+				i.fas.fa-angle-double-down
+
+mixin initialState()
+	script.
+		window.initialState = JSON.parse(`!{JSON.stringify(initialState|| {})}`)
 
 mixin nav()
 	.EditorHeader()
-		a.NavButton.btn(href="/account" ) Account
+		label!=organization.name
+		
 		//a.NavButton.btn(href="/organizations" ) Organizations
 		a.NavButton.btn(href="/projects") Projects
 		- if(user.type==='root')
 			a.NavButton.btn(href="/manager") Manager
+
 		a.NavButton.btn.float-right(href="/logout") Logout
+		a.NavButton.btn.float-right(href="/account" ) Account
+		//a.NavButton.btn.float-right(href="/switch-organization") Switch Organization
 
 mixin bottom()
 	//nothing yet

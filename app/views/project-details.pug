@@ -1,10 +1,7 @@
-include mixins.pug
-
-+top(project?project.label||project.name:'New Project')
-body
+extends layout.pug
+block content
 	#app
-		+nav()
-		.row.no-gutters
+		.row.no-gutters.fill-available
 			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
 				.form.ProjectsForm.container
 					.row.position-relative
@@ -23,8 +20,9 @@ body
 							p.ShortErrorMessage(v-html="err" v-show="err")
 						.col-12.mt-5
 							button.Button.btn.btn-primary(:disabled="!ableToSave" @click="save") Save
-						
+block sidebar
+	include sidebar.pug
+block scripts
 	script.
 		window.project = JSON.parse(`!{JSON.stringify(project)}`)
 	+scripts('project')
-+bottom()

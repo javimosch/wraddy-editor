@@ -10,18 +10,20 @@ body
 					.row.position-relative
 						.col-12.mt-3
 							h5.text-center Scripts
-							button.Button.btn.btn-primary.mx-auto.d-block(@click="runRpc('ownAllProjects')") ownAllProjects
-							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('everyUserHasAtLeastOneOrganization')") everyUserHasAtLeastOneOrganization
+							button.Button.btn.btn-primary.mx-auto.d-block(@click="runAction('ownAllProjects')") ownAllProjects
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('everyUserHasAtLeastOneOrganization')") everyUserHasAtLeastOneOrganization
 
-							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('syncUsersOrganizations')") syncUsersOrganizations
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('syncUsersOrganizations')") syncUsersOrganizations
 
-							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('numberOfOrganizations')") numberOfOrganizations
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('numberOfOrganizations')") numberOfOrganizations
 
-							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('relationOrganizationUsers')") relationOrganizationUsers
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('relationOrganizationUsers')") relationOrganizationUsers
 
-							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('relationUserOrganizations')") relationUserOrganizations
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('relationUserOrganizations')") relationUserOrganizations
 
-							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runRpc('fixOrganizationUsersRights')") fixOrganizationUsersRights
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('fixOrganizationUsersRights')") fixOrganizationUsersRights
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('ownAllFiles')") ownAllFiles
 							
 
 							

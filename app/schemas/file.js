@@ -6,6 +6,11 @@ module.exports = app => {
 			required: true,
 			index: true
 		},
+		author: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'cloud_user',
+			index: true
+		},
 		tags: [String],
 		type: {
 			type: String,

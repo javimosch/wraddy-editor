@@ -13,10 +13,19 @@ module.exports = {
 				let doc = await require('mongoose').model('cloud_user').findOne({
 					email: auth.email,
 					password: auth.password
-				}).exec()
+				}).populate('organizations').exec()
 				if (doc) {
 					//console.log('authenticate ok')
 					req.user = doc;
+					req.context = req.context || {}
+
+					if(req.user.organizations.length==0){
+						await app.fn.createDefaultOrganization(req.user)
+					}
+
+					req.context.organization = req.session.organization || req.user.organizations[0];
+
+
 				}
 			}
 			next()

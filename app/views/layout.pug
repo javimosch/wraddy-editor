@@ -1,0 +1,31 @@
+include mixins.pug
+
++top()
+body
+	+initialState()
+	.wrapper
+			.toggleSidebar
+			-
+				var show = layout&&layout.sidebar?'show':''
+				show = layout&&layout.isMobile === true ? '' : show
+			.sidebar(class=show)
+				.row.no-gutters
+					.col-12
+						a.nodecoration.hoveropacitydown(href="/")
+							h4.text-center.mt-5.sidebarTitle!=organization.name
+					.col-12.mt-5
+						.p-1
+							block sidebar
+			.main-view.pl-4.pr-4
+				.mt-5
+					block content
+	script.
+		function toggleSidebar(v) {
+			if (v === undefined) v = !$('.sidebar').hasClass('show')
+			if (v) {
+				$('.sidebar').addClass('show')
+			} else {
+				$('.sidebar').removeClass('show')
+			}
+		}
+	block scripts

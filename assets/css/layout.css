@@ -1,0 +1,105 @@
+.fill-available {
+    width: -webkit-fill-available;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+span,
+input,
+select,
+label {
+    font-family: GT Eesti Display, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.ace_editor *{
+    font-family:monospace!important;
+}
+
+
+.noverticalscroll {
+    overflow-y: hidden !important;
+}
+
+.nodecoration:hover {
+    text-decoration: none;
+}
+
+.hoveropacitydown:hover,
+.hoveropacitydown:hover>* {
+    opacity: 0.7;
+}
+
+.sidebarTitle {
+    color: white;
+    text-align: center;
+    font-weight: 500;
+    font-size: 27px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    font-weight: 300;
+    padding: 0px 20px;
+    word-wrap: break-word;
+}
+
+.wrapper {
+    display: flex;
+    overflow-x: hidden !important;
+}
+
+.sidebar {
+    min-width: 230px;
+    max-width: 230px;
+    box-shadow: 1px 2px 10px gainsboro;
+    background: #425060;
+    width: 230px;
+    margin-left: -230px;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    height: auto;
+}
+
+.sidebar.show {
+    opacity: 1;
+    margin-left: 0 !important;
+}
+
+.main-view {
+    width: -webkit-fill-available;
+    min-height: calc(100vh);
+}
+
+.sidebarLink {
+	margin-bottom: 10px;
+	cursor: pointer;
+}
+
+.sidebarLink.logout:hover {
+	background-color: indianred;
+}
+
+.sidebarLink:hover, .sidebarLink.active {
+	background-color: #536579;
+}
+
+.sidebarLink i {
+	margin-right: 15px !important;
+}
+
+.sidebarLink i, .sidebarLink span {
+	color: #ADB9C6;
+	opacity: 0.7;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.sidebarLink.active i, .sidebarLink:hover i, .sidebarLink:hover span, .sidebarLink.active span {
+	opacity: 1;
+	color: white;
+}

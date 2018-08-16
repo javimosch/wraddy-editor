@@ -8,6 +8,7 @@ module.exports = {
 				return res.redirect('/login')
 			}
 			res.sendView('projects', {
+				sidebarActiveLink: 'projects',
 				projects: await mongoose.model('project').find({
 					users: {
 						$in: [req.user._id]
@@ -20,6 +21,7 @@ module.exports = {
 				return res.redirect('/login')
 			}
 			res.sendView('project-details', {
+				sidebarActiveLink: 'projects',
 				project: await mongoose.model('project').findById(req.params.id).exec()
 			})
 		})
@@ -28,6 +30,7 @@ module.exports = {
 				return res.redirect('/login')
 			}
 			res.sendView('project-details', {
+				sidebarActiveLink: 'projects',
 				project: {}
 			})
 		})

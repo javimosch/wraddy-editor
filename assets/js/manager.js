@@ -10,19 +10,19 @@ new Vue({
         
     },
     methods: {
-        runRpc
+        runAction
     },
     mounted() {
-        loadLastEmail(this)
+        //loadLastEmail(this)
     },
     watch: {
 
     }
 });
 
-async function runRpc(name) {
+async function runAction(name) {
     try {
-        var result = await httpPost('/runRpc', {
+        var result = await httpPost('/managerActions', {
             name
         })
         this.result = JSON.stringify(result,null,2);

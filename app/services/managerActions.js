@@ -2,6 +2,9 @@ var sequential = require('promise-sequential')
 var model = m => mongoose.model(m)
 module.exports = async app => {
 	return {
+		ownAllFiles: async function(params){
+			return 'OK2'
+		},
 		fixOrganizationUsersRights: async (params, req) => {
 			let docs = await model('organization').find({}).exec()
 			return await sequential(docs.map(d => {

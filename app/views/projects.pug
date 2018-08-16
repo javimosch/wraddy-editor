@@ -1,10 +1,7 @@
-include mixins.pug
-
-+top('Projects')
-body
+extends layout.pug
+block content
 	#app
-		+nav()
-		.row.no-gutters
+		.row.no-gutters.fill-available
 			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
 				.form.ProjectsForm.container
 					.row.no-gutters.position-relative
@@ -12,17 +9,17 @@ body
 							a.Button.btn.btn-primary(href="/projects/create") Create
 						- if(projects.length>0)
 							each pr, index in projects
-								.col-12.clearfix.NiceItem
+								.col-12.clearfix.NiceItem.clickable(@click=`rowClick('${pr._id}')`)
+									div.NiceItemIcon.float-left.d-flex.justify-content-left.align-items-center
+										a(href=`/project/${pr._id}/edit` @click="stopPropagation($event)")
+											.EditIcon
+												i.fas.fa-edit
 									div.d-flex.justify-content-left.align-items-center.float-left
 										h4.NiceItemText.m-0.text-center.float-left!=`${pr.name}`
-									div.NiceItemIcon.float-right.ml-2.mr-2.d-flex.justify-content-left.align-items-center.float-right
-										a(href="/?projectId="+pr._id)
-											i.fas.fa-folder-open
-									div.NiceItemIcon.float-right.d-flex.justify-content-left.align-items-center.float-right
-										a(href=`/project/${pr._id}/edit`)
-											i.fas.fa-edit
 						- else
 							.col-12.d-flex.justify-content-center.align-items-center(style="min-height:300px")
 								h1.OrganizationsEmptyText Create your first project
+block sidebar
+	include sidebar.pug
+block scripts
 	+scripts('projects')
-+bottom()

@@ -3,19 +3,6 @@ include mixins.pug
 +top('Home')
 body
 	#app
-		.EditorHeader(:class="!headerIsVisible?'hidden':''" style="display: none" ref="header")
-			a.NavButton.btn(@click="newFile") New File
-
-			a.NavButton.btn.float-right(href="/logout") Logout
-			a.NavButton.btn.float-right(href="/account" ) Account
-			//a.NavButton.btn(href="/organizations" ) Organizations
-			a.NavButton.btn.float-right(href="/projects" :class="!headerIsVisible?'WithSidebar':''") Projects
-			
-			.EditorHeaderToggle(@click="toggleHeader")
-				div(v-show="headerIsVisible")
-					i.fas.fa-angle-double-up
-				div(v-show="!headerIsVisible")
-					i.fas.fa-angle-double-down
 		.clearfix
 			#SidebarLayout
 				#dragbar
@@ -28,7 +15,7 @@ body
 							span.HomeSearchResultTitle(v-html="item.name")
 							span.HomeSearchResultType.tiny.d-block(v-html="item.type")
 					.FileDetails(v-cloak v-show="selectedFile && selectedFile._id", style="display: none")
-						.row.mt-2
+						.row.no-gutters.mt-2
 							.col-12.col-lg-6.mt-1
 								label.SmallLabel Name
 								input.SmallInput.form-control(v-model="selectedFile.name")
@@ -39,10 +26,11 @@ body
 										option(value=item)!=item
 							.col-12.mt-1
 								button.Button.btn.btn-primary(:disabled="!ableToSaveFile()",:class="selectedFileIsDirty?'FileIsDirty':''",@click="saveSelectedFile") Save
-					.row
+					.row.no-gutters
 						.col-12.mt-3
 							.tree.ProjectTree(ref="tree")
 			#MainLayout
+				+editorNav()
 				#CodeEditor
 		.EditorState
 			p.EditorStateText(v-html="editorState")

@@ -7,17 +7,19 @@
   "scripts": {
     "prestart": "yarn",
     "start": "npx pm2 start ./app/index.js --name root && npx pm2 logs",
-    "dev": "npx nodemon --exec 'node app/index.js' -e js,jsx,html,pug --watch assets --watch app --ignore app/views/dynamic"
+    "dev": "npx nodemon --exec 'node app/index.js' -e js,jsx,html --watch app --ignore app/views/dynamic --ignore assets"
   },
   "dependencies": {
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "body-parser": "^1.18.3",
     "btoa": "^1.2.1",
+    "connect-mongo": "^2.0.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "express-session": "^1.15.6",
     "lodash": "^4.17.10",
     "mongoose": "^5.1.4",
     "nodemon": "^1.18.3",
