@@ -16,10 +16,12 @@ body
 							span.HomeSearchResultType.tiny.d-block(v-html="item.type")
 					.FileDetails(v-cloak v-show="selectedFile && selectedFile._id", style="display: none")
 						.row.no-gutters.mt-2
-							.col-12.col-lg-6.mt-1
+							.col-12.col-lg-12.mt-1.p-1
+								label.SmallLabel(v-html="'Id: '+selectedFile._id")
+							.col-12.col-lg-6.mt-1.p-1
 								label.SmallLabel Name
 								input.SmallInput.form-control(v-model="selectedFile.name")
-							.col-12.col-lg-6.mt-1
+							.col-12.col-lg-6.mt-1.p-1
 								label.SmallLabel Type
 								select.SmallInput.form-control(v-model="selectedFile.type" @change="fileTypeChange")
 									each item, index in fileTypes
