@@ -31,7 +31,8 @@ module.exports = {
                         'files': payload._id
                     })).map(pr => pr._id)
                     app.srv.projectSockets.emit(project, 'save-file', {
-                        prs
+                        prs,
+                        _id: payload._id
                     })
                 }else{
                     console.log('WARN: No project')
