@@ -19,6 +19,7 @@ mixin top(title)
 mixin editorNav()
 	.EditorHeader(:class="!headerIsVisible?'hidden':''" style="display: none" ref="header")
 		a.NavButton.btn(@click="newFile") New File
+		a.NavButton.btn(@click="viewErrors" v-html="errorsLabel")
 		a.NavButton.btn.float-right(href="/projects" :class="!headerIsVisible?'WithSidebar':''") Projects
 		.EditorHeaderToggle(@click="toggleHeader")
 			div(v-show="headerIsVisible")

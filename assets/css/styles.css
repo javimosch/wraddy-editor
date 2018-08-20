@@ -1,7 +1,56 @@
+.RecentFiles {
+    width: unset;
+    position: fixed;
+    right: 0px;
+    height: fit-content;
+    background-color: rgba(51, 51, 51, 0.5);
+    z-index: 99999;
+    top: 100px;
+    color: white;
+    overflow-y: scroll;
+    max-height: 400px;
+    padding-bottom:10px;
+}
+
+
+.RecentFiles ul {
+    margin: 0px;
+    padding: 0px;
+}
+
+.RecentFiles li:hover {
+    background: darkslategrey;
+}
+
+.RecentFiles li {
+    font-family: GT Eesti Display, "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px;
+}
+
+.RecentFiles li .type {
+    font-weight: 100;
+}
+
+.RecentFiles .timeDifference {
+    font-size: 8px;
+}
+
+ul {
+    list-style: none;
+}
+
+.jstree-default .jstree-anchor {
+    font-weight: 100;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
 .noty_theme__mint.noty_type__info,
 .noty_theme__mint.noty_type__information {
-    background-color: #425060;
-    border-bottom: 1px solid #425060;
+    background-color: darkslategrey;
+    border-bottom: 1px solid darkslategrey;
     color: #fff;
 }
 
@@ -23,10 +72,11 @@
     align-items: center;
     width: 30px;
     height: 30px;
-    background: #425060;
-    color: white;
-    border-radius: 5px;
+    background: springgreen;
+    color: #333;
+    border-radius: 3px;
     padding-left: 2px;
+    opacity: 1;
 }
 
 .clickable {
@@ -148,8 +198,9 @@
     padding: 0px 30px;
 }
 
+
 .EditorHeaderToggle {
-    color: #425060;
+    color: white;
     cursor: pointer;
     right: 20px;
     bottom: 0px;
@@ -157,11 +208,12 @@
     position: absolute;
     height: 20px;
     margin-bottom: -20px;
-    background: white;
+    background: #333;
     z-index: 9999;
     text-align: center;
     border-radius: 0px 0px 5px 5px;
 }
+
 
 .EditorHeader.hidden {
     margin-top: -40px;
@@ -301,7 +353,7 @@
 }
 
 .HomeTitle {
-    background-color: #425060;
+    background-color: darkslategrey;
     color: white;
     font-family: Roboto, sans-serif;
     font-weight: lighter;
@@ -311,7 +363,8 @@
     left: 3px;
     text-transform: uppercase;
     border: 0px;
-    font-size: 30px;
+    font-size: 20px;
+    text-align: center;
 }
 
 .HomeTitleSub {
@@ -358,7 +411,7 @@ input {
 }
 
 #SidebarLayout {
-    background-color: #425060;
+    background-color: darkslategrey;
     color: white;
     width: 230px;
     float: left;
@@ -368,7 +421,7 @@ input {
 }
 
 #dragbar {
-    background-color: #425060;
+    background-color: darkslategrey;
     height: -webkit-fill-available;
     width: 2px;
     cursor: col-resize;

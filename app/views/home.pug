@@ -3,6 +3,14 @@ include mixins.pug
 +top('Home')
 body
 	#app
+		.RecentFiles(v-show="recentFiles.length>0")
+			.row.no-gutters
+				.col-12
+					h6.m-1.mt-3.text-center Recent files
+			ul
+				li(v-for="(item,index) in recentFiles" class="clickable" @click="openRecentFile(item)")
+					div.d-flex(v-html="recentFileLabel(item)")
+					div.timeDifference(v-html="timeDifference(item.modified)")
 		.clearfix
 			#SidebarLayout
 				#dragbar

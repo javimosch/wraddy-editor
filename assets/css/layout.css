@@ -57,7 +57,7 @@ label {
     min-width: 230px;
     max-width: 230px;
     box-shadow: 1px 2px 10px gainsboro;
-    background: #425060;
+    background: darkslategrey;
     width: 230px;
     margin-left: -230px;
     opacity: 0;

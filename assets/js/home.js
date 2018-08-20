@@ -12,12 +12,14 @@ new Vue({
             selectedFileIsDirty: false,
             selectedFileOriginal: {},
             headerIsVisible: false,
-            treeInit:false
+            treeInit: false,
+            errors: [],
+            recentFiles: []
         }
     },
     computed: {
         editorState,
-
+        errorsLabel
     },
     methods: {
         ableToSaveFile,
@@ -29,7 +31,12 @@ new Vue({
         toggleHeader,
         newFile,
         mountTree,
-        mapDirectoryTreeToJsTreeNode
+        mapDirectoryTreeToJsTreeNode,
+        openRecentFile,
+        viewErrors,
+        addRecentFile,
+        recentFileLabel,
+        timeDifference
     },
     async mounted() {
         initEditor(this)
@@ -43,6 +50,46 @@ new Vue({
         "project.label": limitProjectTitleLength
     }
 });
+
+function viewErrors() {
+    this.selectFile({
+        _id: 'local',
+        readonly: true,
+        name: "ERRORS",
+        code: 'ASD',
+        type: 'log'
+    })
+}
+
+function openRecentFile(item) {
+    this.selectFile(item)
+}
+
+function addRecentFile(file) {
+    let f = Object.assign({}, file)
+    f.modified = Date.now()
+    let match = this.recentFiles.find(rf => rf._id == f._id)
+    if (match) {
+        Object.assign(match, f)
+    } else {
+        this.recentFiles.push(f)
+    }
+    this.recentFiles = this.recentFiles.sort((a, b) => {
+        return a.modified < b.modified ? 1 : -1
+    })
+}
+
+function timeDifference(before) {
+    return window.timeDifference(Date.now(), before)
+}
+
+function recentFileLabel(item) {
+    return `<span>${item.name}</span> <span class="type ml-2">(${item.type})</span>`
+}
+
+function errorsLabel() {
+    return `Errors ${this.errors.length>0?`(${this.errors.length})`:``}`
+}
 
 function mapDirectoryTreeToJsTreeNode(item, index) {
     return {
@@ -84,7 +131,7 @@ async function mountTree() {
         project: this.project._id
     })
     let treeEl = $(this.$refs.tree)
-    treeEl.off("changed.jstree").on("changed.jstree", async (e, data) => {
+    treeEl.off("changed.jstree").on("changed.jstree", async(e, data) => {
         if (data.action === 'deselect_all') {
             return;
         }
@@ -148,6 +195,9 @@ function toggleHeader() {
 }
 
 function ableToSaveFile() {
+    if (this.selectedFile && this.selectedFile.readonly === true) {
+        return false;
+    }
     return this.selectedFile && this.selectedFile._id && this.selectedFile.name && this.selectedFile.type && this.selectedFileIsDirty && !!this.selectedFile.code
 }
 
@@ -164,10 +214,12 @@ function updateFileDirtyState() {
 }
 
 function loadFileFromQueryString(vm) {
-    if (qs('fileId')) {
+    if (qs('fileId') && qs('fileId') !='local') {
         vm.selectFile({
             _id: qs('fileId')
         })
+    }else{
+        qsRemove('fileId')
     }
 }
 
@@ -227,9 +279,15 @@ async function saveSelectedFile() {
 }
 
 async function selectFile(file) {
-    let single = await httpPost('/getFile', {
-        _id: file._id
-    })
+    var single
+    if (file._id === 'local') {
+        single = file;
+    } else {
+        single = await httpPost('/getFile', {
+            _id: file._id
+        })
+    }
+
     this.selectedFile = single
     this.editor.setValue(this.selectedFile.code, -1);
     console.log('selectFile', file._id, single)
@@ -238,6 +296,7 @@ async function selectFile(file) {
     this.selectedFileOriginal = Object.assign({}, this.selectedFile)
     this.editor.session.setMode(getAceMode(single.type));
     qs('fileId', single._id)
+    this.addRecentFile(this.selectedFile)
 }
 
 function searchText(v) {
