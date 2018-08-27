@@ -26,7 +26,7 @@ module.exports = app => async function(p) {
 		pr = await pr.populate('files').execPopulate()
 	}
 
-	var types = ['javascript','css','pug','route','middleware','service','function']
+	var types = ['javascript','css','pug','route','middleware','service','function', 'schema']
 	pr.files.forEach(f => {
 		if (!types.includes(f.type)) {
 			types.push(f.type)

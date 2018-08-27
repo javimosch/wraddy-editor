@@ -9,13 +9,16 @@ block content
 							a.Button.btn.btn-primary(:href="'/?projectId='+pr._id" v-show="pr._id") Editor
 						.col-12.mt-5
 							label.SmallLabel Name
-							input.SmallInput.form-control.email(v-model="pr.name")
+							input.SmallInput.form-control.email(v-model="pr.name" v-bind:disabled="pr._id")
 						.col-12.mt-3
 							label.SmallLabel Label
 							input.SmallInput.form-control.email(v-model="pr.label")
 						.col-12.mt-3
 							label.SmallLabel Brief description
 							input.SmallInput.form-control.email(v-model="pr.shortText")
+						.col-12.mt-3
+							label.SmallLabel API Key
+							input.SmallInput.form-control.email(v-model="pr.privateKey")
 						.col-12.mt-4.position-relative()
 							p.ShortErrorMessage(v-html="err" v-show="err")
 						.col-12.mt-5
