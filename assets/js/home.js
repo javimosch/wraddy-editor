@@ -224,7 +224,10 @@ function toggleHeader() {
 
 async function viewProject() {
     try{
-        window.open(`http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.NODE_ENV].PORT}/`)
+        let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
+        let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.NODE_ENV].PORT}/`;
+        let ip = defaultDomain ? defaultDomain : rawIp
+        window.open(ip)
     }catch(err){
         console.log('ERROR','[When opening project]',this.project.settings, err.stack)
         new Noty({

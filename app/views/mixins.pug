@@ -28,7 +28,7 @@ mixin editorNav()
 		a.NavButton.btn(:href="`/project/${project._id}/edit`") Settings
 		//a.NavButton.btn(@click="viewErrors" v-html="errorsLabel")
 		a.NavButton.btn.float-right(href="/projects") Projects
-		.EditorHeaderToggle(@click="toggleHeader")
+		//.EditorHeaderToggle(@click="toggleHeader")
 			div(v-show="headerIsVisible")
 				i.fas.fa-angle-double-up
 			div(v-show="!headerIsVisible")
