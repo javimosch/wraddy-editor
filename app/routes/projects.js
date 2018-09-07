@@ -44,6 +44,10 @@ module.exports = {
 
 				if (!req.body.label) {
 					throw new Error('LABEL_REQUIRED')
+				}else{
+					if(['jobs','contact','team','editor','beta','dev','blog','news'].includes(req.body.label)){
+						throw new Error('LABEL_REQUIRED')	
+					}
 				}
 
 				if (req.user.type !== 'root' && req.user.projects.length != 0 && !req.body._id) {
