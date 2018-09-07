@@ -22,7 +22,8 @@ mixin top(title)
 
 
 mixin editorNav()
-	.EditorHeader(:class="!headerIsVisible?'hidden':''" style="display: none" ref="header")
+	//:class="!headerIsVisible?'hidden':''" style="display: none"
+	.EditorHeader(ref="header")
 		a.NavButton.btn(@click="newFile") New File
 		a.NavButton.btn(@click="viewProject") View
 		a.NavButton.btn(:href="`/project/${project._id}/edit`") Settings
