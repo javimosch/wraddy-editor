@@ -213,7 +213,8 @@ function formatCodeCommand(vm) {
 function loadHeaderStateFromLocalStorage(vm) {
     let state = window.localStorage.getItem('headerIsVisible')
     if (state !== null && state !== undefined) {
-        vm.headerIsVisible = state === 'true'
+        //vm.headerIsVisible = state === 'true'
+        vm.headerIsVisible = true
     }
 }
 
