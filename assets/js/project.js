@@ -65,7 +65,6 @@ async function setup() {
             killer: true,
             layout: "bottomRight"
         }).show();
-        let url = this.server.WRAPKEND_API + 
         let result = await httpPost('/redirect-to-manager', {
             url:'/configure-project/' + this.project._id + '?userId=' + this.user._id + '&forceRecreate=1',
             method:'get'
