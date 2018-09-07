@@ -12,6 +12,9 @@ module.exports = {
                 }
                 var payload = app._.omit(file, ['_id', '__v', 'createdAt', 'updatedAt'])
                 payload.code = payload.code || ''
+
+                
+
                 if (!file._id || file._id === 'new') {
                     var d = await app.mongoose.model('file').create(payload)
                     payload._id = d._id
@@ -30,7 +33,7 @@ module.exports = {
                     var prs = (await app.mongoose.model('project').find({
                         'files': payload._id
                     })).map(pr => pr._id)
-                    
+
                     /*
                     app.srv.projectSockets.emit(project, 'save-file', {
                         prs,
@@ -38,12 +41,10 @@ module.exports = {
                     })*/
 
                     app.fn.emitSaveFile(payload, await app.mongoose.model('project').findById(project))
-                    
-                }else{
+
+                } else {
                     console.log('WARN: No project')
                 }
-
-
 
                 res.status(200).json(payload);
             } catch (err) {

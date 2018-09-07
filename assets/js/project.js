@@ -145,6 +145,7 @@ async function save() {
     try {
         this.processing = true
         let r = await httpPost('/saveProject', this.pr)
+        console.log('DEBUG', '[after save]', r)
         if (r.err) {
             throw new Error(r.err)
         }
@@ -152,7 +153,18 @@ async function save() {
             window.location.href = "/projects"
         }
     } catch (err) {
-        this.err = err.message ? err.message : err
+        console.error('ERROR', '[when saving]', err)
+        err = this.err = err.message ? err.message : err
+
+        if (err.indexOf('LABEL_TAKEN') !== 1) {
+            new Noty({
+                type: 'warning',
+                timeout: false,
+                text: 'The label "'+this.project.label+'" is alredy in use',
+                killer: true,
+                layout: "bottomRight"
+            }).show();
+        }
     }
     this.processing = false
 }

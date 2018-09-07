@@ -47,6 +47,31 @@ module.exports = {
 					delete req.body._id;
 				}
 				var payload = _.omit(req.body, ['_id', '__v', 'createdAt', 'updatedAt'])
+
+
+				async function validateBeforeSave() {
+					if (!await isLabelValid(payload, req.body._id)) {
+						throw new Error('LABEL_TAKEN')
+					}
+				}
+
+				async function isLabelValid(data, _id) {
+					console.log('DEBUG', '[isLabelValid]', data.label, _id)
+					if (data.label) {
+						let query = {
+							label: data.label
+						};
+						if (_id && !['new', '-1'].includes(_id)) {
+							query._id = {
+								$ne: _id
+							}
+						}
+						return !(await app.mongoose.model('project').findOne(query).exec())
+					}
+				}
+
+				await validateBeforeSave();
+
 				payload.users = payload.users || []
 				payload.usersRights = payload.usersRights || []
 				if (!req.body._id) {
