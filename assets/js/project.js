@@ -39,7 +39,7 @@ async function open() {
         let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
         let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.NODE_ENV].PORT}/`;
         let ip = defaultDomain ? defaultDomain : rawIp
-        window.open(ip)
+        window.open('https://'+ip.split('https://').join('https://'))
     } catch (err) {
         console.error('ERROR', '[When opening project in browser]', err.stack, this.project)
         new Noty({
