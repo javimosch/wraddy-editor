@@ -409,13 +409,13 @@ function initEditor(vm) {
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode('ace/mode/javascript');
     editor.session.setOptions({
-        showInvisibles: true,
-        highlightActiveLine: true,
+        //showInvisibles: true,
+        //highlightActiveLine: true,
         enableBasicAutocompletion: true,
-        enableLiveAutocompletion: true,
+        //enableLiveAutocompletion: true,
         wrap: true,
-        tabSize: 4,
-        useSoftTabs: false
+        //tabSize: 4,
+        //useSoftTabs: false
     });
     editor.on("change", data => {
         vm.selectedFile.code = editor.getValue()

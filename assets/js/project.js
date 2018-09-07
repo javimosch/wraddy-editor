@@ -11,7 +11,8 @@ new Vue({
         }
     },
     computed: {
-        ableToSave
+        ableToSave,
+        defaultDomainMessage
     },
     methods: {
         save,
@@ -27,11 +28,17 @@ new Vue({
     }
 });
 
-async function open(){
-    try{
+
+function defaultDomainMessage() {
+    let domain = this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
+    return `Your project is also available at ${domain}.wrapkend.com`
+}
+
+async function open() {
+    try {
         window.open(`http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.server.NODE_ENV].PORT}/`)
-    }catch(err){
-        console.error('ERROR','[When opening project in browser]', err.stack, this.project)
+    } catch (err) {
+        console.error('ERROR', '[When opening project in browser]', err.stack, this.project)
         new Noty({
             type: 'warning',
             timeout: false,
@@ -66,7 +73,7 @@ async function sync() {
             layout: "bottomRight"
         }).show();
     } catch (err) {
-        console.error('ERROR','[When sync in progress]',err.stack)
+        console.error('ERROR', '[When sync in progress]', err.stack)
         new Noty({
             type: 'warning',
             timeout: false,
@@ -87,24 +94,24 @@ async function setup() {
             layout: "bottomRight"
         }).show();
         let result = await httpPost('/redirect-to-manager', {
-            url:'/configure-project/' + this.project._id + '?userId=' + this.user._id + '&forceRecreate=1',
-            method:'get'
+            url: '/configure-project/' + this.project._id + '?userId=' + this.user._id + '&forceRecreate=1',
+            method: 'get'
         }, {
             withCredentials: false,
             //method: 'get'
         })
-        try{
+        try {
             this.project.settings.envs[this.server.NODE_ENV].PORT = result.port
-        }catch(err){}
+        } catch (err) {}
         new Noty({
             type: 'info',
             timeout: false,
-            text: 'Configured OK at port '+ result.port,
+            text: 'Configured OK at port ' + result.port,
             killer: true,
             layout: "bottomRight"
         }).show();
     } catch (err) {
-        console.error('ERROR','[When setup in progress]',err)
+        console.error('ERROR', '[When setup in progress]', err)
         new Noty({
             type: 'warning',
             timeout: false,

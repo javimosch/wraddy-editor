@@ -17,8 +17,12 @@ label {
     font-family: GT Eesti Display, "Helvetica Neue", Helvetica, sans-serif;
 }
 
+.tinyText{
+    font-size:9px;
+}
+
 .ace_editor *{
-    font-family:monospace!important;
+    font:14px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace!important;
 }
 
 
