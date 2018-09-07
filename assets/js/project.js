@@ -37,7 +37,7 @@ function defaultDomainMessage() {
 async function open() {
     try {
         let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
-        let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.NODE_ENV].PORT}/`;
+        let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.server.NODE_ENV].PORT}/`;
         let ip = defaultDomain ? defaultDomain : rawIp
         window.open('https://'+ip.split('https://').join('https://'))
     } catch (err) {
