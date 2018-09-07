@@ -30,7 +30,7 @@ new Vue({
 
 
 function defaultDomainMessage() {
-    let domain = this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
+    let domain = (this.project.label||'').toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
     return `Your project is also available at ${domain}.wrapkend.com`
 }
 
@@ -156,7 +156,7 @@ async function save() {
         console.error('ERROR', '[when saving]', err)
         err = this.err = err.message ? err.message : err
 
-        if (err.indexOf('LABEL_TAKEN') !== 1) {
+        if (err.indexOf('LABEL_TAKEN') !== -1) {
             new Noty({
                 type: 'warning',
                 timeout: false,
@@ -165,6 +165,28 @@ async function save() {
                 layout: "bottomRight"
             }).show();
         }
+
+        if (err.indexOf('LABEL_REQUIRED') !== -1) {
+            new Noty({
+                type: 'warning',
+                timeout: false,
+                text: 'The public name is required',
+                killer: true,
+                layout: "bottomRight"
+            }).show();
+        }
+
+        if (err.indexOf('PROJECTS_LIMIT') !== -1) {
+            new Noty({
+                type: 'warning',
+                timeout: false,
+                text: 'You reach your plan limit (Contact us to upgrade!)',
+                killer: true,
+                layout: "bottomRight"
+            }).show();
+        }
+
+
     }
     this.processing = false
 }

@@ -1,9 +1,51 @@
 var sequential = require('promise-sequential')
+const mongoose = require('mongoose')
 var model = m => mongoose.model(m)
 module.exports = async app => {
 	return {
-		ownAllFiles: async function(params){
+		ownAllFiles: async function(params) {
 			return 'OK2'
+		},
+		fixUserRights: async (params, req) => {
+			let users = await model('cloud_user').find({}).exec()
+			return sequential(users.map(user => {
+				return async () => {
+					let prs = await model('project').find({
+						users: {
+							$in: [user._id]
+						}
+					}).exec()
+					await sequential(prs.map(pr => {
+						return async () => {
+							if (pr.usersRights && !pr.usersRights[user._id]) {
+								pr.usersRights = {
+									[user._id]:'owner'
+								}
+								await pr.save()
+							}
+						}
+					}))
+				}
+			}))
+		},
+		attachProjectsToOwners: async (params, req) => {
+			let users = await model('cloud_user').find({}).exec()
+			return sequential(users.map(user => {
+				return async () => {
+					let prs = await model('project').find({
+						users: {
+							$in: [user._id]
+						}
+					}).exec()
+					await sequential(prs.map(pr => {
+						return async () => {
+							if (pr.usersRights && pr.usersRights[user._id] && pr.usersRights[user._id] === 'owner') {
+								await app.fn.attachProjectToUser(user, pr._id)
+							}
+						}
+					}))
+				}
+			}))
 		},
 		fixOrganizationUsersRights: async (params, req) => {
 			let docs = await model('organization').find({}).exec()

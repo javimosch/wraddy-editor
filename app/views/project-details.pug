@@ -8,23 +8,23 @@ block content
 						.col-12
 							a.Button.btn.btn-primary(:href="'/?projectId='+pr._id" v-show="pr._id") Editor
 						.col-12.mt-5
-							label.SmallLabel AppName (Unique)
+							label.SmallLabel AppName (*) (You cannot change this once set)
 							input.SmallInput.form-control.email(v-model="pr.name" v-bind:disabled="pr._id")
 						.col-12.mt-3
-							label.SmallLabel Free Custom domains
+							label.SmallLabel Free Custom domains (optional)
 							input.SmallInput.form-control.email(v-model="pr.domain", placeholder="mysite.wrapkend.com")
 							p.tinyText.m-0.mt-2 Multiple custom domains can be separated by comma: mysite.com,alternativedomain.com
 							p.tinyText.m-0 Add DNS (A) Record targeting 178.128.254.49
 							p.tinyText.m-0(v-html="defaultDomainMessage")
 						.col-12.mt-3
-							label.SmallLabel Label
+							label.SmallLabel Public name (*)
 							input.SmallInput.form-control.email(v-model="pr.label")
 						.col-12.mt-3
 							label.SmallLabel Brief description
 							input.SmallInput.form-control.email(v-model="pr.shortText")
 						.col-12.mt-3
 							label.SmallLabel API Key
-							input.SmallInput.form-control.email(v-model="pr.privateKey")
+							input.SmallInput.form-control.email(v-model="pr.privateKey" readonly)
 						.col-12.mt-3
 							label.SmallLabel.mb-3 Actions
 							div

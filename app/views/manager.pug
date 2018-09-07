@@ -11,7 +11,13 @@ body
 						.col-12.mt-3
 							h5.text-center Scripts
 							button.Button.btn.btn-primary.mx-auto.d-block(@click="runAction('ownAllProjects')") ownAllProjects
-							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('everyUserHasAtLeastOneOrganization')") everyUserHasAtLeastOneOrganization
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('everyUserHasAtLeastOneOrganization')") 	everyUserHasAtLeastOneOrganization
+
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('fixUserRights')") fixUserRights
+
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('attachProjectsToOwners')") attachProjectsToOwners
 
 							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('syncUsersOrganizations')") syncUsersOrganizations
 

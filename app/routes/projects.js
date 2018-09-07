@@ -1,5 +1,6 @@
 const _ = require('lodash')
 const mongoose = require('mongoose')
+
 module.exports = {
 	order: 0,
 	handler(app) {
@@ -40,8 +41,13 @@ module.exports = {
 				if (!req.user) {
 					return res.handleApiError(new Error(401), res, true)
 				}
+
+				if (!req.body.label) {
+					throw new Error('LABEL_REQUIRED')
+				}
+
 				if (req.user.type !== 'root' && req.user.projects.length != 0 && !req.body._id) {
-					return res.handleApiError(new Error("Max. Project limit reached"), res, true)
+					return res.handleApiError(new Error("PROJECTS_LIMIT"), res, true)
 				}
 				if (!req.body._id) {
 					delete req.body._id;
@@ -73,7 +79,7 @@ module.exports = {
 				await validateBeforeSave();
 
 				payload.users = payload.users || []
-				payload.usersRights = payload.usersRights || []
+				payload.usersRights = payload.usersRights || {}
 				if (!req.body._id) {
 
 					if (!payload.users.find(u => u._id.toString() == req.user._id)) {
@@ -91,6 +97,9 @@ module.exports = {
 					}).exec();
 					payload._id = req.body._id
 				}
+
+				await app.fn.attachProjectToUser(req.user, payload._id)
+
 				res.status(200).json(req.body);
 			} catch (err) {
 				res.handleApiError(err)
@@ -98,3 +107,4 @@ module.exports = {
 		});
 	}
 }
+
