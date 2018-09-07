@@ -21,6 +21,7 @@ module.exports = {
 				return res.redirect('/login')
 			}
 			res.sendView('project-details', {
+				server: app.srv.constants,
 				sidebarActiveLink: 'projects',
 				project: await mongoose.model('project').findById(req.params.id).exec()
 			})

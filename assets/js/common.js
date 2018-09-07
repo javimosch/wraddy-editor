@@ -22,23 +22,27 @@ function beautifyAceEditor(editor, item) {
     }));
 }
 
-function httpPost(url, data, options) {
+function httpPost(url, data, options = {}) {
     var withCredentials = options && options.withCredentials == false ? false : true
     return new Promise((resolve, reject) => {
         if (!data) {
             data = {};
         }
+        data = JSON.stringify(data);
         try {
-            $.ajax({
-                type: 'post',
+            var settings = {
+                type: options.method || 'post',
                 url: url,
                 crossDomain: true,
-                data: JSON.stringify(data),
                 contentType: 'application/json; charset=utf-8',
                 xhrFields: {
                     withCredentials: withCredentials
                 }
-            }).always(function(response, status, xhr) {
+            };
+            if (options.method !== 'get') {
+                settings.data = data;
+            }
+            $.ajax(settings).always(function(response, status, xhr) {
                 if (status == 'error') {
                     reject({
                         message: "error",
@@ -64,10 +68,10 @@ function httpPost(url, data, options) {
 function enableAutoResizeSidebar() {
     var i = 0;
     var dragging = false;
-    if($('#dragbar').length===0){
-        return setTimeout(enableAutoResizeSidebar,100)
+    if ($('#dragbar').length === 0) {
+        return setTimeout(enableAutoResizeSidebar, 100)
     }
-    $(document).on('mousedown','#dragbar',function(e) {
+    $(document).on('mousedown', '#dragbar', function(e) {
         e.preventDefault();
 
         dragging = true;
@@ -92,7 +96,7 @@ function enableAutoResizeSidebar() {
             var percentage = (e.pageX / window.innerWidth) * 100;
             let px = window.innerWidth * percentage / 100
             $('#SidebarLayout').css("width", px + "px");
-            $('#MainLayout').css("width", "calc(100vw - "+px+"px)");
+            $('#MainLayout').css("width", "calc(100vw - " + px + "px)");
             $('#ghostbar').remove();
             $(document).unbind('mousemove');
             dragging = false;
@@ -139,7 +143,9 @@ function qs(key, value) {
                 queryStart = '?';
             }
             var newurl = currentUrl + queryStart + key + '=' + value
-            window.history.pushState({ path: newurl }, '', newurl);
+            window.history.pushState({
+                path: newurl
+            }, '', newurl);
         }
         return;
     }

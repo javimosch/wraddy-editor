@@ -12,6 +12,10 @@ module.exports = {
             app.srv.projectSockets.markAsAlive(req.query.projectId)
 
             res.sendView('home', {
+                initialState:{
+                    NODE_ENV: process.env.NODE_ENV
+                },
+                server: app.srv.constants,
                 fileTypes: app.srv.constants.fileTypes,
                 project: await app.fn.mongooseModel('project').findById(req.query.projectId).exec()
             })

@@ -19,6 +19,12 @@ block content
 						.col-12.mt-3
 							label.SmallLabel API Key
 							input.SmallInput.form-control.email(v-model="pr.privateKey")
+						.col-12.mt-3
+							label.SmallLabel.mb-3 Actions
+							div
+								button.btn.btn-primary(@click="setup") Configure
+							div.mt-2
+								button.btn.btn-primary(@click="sync") Syncronize files
 						.col-12.mt-4.position-relative()
 							p.ShortErrorMessage(v-html="err" v-show="err")
 						.col-12.mt-5
@@ -27,5 +33,6 @@ block sidebar
 	include sidebar.pug
 block scripts
 	script.
+		window.server = JSON.parse(`!{JSON.stringify(server||{})}`)
 		window.project = JSON.parse(`!{JSON.stringify(project)}`)
 	+scripts('project')

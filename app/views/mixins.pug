@@ -16,11 +16,18 @@ mixin top(title)
 		link(rel='stylesheet' href="/css/layout.css")
 		link(rel='stylesheet' href="/css/styles.css")
 
+		script.
+			window.initialState = JSON.parse(`!{JSON.stringify(initialState|| {})}`)
+			window.user = JSON.parse(`!{JSON.stringify(user|| {})}`)
+
+
 mixin editorNav()
 	.EditorHeader(:class="!headerIsVisible?'hidden':''" style="display: none" ref="header")
 		a.NavButton.btn(@click="newFile") New File
-		a.NavButton.btn(@click="viewErrors" v-html="errorsLabel")
-		a.NavButton.btn.float-right(href="/projects" :class="!headerIsVisible?'WithSidebar':''") Projects
+		a.NavButton.btn(@click="viewProject") View
+		a.NavButton.btn(:href="`/project/${project._id}/edit`") Settings
+		//a.NavButton.btn(@click="viewErrors" v-html="errorsLabel")
+		a.NavButton.btn.float-right(href="/projects") Projects
 		.EditorHeaderToggle(@click="toggleHeader")
 			div(v-show="headerIsVisible")
 				i.fas.fa-angle-double-up
@@ -52,13 +59,14 @@ mixin scripts(name)
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js")
 	script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js')
 	script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js')
-	script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js")
-	script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ext-language_tools.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ext-language_tools.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify.min.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify-css.min.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.min.js")
 	script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/jstree.min.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js")
 	script(src="/js/common.js")
 	script(src=`/js/${name}.js` type="module")

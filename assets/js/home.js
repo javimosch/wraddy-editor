@@ -1,7 +1,13 @@
+
+
+
 new Vue({
     el: "#app",
     data: function() {
-        return {
+        return Object.assign(window.initialState||{},{
+            socket:null,
+            user: window.user,
+            server: window.server,
             project: window.project,
             editor: null,
             searchText: '',
@@ -15,13 +21,15 @@ new Vue({
             treeInit: false,
             errors: [],
             recentFiles: []
-        }
+        })
     },
     computed: {
         editorState,
         errorsLabel
     },
     methods: {
+        viewProject,
+        runProject,
         ableToSaveFile,
         search,
         selectFile,
@@ -36,7 +44,8 @@ new Vue({
         viewErrors,
         addRecentFile,
         recentFileLabel,
-        timeDifference
+        timeDifference,
+        initializateSocket
     },
     async mounted() {
         initEditor(this)
@@ -44,12 +53,19 @@ new Vue({
         loadHeaderStateFromLocalStorage(this);
         await this.mountTree()
         window.$(this.$refs.header).fadeIn(true)
+        this.initializateSocket(this)
+        delete window.user
     },
     watch: {
         searchText,
         "project.label": limitProjectTitleLength
     }
 });
+
+function initializateSocket(vm){
+    let url = vm.NODE_ENV === 'production' ? 'http://178.128.254.49:8084/' : 'localhost:8084'
+    vm.socket = io(url);
+}
 
 function viewErrors() {
     this.selectFile({
@@ -131,7 +147,7 @@ async function mountTree() {
         project: this.project._id
     })
     let treeEl = $(this.$refs.tree)
-    treeEl.off("changed.jstree").on("changed.jstree", async(e, data) => {
+    treeEl.off("changed.jstree").on("changed.jstree", async (e, data) => {
         if (data.action === 'deselect_all') {
             return;
         }
@@ -168,6 +184,21 @@ function limitProjectTitleLength(v) {
     if (v.length > 8) this.project.label = this.project.label.substring(0, 7)
 }
 
+function saveFileCommand(vm) {
+    return {
+        name: 'saveFile',
+        bindKey: {
+            win: 'Alt-S',
+            mac: 'Command-S'
+        },
+        exec: function(editor) {
+            vm.saveSelectedFile()
+            window.event.stopPropagation()
+        },
+        readOnly: false
+    }
+}
+
 function formatCodeCommand(vm) {
     return {
         name: 'beautify',
@@ -194,6 +225,45 @@ function toggleHeader() {
     window.localStorage.setItem('headerIsVisible', this.headerIsVisible);
 }
 
+async function viewProject(){
+    try{
+        window.open(`http://${this.server.WRAPKEND_IP}:${this.pr.settings.envs[this.NODE_ENV].port}/`)
+    }catch(err){
+        console.warn(err.stack)
+        await this.runProject()
+    }
+}
+async function runProject() {
+    try {
+        new Noty({
+            type: 'info',
+            timeout: false,
+            text: 'Setup in progress...',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+        let url = this.server.WRAPKEND_API + '/configure-project/' + this.project._id + '?userId=' + this.user._id +'&forceRecreate=1'
+        console.info(url)
+        let result = await httpPost(url, {}, {
+            withCredentials: false,
+            method:'get'
+        })
+        window.open(`http://${this.server.WRAPKEND_IP}:${result.port}/`)
+        console.info(result)
+        Noty.closeAll();
+    } catch (err) {
+        console.error(err)
+
+        new Noty({
+            type: 'warning',
+            timeout: false,
+            text: 'Unable to configure. Contact us!',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+    }
+}
+
 function ableToSaveFile() {
     if (this.selectedFile && this.selectedFile.readonly === true) {
         return false;
@@ -214,11 +284,11 @@ function updateFileDirtyState() {
 }
 
 function loadFileFromQueryString(vm) {
-    if (qs('fileId') && qs('fileId') !='local') {
+    if (qs('fileId') && qs('fileId') != 'local') {
         vm.selectFile({
             _id: qs('fileId')
         })
-    }else{
+    } else {
         qsRemove('fileId')
     }
 }
@@ -261,6 +331,17 @@ async function saveSelectedFile() {
         let newFile = await httpPost('/saveFile', {
             project: this.project._id,
             file: this.selectedFile
+        })
+        this.socket.emit('saveFile',{
+            project:{
+                name: this.project.name,
+                privateKey: this.project.privateKey
+            },file:{
+                _id: this.selectedFile._id,
+                name: this.selectedFile.name,
+                code: this.selectedFile.code,
+                type: this.selectedFile.type,
+            }
         })
         this.selectedFile._id = newFile._id
         this.selectedFileOriginal = Object.assign({}, this.selectedFile)
@@ -319,6 +400,10 @@ function initEditor(vm) {
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode('ace/mode/javascript');
     editor.session.setOptions({
+        showInvisibles:true,
+        highlightActiveLine:true,
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
         wrap: true,
         tabSize: 4,
         useSoftTabs: false
@@ -330,5 +415,6 @@ function initEditor(vm) {
     })
     editor.commands.addCommand(closeFileShorcut(vm));
     editor.commands.addCommand(formatCodeCommand(vm));
+    editor.commands.addCommand(saveFileCommand(vm));
 
 }

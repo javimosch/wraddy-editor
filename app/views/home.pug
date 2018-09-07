@@ -41,10 +41,12 @@ body
 							.tree.ProjectTree(ref="tree")
 			#MainLayout
 				+editorNav()
-				#CodeEditor
+				#CodeEditorWrapper
+					#CodeEditor
 		.EditorState
 			p.EditorStateText(v-html="editorState")
 	script.
+		window.server = JSON.parse(`!{JSON.stringify(server||{})}`)
 		window.project = JSON.parse(`!{JSON.stringify(project)}`)
 	+scripts('home')
 	script.

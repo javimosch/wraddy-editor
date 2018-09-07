@@ -2,7 +2,10 @@ new Vue({
     el: "#app",
     data: function() {
         return {
+            server: window.server,
+            user: window.user,
             pr: window.project,
+            project: window.project,
             err: '',
             processing:false
         }
@@ -11,7 +14,9 @@ new Vue({
         ableToSave
     },
     methods: {
-        save
+        save,
+        setup,
+        sync
     },
     mounted() {
 
@@ -20,6 +25,66 @@ new Vue({
 
     }
 });
+
+async function sync(){
+    try {
+        new Noty({
+            type: 'info',
+            timeout: false,
+            text: 'Sync in progress...',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+        let url = this.server.WRAPKEND_API + '/sync-project-files/' + this.project._id + '?userId=' + this.user._id +'&forceRecreate=1'
+        console.info(url)
+        await httpPost(url, {}, {
+            withCredentials: false,
+            method:'get'
+        })
+        Noty.closeAll();
+    } catch (err) {
+        console.error(err)
+
+        new Noty({
+            type: 'warning',
+            timeout: false,
+            text: 'Unable to sync. Contact us!',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+    }
+}
+
+async function setup(){
+    try {
+        new Noty({
+            type: 'info',
+            timeout: false,
+            text: 'Setup in progress...',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+        let url = this.server.WRAPKEND_API + '/configure-project/' + this.project._id + '?userId=' + this.user._id +'&forceRecreate=1'
+        console.info(url)
+        let result = await httpPost(url, {}, {
+            withCredentials: false,
+            method:'get'
+        })
+        window.open(`http://${this.server.WRAPKEND_IP}:${result.port}/`)
+        console.info(result)
+        Noty.closeAll();
+    } catch (err) {
+        console.error(err)
+
+        new Noty({
+            type: 'warning',
+            timeout: false,
+            text: 'Unable to configure. Contact us!',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+    }
+}
 
 function ableToSave() {
     if(this.processing){
