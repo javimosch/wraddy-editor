@@ -1,11 +1,8 @@
-
-
-
 new Vue({
     el: "#app",
     data: function() {
-        return Object.assign(window.initialState||{},{
-            socket:null,
+        return Object.assign(window.initialState || {}, {
+            socket: null,
             user: window.user,
             server: window.server,
             project: window.project,
@@ -29,7 +26,7 @@ new Vue({
     },
     methods: {
         viewProject,
-        runProject,
+        
         ableToSaveFile,
         search,
         selectFile,
@@ -62,7 +59,7 @@ new Vue({
     }
 });
 
-function initializateSocket(vm){
+function initializateSocket(vm) {
     let url = vm.NODE_ENV === 'production' ? 'http://178.128.254.49:8084/' : 'localhost:8084'
     vm.socket = io(url);
 }
@@ -225,14 +222,21 @@ function toggleHeader() {
     window.localStorage.setItem('headerIsVisible', this.headerIsVisible);
 }
 
-async function viewProject(){
+async function viewProject() {
     try{
-        window.open(`http://${this.server.WRAPKEND_IP}:${this.pr.settings.envs[this.NODE_ENV].port}/`)
+        window.open(`http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.NODE_ENV].PORT}/`)
     }catch(err){
-        console.warn(err.stack)
-        await this.runProject()
+        console.log('ERROR','[When opening project]',this.project.settings, err.stack)
+        new Noty({
+            type: 'warning',
+            timeout: false,
+            text: 'Configuration needed (From settings)',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
     }
 }
+/*
 async function runProject() {
     try {
         new Noty({
@@ -266,7 +270,7 @@ async function runProject() {
             layout: "bottomRight"
         }).show();
     }
-}
+}*/
 
 function ableToSaveFile() {
     if (this.selectedFile && this.selectedFile.readonly === true) {
@@ -405,8 +409,8 @@ function initEditor(vm) {
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode('ace/mode/javascript');
     editor.session.setOptions({
-        showInvisibles:true,
-        highlightActiveLine:true,
+        showInvisibles: true,
+        highlightActiveLine: true,
         enableBasicAutocompletion: true,
         enableLiveAutocompletion: true,
         wrap: true,

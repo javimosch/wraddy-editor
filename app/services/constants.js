@@ -4,6 +4,7 @@ module.exports = async app => {
 	}
 
 	const isProd = self.isProd = process.env.NODE_ENV === 'production'
+	self.NODE_ENV = process.env.NODE_ENV || 'development'
 
 	if(isProd){
 		self.WRAPKEND_API = 'http://178.128.254.49:8084'

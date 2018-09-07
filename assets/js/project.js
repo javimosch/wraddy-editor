@@ -16,7 +16,8 @@ new Vue({
     methods: {
         save,
         setup,
-        sync
+        sync,
+        open
     },
     mounted() {
 
@@ -25,6 +26,21 @@ new Vue({
 
     }
 });
+
+async function open(){
+    try{
+        window.open(`http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.server.NODE_ENV].PORT}/`)
+    }catch(err){
+        console.error('ERROR','[When opening project in browser]', err.stack, this.project)
+        new Noty({
+            type: 'warning',
+            timeout: false,
+            text: 'Unable to open. Contact us!',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+    }
+}
 
 async function sync() {
     try {
@@ -40,12 +56,17 @@ async function sync() {
             method: 'get'
         }, {
             withCredentials: false,
-            method: 'get'
+            //method: 'get'
         })
-        Noty.closeAll();
+        new Noty({
+            type: 'info',
+            timeout: false,
+            text: 'Sync success',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
     } catch (err) {
-        console.error(err)
-
+        console.error('ERROR','[When sync in progress]',err.stack)
         new Noty({
             type: 'warning',
             timeout: false,
@@ -70,14 +91,20 @@ async function setup() {
             method:'get'
         }, {
             withCredentials: false,
-            method: 'get'
+            //method: 'get'
         })
-        window.open(`http://${this.server.WRAPKEND_IP}:${result.port}/`)
-        console.info(result)
-        Noty.closeAll();
+        try{
+            this.project.settings.envs[this.server.NODE_ENV].PORT = result.port
+        }catch(err){}
+        new Noty({
+            type: 'info',
+            timeout: false,
+            text: 'Configured OK at port '+ result.port,
+            killer: true,
+            layout: "bottomRight"
+        }).show();
     } catch (err) {
-        console.error(err)
-
+        console.error('ERROR','[When setup in progress]',err)
         new Noty({
             type: 'warning',
             timeout: false,

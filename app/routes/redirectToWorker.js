@@ -4,18 +4,21 @@ module.exports = app => {
 	})
 	app.post('/redirect-to-manager', parseJson, async (req, res) => {
 		try {
-			var rp = require('request-promise');
+			var rp = app.require('request-promise');
+			var result 
 			if (req.body.method === 'get') {
-				await rp(app.srv.constants.WRAPKEND_API + req.body.url)
+				result  = await rp(app.srv.constants.WRAPKEND_API + req.body.url)
+				result = JSON.parse(result)
 			} else {
-				await rp.post({
+				result = await rp.post({
 					method: 'POST',
 					uri: app.srv.constants.WRAPKEND_API + req.body.url,
 					body: req.body.params,
 					json: true
 				})
 			}
-			res.status(200).json({})
+			console.log('DEBUG','[after redirection to manager]',req.body.url,'Result is',result)
+			res.status(200).json(result)
 		} catch (err) {
 			console.error('ERROR', '[When redirecting post to worker]', err.stack)
 			res.status(500).json({
