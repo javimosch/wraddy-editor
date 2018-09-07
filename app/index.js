@@ -10,6 +10,7 @@ const fs = require('fs');
 const PORT = process.env.PORT || 3000;
 const path = require('path');
 const cors = require('cors')
+app.require = require('require-install');
 require('./bootstraps')(app).then(() => {
 	try {
 		require('./functions')(app)
