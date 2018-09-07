@@ -53,7 +53,7 @@ new Vue({
         loadHeaderStateFromLocalStorage(this);
         await this.mountTree()
         window.$(this.$refs.header).fadeIn(true)
-        this.initializateSocket(this)
+        //this.initializateSocket(this)
         delete window.user
     },
     watch: {
@@ -242,9 +242,13 @@ async function runProject() {
             killer: true,
             layout: "bottomRight"
         }).show();
-        let url = this.server.WRAPKEND_API + '/configure-project/' + this.project._id + '?userId=' + this.user._id +'&forceRecreate=1'
         console.info(url)
-        let result = await httpPost(url, {}, {
+        let url = '/configure-project/' + this.project._id + '?userId=' + this.user._id +'&forceRecreate=1';
+        let result = await httpPost('/redirect-to-manager', {
+            url,
+            method:'get',
+            params:{}
+        }, {
             withCredentials: false,
             method:'get'
         })
@@ -332,6 +336,7 @@ async function saveSelectedFile() {
             project: this.project._id,
             file: this.selectedFile
         })
+        /*
         this.socket.emit('saveFile',{
             project:{
                 name: this.project.name,
@@ -342,7 +347,7 @@ async function saveSelectedFile() {
                 code: this.selectedFile.code,
                 type: this.selectedFile.type,
             }
-        })
+        })*/
         this.selectedFile._id = newFile._id
         this.selectedFileOriginal = Object.assign({}, this.selectedFile)
         this.updateFileDirtyState()

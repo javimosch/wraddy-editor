@@ -3,11 +3,13 @@ module.exports = async app => {
 		fileTypes: ['javascript', 'function', 'middleware', 'pug', 'route', 'markdown', 'css', 'service', 'schema']
 	}
 
-	if(process.env.NODE_ENV === 'production'){
+	const isProd = self.isProd = process.env.NODE_ENV === 'production'
+
+	if(isProd){
 		self.WRAPKEND_API = 'http://178.128.254.49:8084'
 		self.WRAPKEND_IP = '178.128.254.49'
 	}else{
-		self.WRAPKEND_API = 'http://wedev.local:8084'
+		self.WRAPKEND_API = 'http://localhost:8084'
 		self.WRAPKEND_IP = 'localhost'
 	}
 

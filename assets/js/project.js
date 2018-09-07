@@ -7,7 +7,7 @@ new Vue({
             pr: window.project,
             project: window.project,
             err: '',
-            processing:false
+            processing: false
         }
     },
     computed: {
@@ -26,7 +26,7 @@ new Vue({
     }
 });
 
-async function sync(){
+async function sync() {
     try {
         new Noty({
             type: 'info',
@@ -35,11 +35,12 @@ async function sync(){
             killer: true,
             layout: "bottomRight"
         }).show();
-        let url = this.server.WRAPKEND_API + '/sync-project-files/' + this.project._id + '?userId=' + this.user._id +'&forceRecreate=1'
-        console.info(url)
-        await httpPost(url, {}, {
+        await httpPost('/redirect-to-manager', {
+            url: '/sync-project-files/' + this.project._id + '?userId=' + this.user._id + '&forceRecreate=1',
+            method: 'get'
+        }, {
             withCredentials: false,
-            method:'get'
+            method: 'get'
         })
         Noty.closeAll();
     } catch (err) {
@@ -55,7 +56,7 @@ async function sync(){
     }
 }
 
-async function setup(){
+async function setup() {
     try {
         new Noty({
             type: 'info',
@@ -64,11 +65,13 @@ async function setup(){
             killer: true,
             layout: "bottomRight"
         }).show();
-        let url = this.server.WRAPKEND_API + '/configure-project/' + this.project._id + '?userId=' + this.user._id +'&forceRecreate=1'
-        console.info(url)
-        let result = await httpPost(url, {}, {
-            withCredentials: false,
+        let url = this.server.WRAPKEND_API + 
+        let result = await httpPost('/redirect-to-manager', {
+            url:'/configure-project/' + this.project._id + '?userId=' + this.user._id + '&forceRecreate=1',
             method:'get'
+        }, {
+            withCredentials: false,
+            method: 'get'
         })
         window.open(`http://${this.server.WRAPKEND_IP}:${result.port}/`)
         console.info(result)
@@ -87,36 +90,36 @@ async function setup(){
 }
 
 function ableToSave() {
-    if(this.processing){
+    if (this.processing) {
         return false;
     }
-    if(this.pr.shortText&&this.pr.shortText.length>25){
-        this.err='The Brief description cannot have more than twenty-five characters.'
+    if (this.pr.shortText && this.pr.shortText.length > 25) {
+        this.err = 'The Brief description cannot have more than twenty-five characters.'
         return false;
-    }else{
-        this.err=''
+    } else {
+        this.err = ''
     }
-    if(this.pr.label&&this.pr.label.length>8){
-        this.err='The label cannot have more than eight characters.'
+    if (this.pr.label && this.pr.label.length > 8) {
+        this.err = 'The label cannot have more than eight characters.'
         return false;
-    }else{
-        this.err=''
+    } else {
+        this.err = ''
     }
     return this.pr.name
 }
 
 async function save() {
     try {
-        this.processing=true
+        this.processing = true
         let r = await httpPost('/saveProject', this.pr)
-        if(r.err){
+        if (r.err) {
             throw new Error(r.err)
         }
-        if(!this.pr._id){
-            window.location.href="/projects"
+        if (!this.pr._id) {
+            window.location.href = "/projects"
         }
     } catch (err) {
         this.err = err.message ? err.message : err
     }
-    this.processing=false
+    this.processing = false
 }

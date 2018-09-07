@@ -36,6 +36,8 @@ module.exports = {
                         prs,
                         _id: payload._id
                     })*/
+
+                    app.fn.emitSaveFile(payload, await app.mongoose.model('project').findById(project))
                     
                 }else{
                     console.log('WARN: No project')

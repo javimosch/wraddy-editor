@@ -11,17 +11,26 @@ const PORT = process.env.PORT || 3000;
 const path = require('path');
 const cors = require('cors')
 require('./bootstraps')(app).then(() => {
-	require('./functions')(app)
-	app.fn.connectMongoose();
-	require('./schemas')(app)
-	require('./services')(app).then(() => {
-		cookieParser = app.requireInstall('cookie-parser')
-		app.use(cookieParser())
-		require('./middlewares')(app)
-		require('./routes')(app)
-		app.use('/', express.static(path.join(process.cwd(), 'assets')));
-		server.listen(PORT, function() {
-			console.log('Listening on http://localhost:' + PORT)
-		})
-	})
-})
+	try {
+		require('./functions')(app)
+		app.fn.connectMongoose();
+		require('./schemas')(app)
+		require('./services')(app).then(() => {
+			app.fn.configureIOClient()
+			cookieParser = app.requireInstall('cookie-parser')
+			app.use(cookieParser())
+			require('./middlewares')(app)
+			require('./routes')(app)
+			app.use('/', express.static(path.join(process.cwd(), 'assets')));
+			server.listen(PORT, function() {
+				console.log('Listening on http://localhost:' + PORT)
+			})
+		}).catch(err => onError(err, '[When loading services]'))
+	} catch (err) {
+		onError(err, '[After bootstraps]')
+	}
+}).catch(err => onError(err, '[When loading bootstraps]'))
+
+function onError(err, when) {
+	console.error('ERROR', when, err.stack)
+}
