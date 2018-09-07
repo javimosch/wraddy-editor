@@ -10,7 +10,7 @@ module.exports = app => {
 			} else {
 				await rp.post({
 					method: 'POST',
-					uri: app.srv.constants.WRAPKEND_API + req.body.url
+					uri: app.srv.constants.WRAPKEND_API + req.body.url,
 					body: req.body.params,
 					json: true
 				})
