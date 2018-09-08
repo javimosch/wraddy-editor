@@ -23,6 +23,9 @@ block content
 							label.SmallLabel Brief description
 							input.SmallInput.form-control.email(v-model="pr.shortText")
 						.col-12.mt-3
+							label.SmallLabel Enviromental variables
+							textarea.SmallInput.form-control(v-model="envs")
+						.col-12.mt-3
 							label.SmallLabel API Key
 							input.SmallInput.form-control.email(v-model="pr.privateKey" readonly)
 						.col-12.mt-3

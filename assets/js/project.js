@@ -7,7 +7,8 @@ new Vue({
             pr: window.project,
             project: window.project,
             err: '',
-            processing: false
+            processing: false,
+            envs:''
         }
     },
     computed: {
@@ -15,6 +16,7 @@ new Vue({
         defaultDomainMessage
     },
     methods: {
+        prepareEnvs,
         save,
         setup,
         sync,
@@ -28,6 +30,28 @@ new Vue({
     }
 });
 
+function prepareEnvs(){
+    let hasError = false
+    this.envs.split(/\r\n|\r|\n/g).forEach(line=>{
+        let env = line.trim().split('=')
+        try{
+            this.project.settings.envs[this.server.NODE_ENV][env[0]]= env[1]
+            console.log('DEBUG','[Env set]',env.join(' -> '))
+        }catch(err){
+            hasError=true
+            console.warn('WARN','[When setup envs]',err.stack)
+        }
+    })
+    if(hasError){
+        new Noty({
+            type: 'warning',
+            timeout: false,
+            text: 'Fail to setup enviromental variables. Contact us!',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+    }
+}
 
 function defaultDomainMessage() {
     let domain = (this.project.label||'').toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
@@ -146,6 +170,9 @@ function ableToSave() {
 
 async function save() {
     try {
+
+        this.prepareEnvs()
+
         this.processing = true
         let r = await httpPost('/saveProject', this.pr)
         console.log('DEBUG', '[after save]', r)
