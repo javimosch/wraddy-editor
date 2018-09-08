@@ -16,6 +16,7 @@ new Vue({
         defaultDomainMessage
     },
     methods: {
+        resolveEnvs,
         prepareEnvs,
         save,
         setup,
@@ -23,12 +24,22 @@ new Vue({
         open
     },
     mounted() {
-
+        this.resolveEnvs()
     },
     watch: {
 
     }
 });
+
+function resolveEnvs(){
+    try{
+        let envs = this.project.settings.envs[this.server.NODE_ENV]
+        this.envs = Object.keys(envs).filter(k=>!['NODE_ENV','PORT'].includes(k)).map(k=>`${k}=${envs[k]}`).join(`
+`).trim()
+    }catch(err){
+
+    }
+}
 
 function prepareEnvs(){
     let hasError = false
