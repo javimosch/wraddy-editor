@@ -82,7 +82,7 @@ function consoleBody() {
     if (!this.consoleType) {
         return this.consoleLogs.map(d => d.m).join('&#13;&#10;')
     } else {
-        return this.consoleLogs.filter(d => d.type == this.consoleType).join('&#13;&#10;')
+        return this.consoleLogs.filter(d => d.type == this.consoleType).map(d => d.m).join('&#13;&#10;')
     }
 }
 
