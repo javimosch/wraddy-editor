@@ -3,6 +3,7 @@ include mixins.pug
 +top('Home')
 body
 	#app
+		include console.pug
 		.RecentFiles(v-show="recentFiles.length>0")
 			.row.no-gutters
 				.col-12

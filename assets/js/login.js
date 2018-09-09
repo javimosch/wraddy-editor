@@ -4,7 +4,8 @@ new Vue({
         return {
             email: '',
             password: '',
-            err: ''
+            err: '',
+            anonymousId: ''
         }
     },
     computed: {
@@ -41,6 +42,9 @@ function loadLastEmail(vm) {
 
 async function login() {
     try {
+        analytics.track('login_attempt', {
+            details: btoa(this.email)
+        });
         window.localStorage.setItem('email', this.email)
         await httpPost('/login', {
             email: this.email,
@@ -49,5 +53,8 @@ async function login() {
         window.location.href = "/"
     } catch (err) {
         this.err = err.message ? err.message : err;
+        analytics.track('login_fail', {
+            details: btoa(this.email)
+        });
     }
 }

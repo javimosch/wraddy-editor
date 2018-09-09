@@ -144,7 +144,7 @@ async function setup() {
         new Noty({
             type: 'info',
             timeout: false,
-            text: 'Configured OK at port ' + result.port,
+            text: 'Setup and Sync Success at port ' + result.port,
             killer: true,
             layout: "bottomRight"
         }).show();

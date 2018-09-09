@@ -17,6 +17,13 @@ mixin top(title)
 		link(rel='stylesheet' href="/css/styles.css")
 
 		script.
+			!function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
+			analytics.load("nO1bDjk7PU6meYtR1rs1Mkhpx2IRJJDb");
+			analytics.page();
+			}}();
+
+
+		script.
 			window.initialState = JSON.parse(`!{JSON.stringify(initialState|| {})}`)
 			window.user = JSON.parse(`!{JSON.stringify(user|| {})}`)
 
@@ -26,6 +33,7 @@ mixin editorNav()
 	.EditorHeader(ref="header")
 		a.NavButton.btn(@click="newFile") New File
 		a.NavButton.btn(@click="viewProject") View
+		a.NavButton.btn(@click="viewConsole") Console
 		a.NavButton.btn(:href="`/project/${project._id}/edit`") Settings
 		//a.NavButton.btn(@click="viewErrors" v-html="errorsLabel")
 		a.NavButton.btn.float-right(href="/projects") Projects
@@ -56,6 +64,7 @@ mixin bottom()
 	//nothing yet
 
 mixin scripts(name)
+	//script(src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/1.8.1/fingerprint2.min.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js")
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js")
 	script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js')
