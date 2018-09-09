@@ -1,10 +1,14 @@
 #EditorConsole(v-show="consoleShow" style="display:none;")
 	.row.no-gutters
 		.col-12
-			select.form-control(v-model="consoleType")
-				option(value='') ALL
-				option(value='ERROR') ERROR
-				option(value='WARN') WARN
-				option(value='TRACE') TRACE
+			.row.no-gutters
+				.col.d-flex.justify-content-left
+					select.form-control(v-model="consoleType")
+						option(value='') ALL
+						option(value='ERROR') ERROR
+						option(value='WARN') WARN
+						option(value='TRACE') TRACE
+				.col.d-flex.justify-content-end
+					button.btn.btn-primary(@click="clearConsole") Clear
 		.col-12.mt-2
 			textarea#EditorConsoleText(readonly v-html="consoleBody")

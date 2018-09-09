@@ -8,9 +8,24 @@ module.exports = app => (file, project) => {
 	});
 	socket.on('event', function(data) {});
 	socket.on('disconnect', function() {});
-	socket.on('projectError', error => {
-		console.log('TRACE PROJECT ERROR', error)
-		app.errorsIo.emit('projectError', error)
+	socket.on('projectLog', data => {
+		
+		let io = app.srv.editorIO.getErrorIo(data.name)
+		if(io){
+			console.log('DEBUG [projectLog]', data.name, data.type, data.message);
+
+			//client: console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)
+
+			let tz = 'Europe/Paris'
+			let moment = app.require('moment-timezone')
+			let now = moment().tz(tz).format("HH:mm:ss.SSS")
+			data.t = now;
+
+			io.emit('projectLog', data);
+		}else{
+			console.log('DEBUG [projectLog][io not found]', data.name, data.type, data.message);
+		}
 	})
+
 	app.managerSocket = socket;
 }

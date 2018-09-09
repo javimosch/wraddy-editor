@@ -20,11 +20,7 @@ new Vue({
             treeInit: false,
             errors: [],
             recentFiles: [],
-            consoleLogs: {
-                ERROR: [],
-                WARN: [],
-                TRACE: []
-            },
+            consoleLogs: [],
             consoleShow: false,
             consoleType: ''
         })
@@ -35,6 +31,7 @@ new Vue({
         errorsLabel
     },
     methods: {
+        clearConsole,
         viewProject,
         viewConsole,
         ableToSaveFile,
@@ -77,36 +74,45 @@ new Vue({
     }
 });
 
+function clearConsole(){
+    this.consoleLogs = []
+}
+
 function consoleBody() {
     if (!this.consoleType) {
-        return Object.keys(this.consoleLogs).map(k => this.consoleLogs[k].join('&#13;&#10;')).join('&#13;&#10;')
+        return this.consoleLogs.map(d => d.m).join('&#13;&#10;')
     } else {
-        return this.consoleLogs[this.consoleType].join('&#13;&#10;')
+        return this.consoleLogs.filter(d => d.type == this.consoleType).join('&#13;&#10;')
     }
 }
 
 function initializateSocket(vm) {
     //let url = vm.NODE_ENV === 'production' ? 'http://178.128.254.49:8084/errors' : 'localhost:8084/errors'
-    vm.socket = io('/errors');
+    let url = '/' + vm.project.name + '/errors'
+    console.log('Targeting editor io at ', url)
+    vm.socket = io(url);
     vm.socket.on('connect', function() {
         console.log('DEBUG', '[After connection to socket success]')
     });
-    vm.socket.on('projectError', (data) => {
+    vm.socket.on('projectLog', (data) => {
         data.message = data.message.split(/\r\n|\r|\n/g)[0]
         if (data.message.indexOf(data.type) === -1) {
             return
         }
-        this.consoleLogs[data.type] = this.consoleLogs[data.type]||[]
-        this.consoleLogs[data.type].push(getFormattedLog(data))
+
+        this.consoleLogs.push({
+            m: getFormattedLog(data),
+            type: data.type
+        })
         console.info(getFormattedLog(data))
     })
 }
 
 function getFormattedLog(data) {
     if (data.message.indexOf(data.type) !== 0) {
-        return (data.type + data.message.split(data.type)[1]).trim()
+        return data.t + ' ' + (data.type + data.message.split(data.type)[1]).trim()
     } else {
-        return data.message.trim()
+        return data.t + ' ' + data.message.trim()
     }
 }
 
