@@ -1,3 +1,5 @@
+
+
 #EditorConsole {
     position: fixed;
     top: 20px;
@@ -265,12 +267,17 @@ ul {
     font-weight: bold;
 }
 
+.EmailListItem{
+    padding: 10px;
+    font-size: 14px;
+}
+
 .SmallInput {
     opacity: 0.5;
     font-family: Roboto-, sans-serif;
     font-size: small;
     font-weight: 100;
-    padding: 3px;
+    padding: 10px;
     max-width: 350px;
     width: -webkit-fill-available;
     height: 35px!important;

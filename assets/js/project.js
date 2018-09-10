@@ -9,12 +9,16 @@ new Vue({
             err: '',
             processing: false,
             envs: '',
-            state: 'Needs setup'
+            state: 'Needs setup',
+            tab: 'general',
+            newUserEmail: '',
+            newUserRole: 'developer'
         }
     },
     computed: {
         ableToSave,
-        defaultDomainMessage
+        defaultDomainMessage,
+        canAddUser
     },
     methods: {
         getUrl,
@@ -24,9 +28,11 @@ new Vue({
         setup,
         sync,
         open,
-        checkState
+        checkState,
+        addUser
     },
     mounted() {
+        onTabsChangeCreate(this)
         this.resolveEnvs()
         this.checkState()
     },
@@ -34,6 +40,29 @@ new Vue({
 
     }
 });
+
+async function addUser() {
+    try {
+        let r = await httpPost('/rpc/addUserToProject', {
+            email: this.newUserEmail,
+            role: this.newUserRole
+        })
+        console.log('DEBUG', '[after adding user]', r)
+    } catch (err) {
+        console.error('ERROR', '[when adding user]', err)
+        new Noty({
+            type: 'warning',
+            timeout: false,
+            text: 'It was not possible to add the user. Contact us!',
+            killer: true,
+            layout: "bottomRight"
+        }).show();
+    }
+}
+
+function canAddUser() {
+    return !!this.newUserEmail && !!this.newUserRole
+}
 
 function checkState() {
     fetch(this.getUrl()).then(res => {
@@ -56,7 +85,7 @@ function prepareEnvs() {
     this.envs.split(/\r\n|\r|\n/g).forEach(line => {
         let env = line.trim().split('=')
         try {
-            this.project.settings.envs[this.server.NODE_ENV] = this.project.settings.envs[this.server.NODE_ENV]||{}
+            this.project.settings.envs[this.server.NODE_ENV] = this.project.settings.envs[this.server.NODE_ENV] || {}
             this.project.settings.envs[this.server.NODE_ENV][env[0]] = env[1]
             console.log('DEBUG', '[Env set]', env.join(' -> '))
         } catch (err) {
@@ -72,6 +101,12 @@ function prepareEnvs() {
             killer: true,
             layout: "bottomRight"
         }).show();
+    }
+}
+
+function onTabsChangeCreate(vm) {
+    window.onTabsChange = function(name) {
+        vm.tab = name
     }
 }
 
@@ -167,7 +202,7 @@ async function setup() {
             layout: "bottomRight"
         }).show();
 
-        setTimeout(()=>this.checkState(),5000)
+        setTimeout(() => this.checkState(), 5000)
 
     } catch (err) {
         console.error('ERROR', '[When setup in progress]', err)
@@ -199,6 +234,8 @@ function ableToSave() {
     }
     return this.pr.name
 }
+
+
 
 async function save() {
     try {

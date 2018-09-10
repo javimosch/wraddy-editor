@@ -6,6 +6,17 @@ module.exports = async app => {
 		ownAllFiles: async function(params) {
 			return 'OK2'
 		},
+		removeDuplicatedUsersFromProjects: async (params, req) => {
+			let prs = await model('project').find({}).exec()
+			return sequential(prs.map(pr => {
+				return async () => {
+					pr.users = pr.users.filter((u,index)=>{
+						return index === pr.users.indexOf(u.toString())
+					})
+					await pr.save()
+				}
+			}))
+		},
 		fixUserRights: async (params, req) => {
 			let users = await model('cloud_user').find({}).exec()
 			return sequential(users.map(user => {

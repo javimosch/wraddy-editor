@@ -1,0 +1,74 @@
+mixin tabs(opts)
+	-	
+		opts = opts || {}
+		opts.onChangeCallback = opts.onChangeCallback === undefined ? 'onTabsChange' : opts.onChangeCallback
+		opts.id = opts.id || `tabs-${Date.now()}`
+		opts.items = opts.items || [{
+			label:'Tab 1',
+			name:'tab1',
+			show:true
+		}]
+		opts.items = opts.items.map((i, index)=>{
+			i.show = i.show === undefined ? true : i.show
+			i.label = i.label === undefined ? 'Tab '+parseInt(parseInt(index)+1) : i.label
+			var labelToName = i.label.split(' ').join('').toLowerCase().trim()
+			i.name = i.name === undefined ? labelToName : i.name
+			return i;
+		})
+	#tabsWrapper(style="display: none;")
+		ul.nav.nav-tabs(ref="list" id=opts.id)
+			each tab, index in opts.items
+				if(tab.show)
+					li.nav-item
+						a.nav-link(v-bind:class=`linkClass('${tab.name}')`,href='javascript:void(0)',v-on:click=`setActiveTab('${tab.name}')`)!=tab.label
+	script.
+		(()=>{
+			var opts = JSON.parse(`!{JSON.stringify(opts||{})}`)
+			opts.name = opts.name || 'tabs'
+			opts.autoinit = opts.autoinit===undefined ? true : opts.autoinit
+			if(opts.autoinit){
+				init();	
+			}else{
+				window[`init_tabs_${opts.name}`] = init
+			}
+			function init(){
+				if(!window.Vue || !window.$){
+					return setTimeout(init, 100);
+				}
+				new Vue({
+					name,
+					el: `#${opts.id}`,
+					data(){
+						return {
+							active: opts.default
+						}
+					},
+					mounted(){
+						$(document).ready(() => {
+
+							$('#tabsWrapper').appendTo('#tabs').toggle(true)
+
+							if(!this.active){
+								this.active = opts.items[0].name
+							}
+							this.setActiveTab(this.active)
+						});
+					},
+					methods: {
+						linkClass(name){
+							return name === this.active ? 'active' : '';
+						},
+						setActiveTab(name){
+							var handler= window[opts.onChangeCallback];
+							if(handler){
+								handler(name);
+							}else{
+								console.warn('WARN [When tab active changes]',`[${opts.name}]`,'There is no handler specified. Expected:',opts.onChangeCallback)
+							}
+							this.active= name;
+							return false;
+						}
+					}
+				});
+			}
+		})();

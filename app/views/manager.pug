@@ -10,7 +10,12 @@ body
 					.row.position-relative
 						.col-12.mt-3
 							h5.text-center Scripts
-							button.Button.btn.btn-primary.mx-auto.d-block(@click="runAction('ownAllProjects')") ownAllProjects
+							
+
+							button.Button.btn.btn-primary.mx-auto.d-block(@click="runAction('removeDuplicatedUsersFromProjects')") removeDuplicatedUsersFromProjects
+
+							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('ownAllProjects')") ownAllProjects
+
 							button.Button.btn.btn-primary.mx-auto.d-block.mt-2(@click="runAction('everyUserHasAtLeastOneOrganization')") 	everyUserHasAtLeastOneOrganization
 
 

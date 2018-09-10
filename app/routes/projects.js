@@ -9,6 +9,7 @@ module.exports = {
 				return res.redirect('/login')
 			}
 			res.sendView('projects', {
+				
 				sidebarActiveLink: 'projects',
 				projects: await mongoose.model('project').find({
 					users: {
@@ -21,10 +22,22 @@ module.exports = {
 			if (!req.user) {
 				return res.redirect('/login')
 			}
+
+			let project = await mongoose.model('project').findById(req.params.id)
+			.populate('users','email')
+			.exec()
+
 			res.sendView('project-details', {
+				tabs: {
+					items: [{
+						label: "General"
+					}, {
+						label: 'Users'
+					}]
+				},
 				server: app.srv.constants,
 				sidebarActiveLink: 'projects',
-				project: await mongoose.model('project').findById(req.params.id).exec()
+				project
 			})
 		})
 		app.get('/projects/create', async (req, res) => {
@@ -44,9 +57,9 @@ module.exports = {
 
 				if (!req.body.label) {
 					throw new Error('LABEL_REQUIRED')
-				}else{
-					if(['jobs','contact','team','editor','beta','dev','blog','news'].includes(req.body.label)){
-						throw new Error('LABEL_REQUIRED')	
+				} else {
+					if (['jobs', 'contact', 'team', 'editor', 'beta', 'dev', 'blog', 'news', 'site', 'hire', 'wrapkend'].includes(req.body.label)) {
+						throw new Error('LABEL_REQUIRED')
 					}
 				}
 
@@ -111,4 +124,3 @@ module.exports = {
 		});
 	}
 }
-
