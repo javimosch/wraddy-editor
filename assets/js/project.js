@@ -191,8 +191,8 @@ function ableToSave() {
     } else {
         this.err = ''
     }
-    if (this.pr.label && this.pr.label.length > 8) {
-        this.err = 'The label cannot have more than eight characters.'
+    if (this.pr.label && this.pr.label.length > 15) {
+        this.err = 'The label cannot have more than 15 characters.'
         return false;
     } else {
         this.err = ''
