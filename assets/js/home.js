@@ -1,3 +1,5 @@
+//import './editor_console.js'
+
 new Vue({
     el: "#app",
     data: function() {
@@ -17,16 +19,21 @@ new Vue({
             headerIsVisible: false,
             treeInit: false,
             errors: [],
-            recentFiles: []
+            recentFiles: [],
+            consoleLogs: [],
+            consoleShow: false,
+            consoleType: ''
         })
     },
     computed: {
+        consoleBody,
         editorState,
         errorsLabel
     },
     methods: {
+        clearConsole,
         viewProject,
-        
+        viewConsole,
         ableToSaveFile,
         search,
         selectFile,
@@ -50,8 +57,16 @@ new Vue({
         loadHeaderStateFromLocalStorage(this);
         await this.mountTree()
         window.$(this.$refs.header).fadeIn(true)
-        //this.initializateSocket(this)
+        this.initializateSocket(this)
         delete window.user
+
+        $(document).on('keyup', (e) => {
+            if (e.keyCode === 27) {
+                if (this.consoleShow) {
+                    this.consoleShow = false
+                }
+            }
+        });
     },
     watch: {
         searchText,
@@ -59,9 +74,50 @@ new Vue({
     }
 });
 
+function clearConsole(){
+    this.consoleLogs = []
+}
+
+function consoleBody() {
+    if (!this.consoleType) {
+        return this.consoleLogs.map(d => d.m).join('&#13;&#10;')
+    } else {
+        return this.consoleLogs.filter(d => d.type == this.consoleType).map(d => d.m).join('&#13;&#10;')
+    }
+}
+
 function initializateSocket(vm) {
-    let url = vm.NODE_ENV === 'production' ? 'http://178.128.254.49:8084/' : 'localhost:8084'
+    //let url = vm.NODE_ENV === 'production' ? 'http://178.128.254.49:8084/errors' : 'localhost:8084/errors'
+    let url = '/' + vm.project.name + '/errors'
+    console.log('Targeting editor io at ', url)
     vm.socket = io(url);
+    vm.socket.on('connect', function() {
+        console.log('DEBUG', '[After connection to socket success]')
+    });
+    vm.socket.on('projectLog', (data) => {
+        data.message = data.message.split(/\r\n|\r|\n/g)[0]
+        if (data.message.indexOf(data.type) === -1) {
+            return
+        }
+
+        this.consoleLogs.push({
+            m: getFormattedLog(data),
+            type: data.type
+        })
+        console.info(getFormattedLog(data))
+    })
+}
+
+function getFormattedLog(data) {
+    if (data.message.indexOf(data.type) !== 0) {
+        return data.t + ' ' + (data.type + data.message.split(data.type)[1]).trim()
+    } else {
+        return data.t + ' ' + data.message.trim()
+    }
+}
+
+function viewConsole() {
+    this.consoleShow = true
 }
 
 function viewErrors() {
@@ -224,13 +280,13 @@ function toggleHeader() {
 }
 
 async function viewProject() {
-    try{
+    try {
         let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
         let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.NODE_ENV].PORT}/`;
         let ip = defaultDomain ? defaultDomain : rawIp
-        window.open('https://'+ip.split('https://').join('https://'))
-    }catch(err){
-        console.log('ERROR','[When opening project]',this.project.settings, err.stack)
+        window.open('https://' + ip.split('https://').join('https://'))
+    } catch (err) {
+        console.log('ERROR', '[When opening project]', this.project.settings, err.stack)
         new Noty({
             type: 'warning',
             timeout: false,

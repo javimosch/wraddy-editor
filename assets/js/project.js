@@ -8,7 +8,8 @@ new Vue({
             project: window.project,
             err: '',
             processing: false,
-            envs:''
+            envs: '',
+            state: 'Needs setup'
         }
     },
     computed: {
@@ -16,45 +17,54 @@ new Vue({
         defaultDomainMessage
     },
     methods: {
+        getUrl,
         resolveEnvs,
         prepareEnvs,
         save,
         setup,
         sync,
-        open
+        open,
+        checkState
     },
     mounted() {
         this.resolveEnvs()
+        this.checkState()
     },
     watch: {
 
     }
 });
 
-function resolveEnvs(){
-    try{
+function checkState() {
+    fetch(this.getUrl()).then(res => {
+        this.state = res && res.status === 200 ? 'Active' : 'Needs setup'
+    })
+}
+
+function resolveEnvs() {
+    try {
         let envs = this.project.settings.envs[this.server.NODE_ENV]
-        this.envs = Object.keys(envs).filter(k=>!['NODE_ENV','PORT'].includes(k)).map(k=>`${k}=${envs[k]}`).join(`
+        this.envs = Object.keys(envs).filter(k => !['NODE_ENV', 'PORT'].includes(k)).map(k => `${k}=${envs[k]}`).join(`
 `).trim()
-    }catch(err){
+    } catch (err) {
 
     }
 }
 
-function prepareEnvs(){
+function prepareEnvs() {
     let hasError = false
-    this.envs.split(/\r\n|\r|\n/g).forEach(line=>{
+    this.envs.split(/\r\n|\r|\n/g).forEach(line => {
         let env = line.trim().split('=')
-        try{
+        try {
             this.project.settings.envs[this.server.NODE_ENV] = this.project.settings.envs[this.server.NODE_ENV]||{}
-            this.project.settings.envs[this.server.NODE_ENV][env[0]]= env[1]
-            console.log('DEBUG','[Env set]',env.join(' -> '))
-        }catch(err){
-            hasError=true
-            console.warn('WARN','[When setup envs]',err.stack)
+            this.project.settings.envs[this.server.NODE_ENV][env[0]] = env[1]
+            console.log('DEBUG', '[Env set]', env.join(' -> '))
+        } catch (err) {
+            hasError = true
+            console.warn('WARN', '[When setup envs]', err.stack)
         }
     })
-    if(hasError){
+    if (hasError) {
         new Noty({
             type: 'warning',
             timeout: false,
@@ -66,8 +76,15 @@ function prepareEnvs(){
 }
 
 function defaultDomainMessage() {
-    let domain = (this.project.label||'').toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
+    let domain = (this.project.label || '').toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
     return `Your project is also available at ${domain}.wrapkend.com`
+}
+
+function getUrl() {
+    let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
+    let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.server.NODE_ENV].PORT}/`;
+    let ip = defaultDomain ? defaultDomain : rawIp
+    return 'https://' + ip.split('https://').join('https://');
 }
 
 async function open() {
@@ -75,7 +92,7 @@ async function open() {
         let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
         let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.server.NODE_ENV].PORT}/`;
         let ip = defaultDomain ? defaultDomain : rawIp
-        window.open('https://'+ip.split('https://').join('https://'))
+        window.open('https://' + ip.split('https://').join('https://'))
     } catch (err) {
         console.error('ERROR', '[When opening project in browser]', err.stack, this.project)
         new Noty({
@@ -145,10 +162,13 @@ async function setup() {
         new Noty({
             type: 'info',
             timeout: false,
-            text: 'Configured OK at port ' + result.port,
+            text: 'Setup and Sync Success at port ' + result.port,
             killer: true,
             layout: "bottomRight"
         }).show();
+
+        setTimeout(()=>this.checkState(),5000)
+
     } catch (err) {
         console.error('ERROR', '[When setup in progress]', err)
         new Noty({
@@ -202,7 +222,7 @@ async function save() {
             new Noty({
                 type: 'warning',
                 timeout: false,
-                text: 'The label "'+this.project.label+'" is alredy in use',
+                text: 'The label "' + this.project.label + '" is alredy in use',
                 killer: true,
                 layout: "bottomRight"
             }).show();

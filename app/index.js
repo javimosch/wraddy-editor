@@ -17,7 +17,10 @@ require('./bootstraps')(app).then(() => {
 		app.fn.connectMongoose();
 		require('./schemas')(app)
 		require('./services')(app).then(() => {
+			
+			app.fn.configureIO(server)
 			app.fn.configureIOClient()
+			
 			cookieParser = app.requireInstall('cookie-parser')
 			app.use(cookieParser())
 			require('./middlewares')(app)

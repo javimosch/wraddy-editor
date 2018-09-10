@@ -31,11 +31,19 @@ block content
 						.col-12.mt-3
 							label.SmallLabel.mb-3 Actions
 							div
-								button.btn.btn-primary(@click="setup") Configure
+								button.btn.btn-primary(@click="setup") Setup
+								p.tinyText.m-0.mt-1 This will install the project from the scratch and syncronize files.
 							div.mt-2
 								button.btn.btn-primary(@click="sync") Syncronize files
+								p.tinyText.m-0.mt-1 This will only syncronize files.
 							div.mt-2
-								button.btn.btn-primary(@click="open") Open
+								button.btn.btn-primary(@click="open") View
+								p.tinyText.m-0.mt-1 Open public url in new tab. 
+								p.tinyText.m-0.mt-1 Note: After Setup, the website needs several minutes to be released in the public url (xxxx.wrapkend.com).
+						.col-12.mt-3
+							label
+								span.mr-1 State:
+								span(v-cloak v-html="state")
 						.col-12.mt-4.position-relative()
 							p.ShortErrorMessage(v-html="err" v-show="err")
 						.col-12.mt-5
