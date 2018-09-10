@@ -46,6 +46,7 @@ function prepareEnvs(){
     this.envs.split(/\r\n|\r|\n/g).forEach(line=>{
         let env = line.trim().split('=')
         try{
+            this.project.settings.envs[this.server.NODE_ENV] = this.project.settings.envs[this.server.NODE_ENV]||{}
             this.project.settings.envs[this.server.NODE_ENV][env[0]]= env[1]
             console.log('DEBUG','[Env set]',env.join(' -> '))
         }catch(err){
