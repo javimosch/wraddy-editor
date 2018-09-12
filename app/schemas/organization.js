@@ -21,6 +21,10 @@ module.exports = app => {
 			index: true
 		}],
 		usersRights: Object,
+		files: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'file'
+		}]
 	}, {
 		timestamps: true,
 		toObject: {}

@@ -9,7 +9,7 @@ module.exports = {
 				return res.redirect('/login')
 			}
 			res.sendView('projects', {
-				
+
 				sidebarActiveLink: 'projects',
 				projects: await mongoose.model('project').find({
 					users: {
@@ -24,13 +24,15 @@ module.exports = {
 			}
 
 			let project = await mongoose.model('project').findById(req.params.id)
-			.populate('users','email')
-			.exec()
+				.populate('users', 'email')
+				.exec()
 
-			if(!project.users.find(u=>u._id.toString() == req.user._id.toString())){
+			if (!project.users.find(u => u._id.toString() == req.user._id.toString())) {
 
 				return res.status(401).send()
 			}
+
+			project = await fixProject(project._id.toString())
 
 			res.sendView('project-details', {
 				tabs: {
@@ -38,7 +40,7 @@ module.exports = {
 						label: "General"
 					}, {
 						label: 'Service Accounts',
-						name:'users'
+						name: 'users'
 					}]
 				},
 				server: app.srv.constants,
@@ -51,8 +53,27 @@ module.exports = {
 				return res.redirect('/login')
 			}
 			res.sendView('project-details', {
+				server: app.srv.constants,
 				sidebarActiveLink: 'projects',
-				project: {}
+				tabs: {
+					items: [{
+						label: "General"
+					}]
+				},
+				project: {
+					users: [
+						req.user._id
+					],
+					usersRights: {
+						[req.user._id]: 'owner'
+					},
+					settings: {
+						envs: {
+							development: {},
+							production: {}
+						}
+					}
+				}
 			})
 		})
 		app.post('/saveProject', app.fn.parseJson, async (req, res) => {
@@ -105,10 +126,11 @@ module.exports = {
 				payload.usersRights = payload.usersRights || {}
 				if (!req.body._id) {
 
-					if (!payload.users.find(u => u._id.toString() == req.user._id)) {
+					if (!payload.users.find(u => (u._id || u).toString() == req.user._id)) {
 						payload.users.push(req.user._id)
 						payload.usersRights[req.user._id] = 'owner'
 					}
+
 
 					var d = await mongoose.model('project').create(payload)
 					payload._id = d._id
@@ -121,6 +143,10 @@ module.exports = {
 					payload._id = req.body._id
 				}
 
+
+
+				await fixProject(payload._id.toString())
+
 				await app.fn.attachProjectToUser(req.user, payload._id)
 
 				res.status(200).json(req.body);
@@ -129,4 +155,17 @@ module.exports = {
 			}
 		});
 	}
+}
+
+
+async function fixProject(pr) {
+	if(typeof pr === 'string' ){
+		pr = await mongoose.model('project').findById(pr).exec()
+	}
+	pr = pr.toJSON()
+	pr.settings = pr.settings || {}
+	pr.settings.envs = pr.settings.envs || {}
+	//await pr.save();
+	console.log('DEBUG [after fix project]', pr)
+	return pr;
 }

@@ -1,3 +1,5 @@
+
+
 new Vue({
     el: "#app",
     data: function() {
@@ -39,7 +41,11 @@ new Vue({
     mounted() {
         onTabsChangeCreate(this)
         this.resolveEnvs()
-        this.checkState()
+        if(this.project._id){
+            this.checkState()
+        }else{
+            this.state = 'Creation'
+        }
     },
     watch: {
 
@@ -159,6 +165,11 @@ function canAddUser() {
 }
 
 function checkState() {
+
+    if(!itHasPORT.apply(this,[])){
+        return console.warn('WARN [skip state check, setup needed]')
+    }
+
     let url = this.getUrl()
     if (url.charAt(url.length - 1) !== '/') url += '/'
     url += 'alive'
@@ -212,7 +223,17 @@ function defaultDomainMessage() {
     return `Your project is also available at ${domain}.wrapkend.com`
 }
 
+function itHasPORT(){
+    try{
+        let a = this.project.settings.envs[this.server.NODE_ENV].PORT
+        return true;
+    }catch(err){
+        return false;
+    }
+}
+
 function getUrl() {
+    this.project.settings.envs[this.server.NODE_ENV] = this.project.settings.envs[this.server.NODE_ENV]||{}
     let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
     let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.server.NODE_ENV].PORT}/`;
     let ip = defaultDomain ? defaultDomain : rawIp

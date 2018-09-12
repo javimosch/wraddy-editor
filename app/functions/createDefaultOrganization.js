@@ -1,5 +1,5 @@
 module.exports = app => async (user)=>{
-	user = await app.mongoose.model('user').findById(user._id).exec()
+	user = await app.mongoose.model('cloud_user').findById(user._id).exec()
 	if(user.organizations.length===0){
 		let doc = await app.mongoose.model('organization').create({
 			name: "noname",
