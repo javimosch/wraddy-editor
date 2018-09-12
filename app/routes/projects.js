@@ -32,7 +32,7 @@ module.exports = {
 				return res.status(401).send()
 			}
 
-			project = await fixProject(project._id.toString())
+			project = await fixProject(project)
 
 			res.sendView('project-details', {
 				tabs: {
