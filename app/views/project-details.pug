@@ -67,6 +67,7 @@ block content
 										button.btn.btn-primary(@click="open") View
 										p.tinyText.m-0.mt-1 Open public url in new tab. 
 										p.tinyText.m-0.mt-1 Note: After Setup, the website needs several minutes to be released in the public url (xxxx.wrapkend.com).
+										p.tinyText.m-0.mt-1(v-show="itHasPORT" v-html="alternativePortMessage")
 								.col-12.mt-3
 									label
 										span.mr-1 State:

@@ -23,7 +23,10 @@ new Vue({
         addUserLabel,
         ableToSave,
         defaultDomainMessage,
-        canAddUser
+        canAddUser,
+        itHasPORT,
+        port,
+        alternativePortMessage
     },
     methods: {
         kickUser,
@@ -52,6 +55,9 @@ new Vue({
     }
 });
 
+function alternativePortMessage(){
+    return `If you are unable to view the public domain after several minutes, contact us. In the meanwhile you can use <a href="http://178.128.254.49:`+this.port+`/" target="_blank">this link.<a/>`
+}
 function addUserLabel() {
     if (this.newUserEmail) {
         let match = this.project.users.find(u => u.email == this.newUserEmail)
@@ -223,6 +229,13 @@ function defaultDomainMessage() {
     return `Your project is also available at ${domain}.wrapkend.com`
 }
 
+function port(){
+    try{
+        return this.project.settings.envs[this.server.NODE_ENV].PORT
+    }catch(err){
+        return "";
+    }
+}
 function itHasPORT(){
     try{
         let a = this.project.settings.envs[this.server.NODE_ENV].PORT
