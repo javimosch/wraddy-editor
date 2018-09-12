@@ -124,6 +124,7 @@ function kickUserLabel() {
 function ableToKickUser() {
     //there is a valid selection
     let target = this.project.users.find(u => u.email == this.newUserEmail)
+
     if(!target) return false;
 
     //current user is owner
@@ -138,7 +139,7 @@ function ableToKickUser() {
         }
 
         //if target is a different owner, restrict (owners can't be kicked)
-        if(this.user.email!=target.email){
+        if(targetIsOwner && this.user.email!=target.email){
             return false;
         }
 

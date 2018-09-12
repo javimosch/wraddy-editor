@@ -37,7 +37,8 @@ module.exports = {
 					items: [{
 						label: "General"
 					}, {
-						label: 'Users'
+						label: 'Service Accounts',
+						name:'users'
 					}]
 				},
 				server: app.srv.constants,
