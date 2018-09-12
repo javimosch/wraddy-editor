@@ -18,19 +18,49 @@ module.exports = async app => {
 			}))
 		},
 		fixUserRights: async (params, req) => {
+			let prs = await model('project').find({}).exec()
+
 			let users = await model('cloud_user').find({}).exec()
 			return sequential(users.map(user => {
 				return async () => {
-					let prs = await model('project').find({
-						users: {
-							$in: [user._id]
-						}
-					}).exec()
 					return await sequential(prs.map(pr => {
 						return async () => {
+
+							pr.users = pr.users || []
+							pr.usersRights = pr.usersRights || {}
+							if (pr.users.length == 0 && user.type == 'root') {
+								//If no users, assign the root
+								pr.usersRights[user._id] = 'owner'
+								await model('project').update({
+									_id: pr._id
+								}, {
+									$addToSet: {
+										users: [user._id],
+									},
+									$set: {
+										usersRights: pr.usersRights
+									}
+								}).exec()
+							} else {
+								//Remove duplicate user references
+								let userLen = pr.users.length
+								pr.users = pr.users.filter((u, i) => {
+									return pr.users.indexOf(u._id.toString()) == i
+								})
+								if (userLen != pr.users.length) {
+									await model('project').update({
+										_id: pr._id
+									}, {
+										$set: {
+											users: pr.users
+										}
+									}).exec()
+								}
+							}
+
 							if (pr.usersRights && !pr.usersRights[user._id]) {
 								pr.usersRights[user._id] = 'owner'
-								await pr.save()
+								//await pr.save()
 								await model('project').update({
 									_id: pr._id
 								}, {
@@ -41,7 +71,8 @@ module.exports = async app => {
 							}
 							return {
 								name: pr.name,
-								usersRights: pr.usersRights
+								users: pr.users.length,
+								//usersRights: pr.usersRights
 							}
 						}
 					}))

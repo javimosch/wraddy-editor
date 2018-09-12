@@ -62,13 +62,13 @@ function selectUser(user) {
 }
 
 async function kickUser() {
-    return await saveProjectUser.apply(this,[{
+    return await saveProjectUser.apply(this, [{
         kick: true
     }])
 }
 
 async function addUser() {
-    return await saveProjectUser.apply(this,[])
+    return await saveProjectUser.apply(this, [])
 }
 
 async function saveProjectUser(data = {}) {
@@ -125,7 +125,7 @@ function ableToKickUser() {
     //there is a valid selection
     let target = this.project.users.find(u => u.email == this.newUserEmail)
 
-    if(!target) return false;
+    if (!target) return false;
 
     //current user is owner
     let isCurrentUserOwner = this.project.users.find(u => u._id == this.user._id && this.project.usersRights[u._id] === 'owner')
@@ -139,7 +139,7 @@ function ableToKickUser() {
         }
 
         //if target is a different owner, restrict (owners can't be kicked)
-        if(targetIsOwner && this.user.email!=target.email){
+        if (targetIsOwner && this.user.email != target.email) {
             return false;
         }
 
@@ -159,7 +159,10 @@ function canAddUser() {
 }
 
 function checkState() {
-    fetch(this.getUrl()).then(res => {
+    let url = this.getUrl()
+    if (url.charAt(url.length - 1) !== '/') url += '/'
+    url += 'alive'
+    fetch(url).then(res => {
         this.state = res && res.status === 200 ? 'Active' : 'Needs setup'
     })
 }
