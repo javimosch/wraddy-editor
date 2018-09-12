@@ -16,11 +16,16 @@ new Vue({
         }
     },
     computed: {
+        kickUserLabel,
+        ableToKickUser,
+        addUserLabel,
         ableToSave,
         defaultDomainMessage,
         canAddUser
     },
     methods: {
+        kickUser,
+        selectUser,
         getUrl,
         resolveEnvs,
         prepareEnvs,
@@ -41,26 +46,114 @@ new Vue({
     }
 });
 
+function addUserLabel() {
+    if (this.newUserEmail) {
+        let match = this.project.users.find(u => u.email == this.newUserEmail)
+        if (match && this.project.usersRights[match._id] != this.newUserRole) {
+            return 'Update'
+        }
+    }
+    return 'Add'
+}
+
+function selectUser(user) {
+    this.newUserEmail = user.email
+    this.newUserRole = this.project.usersRights[user._id]
+}
+
+async function kickUser() {
+    return await saveProjectUser.apply(this,[{
+        kick: true
+    }])
+}
+
 async function addUser() {
+    return await saveProjectUser.apply(this,[])
+}
+
+async function saveProjectUser(data = {}) {
     try {
-        let r = await httpPost('/rpc/addUserToProject', {
+        let user = await httpPost('/rpc/addUserToProject', Object.assign(data, {
             email: this.newUserEmail,
-            role: this.newUserRole
-        })
-        console.log('DEBUG', '[after adding user]', r)
+            role: this.newUserRole,
+            project: this.project._id
+        }))
+
+        if (data.kick) {
+            this.project.users.forEach((u, i) => {
+                if (u.email == this.newUserEmail) {
+                    this.project.users.splice(i, 1)
+                    delete this.project.usersRights[u._id]
+                }
+            })
+        } else {
+            if (!this.project.users.find(u => u._id == user._id)) {
+                this.project.users.push(user)
+            }
+            this.project.usersRights[user._id] = this.newUserRole
+        }
+        this.newUserEmail = ''
+        console.log('DEBUG', '[after adding user]', user)
     } catch (err) {
-        console.error('ERROR', '[when adding user]', err)
+        var text = 'It was not possible to add the user. Contact us!'
+        let match = Object.keys(this.server.ERRORS).find(k => err.indexOf(k) !== -1)
+        if (match) {
+            text = this.server.ERRORS[match]
+            console.warn('ERROR [controlled]', err)
+        } else {
+            console.error('ERROR', '[when adding user]', err)
+        }
         new Noty({
             type: 'warning',
             timeout: false,
-            text: 'It was not possible to add the user. Contact us!',
+            text,
             killer: true,
             layout: "bottomRight"
         }).show();
     }
 }
 
+function kickUserLabel() {
+    if (this.project.users.find(u => u._id == this.user._id && this.newUserEmail == u.email)) {
+        return 'Leave project'
+    } else {
+        return 'Kick'
+    }
+}
+
+function ableToKickUser() {
+    //there is a valid selection
+    let target = this.project.users.find(u => u.email == this.newUserEmail)
+    if(!target) return false;
+
+    //current user is owner
+    let isCurrentUserOwner = this.project.users.find(u => u._id == this.user._id && this.project.usersRights[u._id] === 'owner')
+    if (isCurrentUserOwner) {
+
+        //target is owner and there is only one owner? restrict
+        let thereIsOnlyOneOwner = Object.keys(this.project.usersRights).filter(k => this.project.usersRights[k] === 'owner').length <= 1;
+        let targetIsOwner = target && this.project.usersRights[target._id] === 'owner'
+        if (targetIsOwner && thereIsOnlyOneOwner) {
+            return false;
+        }
+
+        //if target is a different owner, restrict (owners can't be kicked)
+        if(this.user.email!=target.email){
+            return false;
+        }
+
+        return true;
+    }
+    return false;
+}
+
 function canAddUser() {
+    if (!!this.newUserEmail && !!this.newUserRole) {
+        let match = this.project.users.find(u => u.email == this.newUserEmail)
+        if (match && this.project.usersRights[match._id] == this.newUserRole) {
+            return false
+        }
+    }
     return !!this.newUserEmail && !!this.newUserRole
 }
 

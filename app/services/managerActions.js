@@ -10,7 +10,7 @@ module.exports = async app => {
 			let prs = await model('project').find({}).exec()
 			return sequential(prs.map(pr => {
 				return async () => {
-					pr.users = pr.users.filter((u,index)=>{
+					pr.users = pr.users.filter((u, index) => {
 						return index === pr.users.indexOf(u.toString())
 					})
 					await pr.save()
@@ -26,13 +26,22 @@ module.exports = async app => {
 							$in: [user._id]
 						}
 					}).exec()
-					await sequential(prs.map(pr => {
+					return await sequential(prs.map(pr => {
 						return async () => {
 							if (pr.usersRights && !pr.usersRights[user._id]) {
-								pr.usersRights = {
-									[user._id]:'owner'
-								}
+								pr.usersRights[user._id] = 'owner'
 								await pr.save()
+								await model('project').update({
+									_id: pr._id
+								}, {
+									$set: {
+										usersRights: pr.usersRights
+									}
+								}).exec()
+							}
+							return {
+								name: pr.name,
+								usersRights: pr.usersRights
 							}
 						}
 					}))

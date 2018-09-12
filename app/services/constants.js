@@ -14,5 +14,10 @@ module.exports = async app => {
 		self.WRAPKEND_IP = 'localhost'
 	}
 
+	self.ERRORS = {
+		USER_NOT_FOUND:'The user was not found. Ups.',
+		USER_EMAIL_UNMATCH:'The email do not match any user.'
+	}
+
 	return self;
 }

@@ -18,15 +18,18 @@ block content
 							.row.no-gutters
 								.col-12.mt-1(v-for="user,key in project.users" v-bind:key="user._id")
 									ul.list-group
-										li.list-group-item.EmailListItem(readonly v-html="user.email+' ('+project.usersRights[user._id]+')'")
+										li.list-group-item.EmailListItem.clickable(readonly v-html="user.email+' ('+project.usersRights[user._id]+')'" @click="selectUser(user)")
 							.row.no-gutters
 								.col-12.mt-2
 									input.form-control.SmallInput(v-model="newUserEmail" placeholder="johndoe@gmail.com")
 								.col-12.mt-2
 									select.form-control.SmallInput(v-model="newUserRole")
 										option(value="developer") Developer
+										option(value="owner") Owner
 								.col-12.mt-3
-									button.Button.btn.btn-primary(:disabled="!canAddUser" @click="addUser") Add
+									button.Button.btn.btn-primary(:disabled="!canAddUser" @click="addUser" v-html="addUserLabel")
+									button.Button.btn.btn-primary.ml-2(v-show="ableToKickUser" :disabled="!ableToKickUser" @click="kickUser" v-html="kickUserLabel")
+										
 						.col-12(v-show="tab==='general'")
 							.row.no-gutters
 								.col-12.mt-5

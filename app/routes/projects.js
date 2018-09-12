@@ -27,6 +27,11 @@ module.exports = {
 			.populate('users','email')
 			.exec()
 
+			if(!project.users.find(u=>u._id.toString() == req.user._id.toString())){
+
+				return res.status(401).send()
+			}
+
 			res.sendView('project-details', {
 				tabs: {
 					items: [{
