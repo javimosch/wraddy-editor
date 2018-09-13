@@ -1,14 +1,15 @@
-#EditorConsole(v-show="consoleShow" style="display:none;")
+#EditorConsole.p-2(v-show="consoleShow" style="display:none;")
 	.row.no-gutters
-		.col-12
+		.col-12.mt-1
 			.row.no-gutters
 				.col.d-flex.justify-content-left
-					select.form-control(v-model="consoleType")
+					select#EditorConsoleTypeSelect.form-control(v-model="consoleType")
 						option(value='') ALL
 						option(value='ERROR') ERROR
 						option(value='WARN') WARN
 						option(value='TRACE') TRACE
 				.col.d-flex.justify-content-end
-					button.btn.btn-primary(@click="clearConsole") Clear
+					button.btn.btn-primary.btn-sm(@click="clearConsole") Clear
+					button.btn.btn-default.btn-sm.ml-2(@click="closeConsole") Close
 		.col-12.mt-2
 			textarea#EditorConsoleText(readonly v-html="consoleBody")

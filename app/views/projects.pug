@@ -32,7 +32,7 @@ block content
 												.col.d-flex.justify-content-center.align-items-center.mt-1
 													div.Checkbox(readonly :checked="pr.domains[url]")
 
-						.col-12.mb-3.pl-3(v-show="tab==='my_projects'")
+						.col-12.mb-3.pl-0(v-show="tab==='my_projects'")
 							a.Button.btn.btn-primary(href="/projects/create") Create
 						- if(projects.length>0)
 							each pr, index in projects

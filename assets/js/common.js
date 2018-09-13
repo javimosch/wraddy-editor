@@ -71,6 +71,13 @@ function enableAutoResizeSidebar() {
     if ($('#dragbar').length === 0) {
         return setTimeout(enableAutoResizeSidebar, 100)
     }
+
+    var cache = window.localStorage.getItem('sidebar')
+    if (cache) {
+        $('#SidebarLayout').css("width", cache + "px");
+        $('#MainLayout').css("width", "calc(100vw - " + cache + "px)");
+    }
+
     $(document).on('mousedown', '#dragbar', function(e) {
         e.preventDefault();
 
@@ -97,6 +104,7 @@ function enableAutoResizeSidebar() {
             let px = window.innerWidth * percentage / 100
             $('#SidebarLayout').css("width", px + "px");
             $('#MainLayout').css("width", "calc(100vw - " + px + "px)");
+            window.localStorage.setItem('sidebar', px)
             $('#ghostbar').remove();
             $(document).unbind('mousemove');
             dragging = false;

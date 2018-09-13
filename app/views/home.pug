@@ -1,17 +1,18 @@
 include mixins.pug
 
-+top('Home')
++top(project.label)
 body
 	#app
 		include console.pug
 		.RecentFiles(v-show="recentFiles.length>0")
 			.row.no-gutters
 				.col-12
-					h6.m-1.mt-3.text-center Recent files
-			ul
-				li(v-for="(item,index) in recentFiles" class="clickable" @click="openRecentFile(item)")
-					div.d-flex(v-html="recentFileLabel(item)")
-					div.timeDifference(v-html="timeDifference(item.modified)")
+					p.m-0.text-center Recent files
+				.col-12.mb-3
+					ul
+						li(v-for="(item,index) in recentFiles" class="clickable" @click="openRecentFile(item)")
+							div.RecentFile.d-flex(v-html="recentFileLabel(item)")
+							div.timeDifference(v-html="timeDifference(item.modified)")
 		.clearfix
 			#SidebarLayout
 				#dragbar
@@ -35,7 +36,7 @@ body
 								select.SmallInput.form-control(v-model="selectedFile.type" @change="fileTypeChange")
 									each item, index in fileTypes
 										option(value=item)!=item
-							.col-12.mt-1
+							.col-12.mt-1.d-none
 								button.Button.btn.btn-primary(:disabled="!ableToSaveFile()",:class="selectedFileIsDirty?'FileIsDirty':''",@click="saveSelectedFile") Save
 					.row.no-gutters
 						.col-12.mt-3

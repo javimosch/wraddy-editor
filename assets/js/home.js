@@ -31,6 +31,7 @@ new Vue({
         errorsLabel
     },
     methods: {
+        closeConsole,
         clearConsole,
         viewProject,
         viewConsole,
@@ -74,8 +75,12 @@ new Vue({
     }
 });
 
-function clearConsole(){
+function clearConsole() {
     this.consoleLogs = []
+}
+
+function closeConsole() {
+    this.consoleShow = false
 }
 
 function consoleBody() {
@@ -95,9 +100,25 @@ function initializateSocket(vm) {
         console.log('DEBUG', '[After connection to socket success]')
     });
     vm.socket.on('projectLog', (data) => {
-        data.message = data.message.split(/\r\n|\r|\n/g)[0]
+        //data.message = data.message.split(/\r\n|\r|\n/g)[0]
+
+
+
         if (data.message.indexOf(data.type) === -1) {
             return
+        }
+
+        let str = data.message
+        if (str.indexOf('at ') !== -1 && str.indexOf('_') !== -1 && str.indexOf(':') !== -1) {
+            let at = str.substring(str.indexOf('at '))
+            let r = at.substring(0, at.indexOf(')'))
+            r = r.split("").reverse().join("")
+            r = r.split('/').filter((a, i) => i <= 1).join('/').split("").reverse().join("")
+            if (r.indexOf('_') !== -1 && r.indexOf(':') !== -1) {
+                r = r.substring(0, r.lastIndexOf('_')) +
+                    r.substring(r.indexOf(':'))
+            }
+            data.message = str.substring(0, str.indexOf('at ')) + ' at ' + r
         }
 
         this.consoleLogs.push({
@@ -382,7 +403,7 @@ function closeFileShorcut(vm) {
 }
 
 function editorState() {
-    if (this.selectedFile && this.selectedFile._id) {
+    if (this.selectedFile && this.selectedFile._id && this.selectedFile._id !== 'new') {
         this.updateFileDirtyState()
         if (this.selectedFileIsDirty) {
             return 'Edition*'
@@ -450,6 +471,12 @@ async function selectFile(file) {
 }
 
 function searchText(v) {
+    console.log('VV', v)
+    if (!v) {
+        this.searchResults = []
+        return;
+    }
+
     if (v.toString().length > 4) {
         this.search();
     }

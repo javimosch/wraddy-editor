@@ -37,16 +37,22 @@ limegreen
 
 #EditorConsole {
     position: fixed;
-    top: 20px;
-    left: 20px;
-    width: calc(100vw - 40px);
-    height: calc(100vh - 40px);
-    background: darkslategray;
+    top: 0px;
+    left: 0px;
+    width: calc(100vw);
+    height: calc(100vh);
+    background: rgba(0,0,0,.7);
     z-index: 10;
+}
+#EditorConsoleTypeSelect{
+        font-size: 20px;
+    font-weight: 900;
+    width: auto;
 }
 #EditorConsoleText{
     min-height: calc(100vh - 86px);
     min-width: -webkit-fill-available;
+    font-size: 12px;
 }
 
 textarea {
@@ -54,18 +60,26 @@ textarea {
 }
 
 .RecentFiles {
-    width: unset;
+    width: 110px;
     position: fixed;
     right: 0px;
     height: fit-content;
-    background-color: rgba(51, 51, 51, 0.5);
-    z-index: 99999;
-    top: 100px;
+    background-color: slateblue;
+    z-index: 9;
+    top: 31px;
     color: white;
     overflow-y: scroll;
-    max-height: 400px;
+    max-height: calc(100vh - 31px);
     padding-bottom: 10px;
+    padding-top: 10px;
+    min-height: 200px;
+    border-radius: 0px;
+    opacity: 0.1;
 }
+.RecentFiles:hover{
+    opacity:1;
+}
+
 
 
 .RecentFiles ul {
@@ -87,7 +101,9 @@ textarea {
 .RecentFiles li .type {
     font-weight: 100;
 }
-
+.RecentFile > span{
+    font-size:9px;
+}
 .RecentFiles .timeDifference {
     font-size: 8px;
 }
@@ -187,7 +203,7 @@ ul {
 }
 
 .NiceItem:hover {
-    background-color: mediumslateblue;
+    background-color: royalblue;
 }
 
 .NiceItem:hover .NiceItemText,
@@ -219,33 +235,37 @@ ul {
 
 .NavButton {
     font-family: Roboto, sans-serif;
-    font-size: 16px;
-    padding: 3px 10px;
+    font-size: 14px;
+    padding: 0px 5px;
     font-variant: all-petite-caps;
     margin: 4px 0px;
     color: white;
-}
-
-
-
-.NavButton:hover {
-    box-shadow: none;
-    background: mediumslateblue;
-    color: white!important;
     font-weight: 400;
-    opacity: 1;
 }
+
+
+.NavButton:hover, .NavButton:not([href]):not([tabindex]):focus, .NavButton:not([href]):not([tabindex]):hover {
+    box-shadow: none;
+    background: white;
+    color: slateblue;
+    font-weight: inherit;
+    opacity: 1;
+    padding: 0px 5px;
+
+}
+
+
 
 .EditorHeader {
-    background-color: #333;
+    background-color: slateblue;
     color: white;
     width: -webkit-fill-available;
     position: relative;
     margin-top: 0px;
-    min-height: 40px;
     transition: all .35s ease-in-out;
     padding: 0px 30px;
 }
+
 
 
 .EditorHeaderToggle {
@@ -270,12 +290,13 @@ ul {
 
 .Button {
     padding: 5px 20px;
-    font-size: small;
-    font-weight: 100;
+    font-size: 14px;
+    font-weight: inherit;
     font-family: Roboto, sans-serif;
-    background: white;
-    border-color: rgba(0, 0, 0, .2);
-    color: black;
+    border-color: slateblue;
+    color: white;
+    background: slateblue;
+    min-width: 140px;
 }
 
 .NavbarSelect:focus,
@@ -289,6 +310,8 @@ ul {
 .Button:hover {
     outline: 0px;
     box-shadow: none;
+    background: limegreen;
+    border-color: limegreen;
 }
 
 .Button.FileIsDirty {
@@ -320,7 +343,7 @@ ul {
 
 .EditorState {
     position: fixed;
-    right: 0px;
+    left: calc(50% - 80px);
     bottom: 0px;
     width: 160px;
     background: transparent;
@@ -331,15 +354,13 @@ ul {
 
 
 .EditorStateText {
-    text-align: right;
-    line-height: 20px;
+    text-align: center;
     margin: 0px;
     padding: 0px;
     font-family: Roboto;
-    font-weight: 100;
+    font-weight: 200;
     color: white;
-    font-size: 12px;
-    padding-right: 5px;
+    font-size: 10px;
 }
 
 .HomeSearchResultUL {
@@ -407,11 +428,11 @@ ul {
 }
 
 .HomeTitle {
-    background-color: darkslategrey;
-    color: white;
+    background-color: snow;
+    color: #333;
     font-family: Roboto, sans-serif;
-    font-weight: lighter;
-    margin-top: 10px;
+    font-weight: bolder;
+    margin-top: 0px;
     letter-spacing: 11px;
     position: relative;
     left: 3px;
@@ -440,7 +461,7 @@ input {
 }
 
 #CodeEditor {
-    height: calc(100vh - 40px);
+    height: calc(100vh - 31px);
 }
 
 .EditorHeader.hidden+#CodeEditor {
@@ -467,9 +488,10 @@ input {
     margin: 10px 11px 5px 10px;
 }
 
+
 #SidebarLayout {
-    background-color: darkslategrey;
-    color: white;
+    background-color: snow;
+    color: black;
     width: 230px;
     float: left;
     height: calc(100vh);
@@ -478,14 +500,15 @@ input {
 }
 
 #dragbar {
-    background-color: darkslategrey;
-    height: -webkit-fill-available;
-    width: 2px;
+    background-color: slateblue;
+    height: calc(100vh + 37px);
+    width: 3px;
     cursor: col-resize;
     position: absolute;
     right: 0px;
     border-radius: 0px;
 }
+
 
 #ghostbar {
     width: 3px;

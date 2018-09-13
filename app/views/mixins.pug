@@ -31,12 +31,16 @@ mixin top(title)
 mixin editorNav()
 	//:class="!headerIsVisible?'hidden':''" style="display: none"
 	.EditorHeader(ref="header")
-		a.NavButton.btn(@click="newFile") New File
+		a.NavButton.btn(@click="newFile") New
+		a.NavButton.btn(@click="saveSelectedFile" 
+		:class="selectedFileIsDirty?'FileIsDirty':''" 
+		:disabled="!ableToSaveFile()" 
+		v-cloak v-show="selectedFile && selectedFile._id") Save
 		a.NavButton.btn(@click="viewProject") View
 		a.NavButton.btn(@click="viewConsole") Console
 		a.NavButton.btn(:href="`/project/${project._id}/edit`") Settings
 		//a.NavButton.btn(@click="viewErrors" v-html="errorsLabel")
-		a.NavButton.btn.float-right(href="/projects") Projects
+		a.NavButton.btn(href="/projects") Projects
 		//.EditorHeaderToggle(@click="toggleHeader")
 			div(v-show="headerIsVisible")
 				i.fas.fa-angle-double-up

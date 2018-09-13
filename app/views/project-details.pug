@@ -58,13 +58,13 @@ block content
 									div(v-show="!project._id")
 										p.tinyText.m-0 (Save the project first)
 									div(v-show="project._id")
-										button.btn.btn-primary(@click="setup") Setup
+										button.Button.btn.btn-primary(@click="setup") Setup
 										p.tinyText.m-0.mt-1 This will install the project from the scratch and syncronize files. You should run this once after project creation or for updates.
 									div.mt-2(v-show="project._id")
-										button.btn.btn-primary(@click="sync") Syncronize files
+										button.Button.btn.btn-primary(@click="sync") Syncronize files
 										p.tinyText.m-0.mt-1 This will only syncronize files. You should run this only if you find inconsistencies.
 									div.mt-2(v-show="project._id")
-										button.btn.btn-primary(@click="open") View
+										button.Button.btn.btn-primary(@click="open") View
 										p.tinyText.m-0.mt-1 Open public url in new tab. 
 										p.tinyText.m-0.mt-1 Note: After Setup, the website needs several minutes to be released in the public url (xxxx.wrapkend.com).
 										p.tinyText.m-0.mt-1(v-show="itHasPORT" v-html="alternativePortMessage")
