@@ -20,6 +20,10 @@ module.exports = app => {
 			type: String,
 			index: true
 		},
+		plugins: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'plugin'
+		}],
 		users: [{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'cloud_user',

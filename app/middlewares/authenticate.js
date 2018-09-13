@@ -23,7 +23,7 @@ module.exports = {
 						await app.fn.createDefaultOrganization(req.user)
 					}
 
-					req.context.organization = req.session.organization || req.user.organizations[0];
+					req.context.organization = req.user.organizations[0];
 
 
 				}

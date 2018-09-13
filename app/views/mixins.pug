@@ -4,7 +4,7 @@ mixin top(title)
 			title = title||$meta&&$meta.title||''
 		title!=title?`${title} - Wrapkend BaaS`:`Wrapkend BaaS`
 
-		link(rel='shortcut icon', href='https://res.cloudinary.com/paris7510/image/upload/v1532975869/wrapkend/logos/favicon.png', type='image/x-icon')
+		link(rel='shortcut icon', href='https://res.cloudinary.com/misitioba/image/upload/v1536869281/wrapkend/logos/wrapkend_favicon.ico', type='image/x-icon')
 		link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css")
 		link(rel="stylesheet", 
 		href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700|Open+Sans:300,400,600,700")
@@ -39,8 +39,9 @@ mixin editorNav()
 		a.NavButton.btn(@click="viewProject") View
 		a.NavButton.btn(@click="viewConsole") Console
 		a.NavButton.btn(:href="`/project/${project._id}/edit`") Settings
-		//a.NavButton.btn(@click="viewErrors" v-html="errorsLabel")
 		a.NavButton.btn(href="/projects") Projects
+		a.NavButton.btn(href="/plugins?projectId="+project._id) Plugins
+		
 		//.EditorHeaderToggle(@click="toggleHeader")
 			div(v-show="headerIsVisible")
 				i.fas.fa-angle-double-up

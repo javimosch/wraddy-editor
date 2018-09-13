@@ -10,6 +10,8 @@ module.exports = {
 					data.initialState[key] = data[key];
 				})
 			}
+			data.NODE_ENV = app.srv.constants.NODE_ENV
+			data.constants = app.srv.constants
 			
 			res.send(app.fn.compileFileWithVars(name, data, req));
 		} catch (err) {

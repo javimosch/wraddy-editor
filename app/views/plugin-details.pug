@@ -1,0 +1,26 @@
+extends layout.pug
+block content
+	include tabs.pug
+	+tabs(tabs)
+	#app
+		.row.no-gutters.w-100
+			.col-12.mb-5
+				#tabs
+			.col-12(v-show="tab==='general'")
+				.row.no-gutters
+					.col-12.mt-3
+						label.SmallLabel Name
+						input.SmallInput.form-control.email(v-model="item.name")
+					.col-12.mt-3
+						label.SmallLabel Description
+						input.SmallInput.form-control.email(v-model="item.description")
+					.col-12.mt-3
+						h3.coloredTitle!='Here, you will be able to put together some files. Soon!'
+					.col-12.mt-5
+						button.Button.btn.btn-primary(@click="save" v-show="!item._id") Save
+						button.Button.btn.btn-primary(@click="save" v-show="item._id") Update
+						
+block sidebar
+	include sidebar.pug
+block scripts
+	+scripts('plugin')

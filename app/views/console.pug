@@ -9,7 +9,7 @@
 						option(value='WARN') WARN
 						option(value='TRACE') TRACE
 				.col.d-flex.justify-content-end
-					button.btn.btn-primary.btn-sm(@click="clearConsole") Clear
+					button.btn.Button.btn-primary.btn-sm(@click="clearConsole") Clear
 					button.btn.btn-default.btn-sm.ml-2(@click="closeConsole") Close
 		.col-12.mt-2
-			textarea#EditorConsoleText(readonly v-html="consoleBody")
+			textarea#EditorConsoleText.form-control(readonly v-html="consoleBody")

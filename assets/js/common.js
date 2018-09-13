@@ -1,3 +1,22 @@
+function showWarn(text) {
+    new Noty({
+        type: 'warning',
+        timeout: 2000,
+        text,
+        killer: true,
+        layout: "bottomRight"
+    }).show();
+}
+function showInfo(text, timeout) {
+    new Noty({
+        type: 'info',
+        timeout: timeout || false,
+        text,
+        killer: true,
+        layout: "bottomRight"
+    }).show();
+}
+
 function beautifyAceEditor(editor, item) {
     var content = editor.session.getValue();
     if (item && item.type) {

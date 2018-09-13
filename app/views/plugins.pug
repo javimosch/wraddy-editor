@@ -1,0 +1,33 @@
+extends layout.pug
+block content
+	include tabs.pug
+	+tabs(tabs)
+	#app
+		.row.no-gutters.fill-available
+			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-start
+				div.w-100
+					.row.no-gutters.w-100
+						#tabs
+						.col-12(v-show="tab==='company_plugins'" style="display:none;")
+							.no-gutters
+								.col-12.mt-2
+									input.form-control(placeholder="Filter" v-model="browseFilter")
+								.col-12.mt-2(v-show="pluginsCount===0")
+									h3.coloredTitle!='Sadly, there are not results'
+								.col-12.mt-4(v-show="company.plugins.length>0")
+									ul.list-group
+										li.list-group-item(v-for="plugin,key in company.plugins")
+											p.m-0(v-html="plugin.name")
+						.col-12(v-show="tab==='browse_plugins'" style="display:none;")
+							.no-gutters
+								.col-12.mt-2
+									input.form-control(placeholder="Filter" v-model="browseFilter")
+								.col-12.mt-2(v-show="globalCount===0")
+									h3.coloredTitle!='Sadly, there are no public plugins yet'
+					.row.no-gutters.w-100
+						.col-12.mt-5
+							a.Button.btn.btn-primary(href="/plugin/new") Create plugin		
+block sidebar
+	include sidebar.pug
+block scripts
+	+scripts('plugins')

@@ -20,6 +20,12 @@
 				i.fas.fa-building.mr-1
 				span Projects
 
+		if(NODE_ENV==='development')
+			a(href="/plugins")
+				.sidebarLink.pl-3.pr-3.pt-2.pb-2(class=activeClass("plugins"))
+					i.fas.fa-building.mr-1
+					span Plugins
+
 		- if(user.type==='root')
 			a(href="/manager")
 				.sidebarLink.pl-3.pr-3.pt-2.pb-2(class=activeClass("manager"))

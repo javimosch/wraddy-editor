@@ -1,6 +1,7 @@
 module.exports = async app => {
 	var self = {
-		fileTypes: ['javascript', 'function', 'middleware', 'pug', 'route', 'markdown', 'css', 'service', 'schema']
+		fileTypes: ['javascript', 'function', 'middleware', 'pug', 'route', 'markdown', 'css', 'service', 'schema'],
+		subdomainsBlacklist:['jobs', 'contact', 'team', 'editor', 'beta', 'dev', 'blog', 'news', 'site', 'hire', 'wrapkend','documentation']
 	}
 
 	const isProd = self.isProd = process.env.NODE_ENV === 'production'

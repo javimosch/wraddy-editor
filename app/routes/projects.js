@@ -149,7 +149,7 @@ module.exports = {
 				if (!req.body.label) {
 					throw new Error('LABEL_REQUIRED')
 				} else {
-					if (['jobs', 'contact', 'team', 'editor', 'beta', 'dev', 'blog', 'news', 'site', 'hire', 'wrapkend'].includes(req.body.label)) {
+					if (app.srv.constants.subdomainsBlacklist.includes(req.body.label)) {
 						throw new Error('LABEL_REQUIRED')
 					}
 				}
