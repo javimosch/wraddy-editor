@@ -1,6 +1,20 @@
 const _ = require('lodash')
 const mongoose = require('mongoose')
 
+function getUrl(pr, app) {
+	try {
+		let env = app.srv.constants.NODE_ENV
+		pr.settings.envs[env] = pr.settings.envs[env] || {}
+		let defaultDomain = pr.label ? pr.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
+		let rawIp = `http://${app.srv.constants.WRAPKEND_IP}:${pr.settings.envs[env].PORT}/`;
+		let ip = defaultDomain ? defaultDomain : rawIp
+		return 'https://' + ip.split('https://').join('https://');
+	} catch (err) {
+		console.log('WARN [while getting project url]', err.stack)
+		return ''
+	}
+}
+
 module.exports = {
 	order: 0,
 	handler(app) {
@@ -8,16 +22,64 @@ module.exports = {
 			if (!req.user) {
 				return res.redirect('/login')
 			}
-			res.sendView('projects', {
+			let projects = await mongoose.model('project').find({
+				users: {
+					$in: [req.user._id]
+				}
+			}).exec()
 
-				sidebarActiveLink: 'projects',
-				projects: await mongoose.model('project').find({
-					users: {
-						$in: [req.user._id]
+			var all_projects = []
+
+			if (req.user.type === 'root') {
+				all_projects = await mongoose.model('project').find({}).select('name settings label domain').exec()
+				all_projects = all_projects.map(pr => {
+					pr = pr.toJSON()
+					pr = {
+						checked: false,
+						label: pr.label,
+						name: pr.name,
+						enabled: false,
+						domains: (pr.domain || "").trim().split(',').map(d => {
+							let url = d.split('https://').join('')
+							if (url) {
+								return 'https://' + url
+							} else {
+								return ''
+							}
+						}).concat(getUrl(pr, app)).filter(d => d !== '').reduce((a, v) => {
+							a[v] = false
+							return a;
+						}, {})
 					}
-				}).exec()
+					return pr;
+				})
+			}
+
+			let tabs = [{
+				label: "My projects",
+				name: 'my_projects'
+			}]
+			if (req.user.type === 'root') {
+				tabs.push({
+					label: 'Status',
+					name: 'status'
+				})
+			}
+
+			res.sendView('projects', {
+				tabs: {
+					items: tabs
+				},
+				sidebarActiveLink: 'projects',
+				initialState: {
+					user: req.user,
+					projects,
+					all_projects
+				},
+				projects
 			})
-		})
+		});
+
 		app.get('/project/:id/edit', async (req, res) => {
 			if (!req.user) {
 				return res.redirect('/login')
@@ -47,7 +109,8 @@ module.exports = {
 				sidebarActiveLink: 'projects',
 				project
 			})
-		})
+		});
+
 		app.get('/projects/create', async (req, res) => {
 			if (!req.user) {
 				return res.redirect('/login')
@@ -75,7 +138,8 @@ module.exports = {
 					}
 				}
 			})
-		})
+		});
+
 		app.post('/saveProject', app.fn.parseJson, async (req, res) => {
 			try {
 				if (!req.user) {
@@ -159,7 +223,7 @@ module.exports = {
 
 
 async function fixProject(pr) {
-	if(typeof pr === 'string' ){
+	if (typeof pr === 'string') {
 		pr = await mongoose.model('project').findById(pr).exec()
 	}
 	pr = pr.toJSON()
