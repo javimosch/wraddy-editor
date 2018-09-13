@@ -143,8 +143,8 @@ ul {
     align-items: center;
     width: 30px;
     height: 30px;
-    background: springgreen;
-    color: #333;
+    background: limegreen;
+    color: white;
     border-radius: 3px;
     padding-left: 2px;
     opacity: 1;
@@ -310,8 +310,9 @@ ul {
 .Button:hover {
     outline: 0px;
     box-shadow: none;
-    background: limegreen;
-    border-color: limegreen;
+    background: limegreen!important;
+    border-color: limegreen!important;
+    color:white!important;
 }
 
 .Button.FileIsDirty {
