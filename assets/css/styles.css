@@ -5,14 +5,14 @@ limegreen
 
 .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
     color: white;
-    background-color: slateblue;
-    border-color: slateblue;
+    background-color: slategrey;
+    border-color: slategrey;
 }
 
 .coloredTitle{
     font-size: 24px;
     margin-top: 25px;
-    color: slateblue;
+    color: slategrey;
 }
 
 .PluginItem{
@@ -20,7 +20,7 @@ limegreen
 }
 
 .jstree-anchor:hover{
-    color: slateblue;
+    color: slategrey;
 }
 
 .btn-secondary:hover {
@@ -30,7 +30,7 @@ limegreen
 }
 
 .btn-secondary {
-    color: slateblue;
+    color: slategrey;
     background-color: white;
     border-color: white;
 }
@@ -42,8 +42,8 @@ limegreen
 }
 
 .noty_theme__mint.noty_type__info, .noty_theme__mint.noty_type__information {
-    background-color: slateblue;
-    border-bottom: 1px solid slateblue;
+    background-color: slategrey;
+    border-bottom: 1px solid slategrey;
     color: #fff;
 }
 
@@ -114,7 +114,7 @@ textarea {
     position: fixed;
     right: 0px;
     height: fit-content;
-    background-color: slateblue;
+    background-color: slategrey;
     z-index: 9;
     top: 31px;
     color: white;
@@ -247,7 +247,7 @@ ul {
 }
 
 .NiceItem:hover {
-    background-color: royalblue;
+    background-color: lightslategrey;
 }
 
 .NiceItem:hover .NiceItemText,
@@ -291,7 +291,7 @@ ul {
 .NavButton:hover, .NavButton:not([href]):not([tabindex]):focus, .NavButton:not([href]):not([tabindex]):hover {
     box-shadow: none;
     background: white;
-    color: slateblue;
+    color: slategrey;
     font-weight: inherit;
     opacity: 1;
     padding: 0px 5px;
@@ -301,7 +301,7 @@ ul {
 
 
 .EditorHeader {
-    background-color: slateblue;
+    background-color: slategrey;
     color: white;
     width: -webkit-fill-available;
     position: relative;
@@ -337,9 +337,9 @@ ul {
     font-size: 14px;
     font-weight: inherit;
     font-family: Roboto, sans-serif;
-    border-color: slateblue;
+    border-color: slategrey;
     color: white;
-    background: slateblue;
+    background: slategrey;
     min-width: 140px;
 }
 
@@ -545,7 +545,7 @@ input {
 }
 
 #dragbar {
-    background-color: slateblue;
+    background-color: slategrey;
     height: calc(100vh + 37px);
     width: 3px;
     cursor: col-resize;

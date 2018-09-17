@@ -4,27 +4,41 @@ module.exports = app => {
 			let text = (req.body.text || '').toLowerCase();
 			text = text.trim().split(' ').filter(t=>!!t)
 
-			let or = text.filter(t => !app.srv.constants.fileTypes.includes(t)).filter(t=>t.length>=4).map(t => {
+			function isType(t){
+				return app.srv.constants.fileTypes.find(tt=>{
+					return tt.indexOf(t)!==-1
+				})!=null
+			}
+
+			let filters = text.filter(t => !isType(t)).filter(t=>t.length>=4).map(t => {
 				return {
 					name: new RegExp(t, 'i')
 				}
 			});
+			let types = text.filter(t => isType(t)).map(t=>{
+				return {
+					type: new RegExp(t, 'i')
+				}
+			})
 
 
 			let and = []
 
+			and = filters.concat(types)
+
+			/*
 			if (or.length > 0) {
 				and = [{
 					$or: or
 				}]
 			}
 
-			let t = text.find(t => app.srv.constants.fileTypes.find(ft=>ft.indexOf(t)!==-1))
+			
 			if (t) {
 				and.push({
 					type: new RegExp(t, 'i')
 				})
-			}
+			}*/
 
 			var conditions = {
 				$and: and

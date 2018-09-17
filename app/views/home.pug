@@ -19,7 +19,7 @@ body
 				.ContentBox
 					input.HomeTitle.text-center(v-model="project.label" placeholder="NOTITLE", disabled)
 					p.HomeTitleSub.text-center(v-html="project.shortText")
-					input.HomeSearch.form-control.mx-auto.d-block(v-model="searchText" placeholder="Search project files")
+					input.HomeSearch.form-control.mx-auto.d-block(v-model="searchText" placeholder="Search files inside project")
 					ul.list-group.HomeSearchResultUL(style="display: none" v-show="searchResults.length>0")
 						li.HomeSearchResultLI.list-group-item(v-for="item,key in searchResults" v-bind:key="item._id",@click="selectFile(item)")
 							span.HomeSearchResultTitle(v-html="item.name")
