@@ -40,7 +40,8 @@ mixin editorNav()
 		a.NavButton.btn(@click="viewConsole") Console
 		a.NavButton.btn(:href="`/project/${project._id}/edit`") Settings
 		a.NavButton.btn(href="/projects") Projects
-		a.NavButton.btn(href="/plugins?projectId="+project._id) Plugins
+		if(NODE_ENV==='development')
+			a.NavButton.btn(href="/plugins?projectId="+project._id) Plugins
 		
 		//.EditorHeaderToggle(@click="toggleHeader")
 			div(v-show="headerIsVisible")
