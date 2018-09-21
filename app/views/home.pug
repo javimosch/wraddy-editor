@@ -4,14 +4,20 @@ include mixins.pug
 body
 	#app
 		include console.pug
-		.RecentFiles(v-show="recentFiles.length>0")
+		.RecentFiles(v-show="recentFilesShow")
 			.row.no-gutters
 				.col-12
+					input.HomeSearch.form-control.mx-auto.d-block(v-model="searchText" placeholder="Search files inside project" ref="searchInput")
+					ul.list-group.HomeSearchResultUL(style="display: none" v-show="searchResults.length>0")
+						li.HomeSearchResultLI.list-group-item(v-for="item,key in searchResults" v-bind:key="item._id",@click="selectFile(item)")
+							span.HomeSearchResultTitle(v-html="item.name")
+							span.HomeSearchResultType.tiny.d-block(v-html="item.type")
+				.col-12.mt-3
 					p.m-0.text-center Recent files
 				.col-12.mb-3
 					ul
 						li(v-for="(item,index) in recentFiles" class="clickable" @click="openRecentFile(item)")
-							div.RecentFile.d-flex(v-html="recentFileLabel(item)")
+							div.RecentFile.d-flex(v-html="recentFileLabel(item, index)")
 							div.timeDifference(v-html="timeDifference(item.modified)")
 		.clearfix
 			#SidebarLayout
@@ -19,11 +25,33 @@ body
 				.ContentBox
 					input.HomeTitle.text-center(v-model="project.label" placeholder="NOTITLE", disabled)
 					p.HomeTitleSub.text-center(v-html="project.shortText")
-					input.HomeSearch.form-control.mx-auto.d-block(v-model="searchText" placeholder="Search files inside project")
-					ul.list-group.HomeSearchResultUL(style="display: none" v-show="searchResults.length>0")
-						li.HomeSearchResultLI.list-group-item(v-for="item,key in searchResults" v-bind:key="item._id",@click="selectFile(item)")
-							span.HomeSearchResultTitle(v-html="item.name")
-							span.HomeSearchResultType.tiny.d-block(v-html="item.type")
+					.row.no-gutters.mb-3.mt-2
+						.col.d-flex.justify-content-center.align-items-center
+							div
+								.row.no-gutters
+									.col.m-1
+										a.IconLink(href="/projects")
+											i(title="Dashboard").fas.fa-tachometer-alt
+									.col.m-1
+										a.IconLink(@click="newFile")
+											i.fas.fa-file
+									.col.m-1
+										a.IconLink(@click="openSearch")
+											i.fas.fa-search
+									.col.m-1
+										a.IconLink(@click="viewProject")
+											i.fas.fa-play
+									.col.m-1
+										a.IconLink(@click="viewConsole")
+											i.fas.fa-terminal
+									.col.m-1
+										a.IconLink(:href="`/project/${project._id}/edit`")
+											i.fas.fa-cog
+									if(NODE_ENV==='development')
+										.col.m-1
+											a.IconLink(href="/plugins?projectId="+project._id)
+												i.fa.fa-plus-square
+					
 					.FileDetails(v-cloak v-show="selectedFile && selectedFile._id", style="display: none")
 						.row.no-gutters.mt-2
 							.col-12.col-lg-12.mt-1.p-1
@@ -36,13 +64,19 @@ body
 								select.SmallInput.form-control(v-model="selectedFile.type" @change="fileTypeChange")
 									each item, index in fileTypes
 										option(value=item)!=item
-							.col-12.mt-1.d-none
+							.col-12.mt-1.d-flex.justify-content-center
 								button.Button.btn.btn-primary(:disabled="!ableToSaveFile()",:class="selectedFileIsDirty?'FileIsDirty':''",@click="saveSelectedFile") Save
 					.row.no-gutters
-						.col-12.mt-3
+						.col-12.m-2.mt-4
+							div.Tree(v-for="(cat,index) in tree.children")
+								.TreeCategory(v-html="cat.name")
+								.row.no-gutters
+									.col-12(v-for="(file,inde) in cat.children")
+										.TreeFile(v-html="file.name" :selected="selectedFile && selectedFile._id == file._id" @click="selectFileById(file._id)")
+						.col-12.mt-3.d-none
 							.tree.ProjectTree(ref="tree")
 			#MainLayout
-				+editorNav()
+				//+editorNav()
 				#CodeEditorWrapper
 					#CodeEditor
 		.EditorState

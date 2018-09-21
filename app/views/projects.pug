@@ -35,14 +35,17 @@ block content
 						.col-12.mb-3.pl-0(v-show="tab==='my_projects'")
 							a.Button.btn.btn-primary(href="/projects/create") Create
 						- if(projects.length>0)
-							each pr, index in projects
-								.col-12.clearfix.NiceItem.clickable(@click=`rowClick('${pr._id}')` v-show="tab==='my_projects'")
-									div.NiceItemIcon.float-left.d-flex.justify-content-left.align-items-center
-										a(href=`/project/${pr._id}/edit` @click="stopPropagation($event)")
-											.EditIcon
-												i.fas.fa-edit
-									div.d-flex.justify-content-left.align-items-center.float-left
-										h4.NiceItemText.m-0.text-center.float-left!=`${pr.label}`
+							.row.no-gutters
+								each pr, index in projects
+									.col-12.col-md-6.col-lg-4
+										.row.no-gutters
+											.col-12.clearfix.NiceItem.clickable(@click=`rowClick('${pr._id}')` v-show="tab==='my_projects'")
+												div.NiceItemIcon.float-left.d-flex.justify-content-left.align-items-center
+													a(href=`/project/${pr._id}/edit` @click="stopPropagation($event)")
+														.EditIcon
+															i.fas.fa-edit
+												div.d-flex.justify-content-left.align-items-center.float-left
+													h4.NiceItemText.m-0.text-center.float-left!=`${pr.label}`
 						- else
 							.col-12.d-flex.justify-content-center.align-items-center(style="min-height:300px" v-show="tab==='my_projects'")
 								h1.OrganizationsEmptyText Create your first project

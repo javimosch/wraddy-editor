@@ -22,7 +22,9 @@ new Vue({
             recentFiles: [],
             consoleLogs: [],
             consoleShow: false,
-            consoleType: ''
+            consoleType: '',
+            tree: {},
+            recentFilesShow: false
         })
     },
     computed: {
@@ -31,6 +33,8 @@ new Vue({
         errorsLabel
     },
     methods: {
+        openSearch,
+        selectFileById,
         closeConsole,
         clearConsole,
         viewProject,
@@ -65,6 +69,9 @@ new Vue({
             if (e.keyCode === 27) {
                 if (this.consoleShow) {
                     this.consoleShow = false
+                }
+                if (this.recentFilesShow) {
+                    this.recentFilesShow = false
                 }
             }
         });
@@ -173,8 +180,8 @@ function timeDifference(before) {
     return window.timeDifference(Date.now(), before)
 }
 
-function recentFileLabel(item) {
-    return `<span>${item.name}</span> <span class="type ml-2">(${item.type})</span>`
+function recentFileLabel(item, index) {
+    return `<span>${item.name} (cmd+${index+1})</span> <span class="type ml-2">(${item.type})</span>`
 }
 
 function errorsLabel() {
@@ -215,24 +222,41 @@ function getAceMode(type) {
     return ""
 }
 
+async function selectFileById(_id) {
+    let f = await httpPost('/rpc/getFile', {
+        _id
+    })
+    this.selectFile(f);
+}
+
 
 async function mountTree() {
     let tree = await httpPost('/rpc/getTree', {
         project: this.project._id
     })
+    console.log('MOUNTING TREE', tree)
+    this.tree = tree
+    return;
     let treeEl = $(this.$refs.tree)
-    treeEl.off("changed.jstree").on("changed.jstree", async (e, data) => {
-        if (data.action === 'deselect_all') {
-            return;
-        }
-        console.log(data)
-        let f = await httpPost('/rpc/getFile', {
-            _id: data.node.id
-        })
-        this.selectFile(f)
-    });
-    console.log('MOUNTING TREE', this.project)
+
     if (!this.treeInit) {
+        if (this.selectedNode) {
+            treeEl.deselect_all({
+                supress_event: true
+            });
+            this.selectedNode = null
+        }
+        treeEl.off("changed.jstree").on("changed.jstree", async(e, data) => {
+            this.selectedNode = data.node;
+            if (data.action === 'deselect_all') {
+                return;
+            }
+            console.log(data)
+            let f = await httpPost('/rpc/getFile', {
+                _id: data.node.id
+            })
+            this.selectFile(f)
+        });
         treeEl.jstree({
             'core': {
                 'data': [
@@ -470,6 +494,13 @@ async function selectFile(file) {
     this.addRecentFile(this.selectedFile)
 }
 
+function openSearch() {
+    console.log('SEARCH')
+    this.recentFilesShow = true
+    setTimeout(() => this.$refs.searchInput.focus(), 500)
+    window.event.stopPropagation()
+}
+
 function searchText(v) {
     console.log('VV', v)
     if (!v) {
@@ -512,5 +543,39 @@ function initEditor(vm) {
     editor.commands.addCommand(closeFileShorcut(vm));
     editor.commands.addCommand(formatCodeCommand(vm));
     editor.commands.addCommand(saveFileCommand(vm));
+
+    editor.commands.addCommand({
+        name: 'searchFile',
+        bindKey: {
+            win: 'Alt-P',
+            mac: 'Command-P'
+        },
+        exec: (editor) => {
+            vm.openSearch()
+
+
+
+        },
+        readOnly: false
+    });
+
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(n => {
+        editor.commands.addCommand({
+            name: 'openFileNro' + n,
+            bindKey: {
+                win: 'Alt-' + n,
+                mac: 'Command-' + n
+            },
+            exec: (editor) => {
+                console.log('OPEN', n)
+                if (vm.recentFiles.length - 1 <= n) {
+                    vm.openRecentFile(vm.recentFiles[n - 1]);
+                    vm.recentFilesShow = false
+                }
+                window.event.stopPropagation()
+            },
+            readOnly: false
+        });
+    })
 
 }

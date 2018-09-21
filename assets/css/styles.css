@@ -1,26 +1,91 @@
 /*
-limegreen
-#333
+#f7f7f7
+#ebebeb
+#0a0a0a
+#e5b600
+    almost white    
+    cremita
+    black
+    dorado
 */
 
-.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
-    color: white;
-    background-color: slategrey;
-    border-color: slategrey;
+    
+
+.Tree {}
+
+.TreeCategory {
+    font-weight: 900;
+    font-size: small;
+    text-transform: uppercase;
 }
 
-.coloredTitle{
+.TreeFile {
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: smaller;
+    font-weight: 400;
+    padding: 0px 15px;
+}
+.TreeFile:hover{
+    background:#ebebeb;
+    color:#0a0a0a;
+}
+.TreeFile[selected]{
+    background:#ebebeb;
+    color:#0a0a0a;   
+}
+
+.IconLink {
+    cursor: pointer;
+    color: #0a0a0a;
+}
+
+.IconLink:hover i {
+    color: #e5b600;
+}
+
+.btn-primary:hover {
+    color: #f7f7f7!important;
+    background-color: #0a0a0a;
+    border-color: #0a0a0a;
+    cursor: pointer;
+}
+
+.btn-primary.disabled,
+.btn-primary:disabled {
+    color: dimgrey!important;
+    background-color: lightgrey;
+    border-color: lightgrey;
+}
+
+
+.jstree-default .jstree-icon:empty {
+    opacity: 0.5;
+}
+
+.nav-tabs .nav-link {
+    color: #0a0a0a;
+}
+
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+    color: #0a0a0a;
+    background-color: #ebebeb;
+    border-color: #ebebeb;
+}
+
+.coloredTitle {
     font-size: 24px;
     margin-top: 25px;
-    color: slategrey;
+    color: #ebebeb;
 }
 
-.PluginItem{
+.PluginItem {
     padding: 0.075rem 0.75rem;
 }
 
-.jstree-anchor:hover{
-    color: slategrey;
+.jstree-anchor:hover {
+    color: indigo;
 }
 
 .btn-secondary:hover {
@@ -30,7 +95,7 @@ limegreen
 }
 
 .btn-secondary {
-    color: slategrey;
+    color: #ebebeb;
     background-color: white;
     border-color: white;
 }
@@ -41,9 +106,10 @@ limegreen
     color: #fff;
 }
 
-.noty_theme__mint.noty_type__info, .noty_theme__mint.noty_type__information {
-    background-color: slategrey;
-    border-bottom: 1px solid slategrey;
+.noty_theme__mint.noty_type__info,
+.noty_theme__mint.noty_type__information {
+    background-color: #ebebeb;
+    border-bottom: 1px solid #ebebeb;
     color: #fff;
 }
 
@@ -53,56 +119,63 @@ limegreen
     color: #fff;
 }
 
-.StatusProjectName{
-    font-size:9px;
+.StatusProjectName {
+    font-size: 9px;
 }
 
-.Checkbox{
-    width:50px;
-    height:25px;
-    background-color:#333;
-    position:relative;
+.Checkbox {
+    width: 50px;
+    height: 25px;
+    background-color: #333;
+    position: relative;
     cursor: pointer;
 }
-.Checkbox::after{
-    width:25px;
-    height:25px;
-    position:absolute;
-    left:0px;
-    content:'';
-    background-color:lightgrey;
+
+.Checkbox::after {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    left: 0px;
+    content: '';
+    background-color: lightgrey;
     transition: all .35s ease-in-out;
 }
-.Checkbox[readonly]{
+
+.Checkbox[readonly] {
     cursor: not-allowed;
 }
-.Checkbox[readonly]::after{
-    background-color:lightseagreen;
+
+.Checkbox[readonly]::after {
+    background-color: lightseagreen;
 }
-.Checkbox[checked]::after{
-    left:25px;
-    background-color:limegreen;
+
+.Checkbox[checked]::after {
+    left: 25px;
+    background-color: limegreen;
 }
 
 
 #EditorConsole {
-    position: fixed;
-    top: 0px;
+        position: fixed;
+    bottom: 0px;
     left: 0px;
     width: calc(100vw);
-    height: calc(100vh);
-    background: rgba(106,90,205,.7);
+    height: calc(80vh);
+    background: #f7f7f7;
     z-index: 10;
 }
-#EditorConsoleTypeSelect{
-        font-size: 20px;
+
+#EditorConsoleTypeSelect {
+    font-size: 20px;
     font-weight: 900;
     width: auto;
 }
-#EditorConsoleText{
-    min-height: calc(100vh - 86px);
+
+#EditorConsoleText {
+        min-height: calc(100% - 54px);
     min-width: -webkit-fill-available;
     font-size: 12px;
+    overflow: scroll;
 }
 
 textarea {
@@ -110,25 +183,26 @@ textarea {
 }
 
 .RecentFiles {
-    width: 110px;
+    width: fit-content;
     position: fixed;
     right: 0px;
     height: fit-content;
-    background-color: slategrey;
+    background-color: #f7f7f7;
     z-index: 9;
-    top: 31px;
-    color: white;
+    top: 0px;
+    color: #0a0a0a;
     overflow-y: scroll;
-    max-height: calc(100vh - 31px);
+    min-height: calc(100vh);
     padding-bottom: 10px;
-    padding-top: 10px;
-    min-height: 200px;
+    padding-top: 0px;
+    
     border-radius: 0px;
-    opacity: 0.1;
 }
-.RecentFiles:hover{
-    opacity:1;
+
+.RecentFiles:hover {
+    opacity: 1;
 }
+
 
 
 
@@ -138,24 +212,27 @@ textarea {
 }
 
 .RecentFiles li:hover {
-    background: darkslategrey;
+    background: #ebebeb;
+    color: #0a0a0a;
 }
 
 .RecentFiles li {
     font-family: GT Eesti Display, "Helvetica Neue", Helvetica, sans-serif;
     font-size: 12px;
     font-weight: 600;
-    padding: 5px;
+    padding: 20px;
 }
 
 .RecentFiles li .type {
     font-weight: 100;
 }
-.RecentFile > span{
-    font-size:9px;
+
+.RecentFile>span {
+    font-size: 25px;
 }
+
 .RecentFiles .timeDifference {
-    font-size: 8px;
+    font-size: 15px;
 }
 
 ul {
@@ -187,7 +264,7 @@ ul {
     align-items: center;
     width: 30px;
     height: 30px;
-    background: limegreen;
+    background: #ebebeb;
     color: white;
     border-radius: 3px;
     padding-left: 2px;
@@ -228,12 +305,14 @@ ul {
 }
 
 .NiceItemText {
-    color: black;
+    color: lightgray;
     padding: 20px;
-    font-family: Roboto, sans-serif;
-    font-weight: 300;
-    font-size: 20px;
-    font-variant: petite-caps
+    font-family: Roboto;
+    font-weight: bold;
+    font-size: unset;
+    text-transform: uppercase;
+    position: relative;
+    top: 3px;
 }
 
 .NiceItemIcon {
@@ -247,12 +326,18 @@ ul {
 }
 
 .NiceItem:hover {
-    background-color: lightslategrey;
+    background-color: #ebebeb;
 }
+
+.EditIcon:hover {
+    background-color: #e5b600;
+    color: #ebebeb;
+}
+
 
 .NiceItem:hover .NiceItemText,
 .NiceItem:hover .NiceItemIcon a {
-    color: white;
+    color: #0a0a0a;
 }
 
 .ShortErrorMessage {
@@ -279,29 +364,28 @@ ul {
 
 .NavButton {
     font-family: Roboto, sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     padding: 0px 5px;
-    font-variant: all-petite-caps;
     margin: 4px 0px;
-    color: white;
+    color: #0a0a0a!important;
     font-weight: 400;
+    text-transform: uppercase;
+    font-weight: lighter;
 }
 
 
-.NavButton:hover, .NavButton:not([href]):not([tabindex]):focus, .NavButton:not([href]):not([tabindex]):hover {
-    box-shadow: none;
-    background: white;
-    color: slategrey;
-    font-weight: inherit;
-    opacity: 1;
+.NavButton:hover,
+.NavButton:not([href]):not([tabindex]):focus,
+.NavButton:not([href]):not([tabindex]):hover {
+    background: transparent;
     padding: 0px 5px;
-
+    font-weight: 300;
 }
 
 
 
 .EditorHeader {
-    background-color: slategrey;
+    background-color: #f7f7f7;
     color: white;
     width: -webkit-fill-available;
     position: relative;
@@ -333,14 +417,14 @@ ul {
 }
 
 .Button {
-    padding: 5px 20px;
-    font-size: 14px;
+    padding: 5px 10px;
+    font-size: 10px;
     font-weight: inherit;
     font-family: Roboto, sans-serif;
-    border-color: slategrey;
-    color: white;
-    background: slategrey;
-    min-width: 140px;
+    border-color: indigo;
+    color: #f7f7f7;
+    background: indigo;
+    min-width: 100px;
 }
 
 .NavbarSelect:focus,
@@ -354,9 +438,7 @@ ul {
 .Button:hover {
     outline: 0px;
     box-shadow: none;
-    background: limegreen!important;
-    border-color: limegreen!important;
-    color:white!important;
+    color: #0a0a0a;
 }
 
 .Button.FileIsDirty {
@@ -370,7 +452,7 @@ ul {
     font-weight: bold;
 }
 
-.EmailListItem{
+.EmailListItem {
     padding: 10px;
     font-size: 14px;
 }
@@ -386,17 +468,18 @@ ul {
     height: 35px!important;
 }
 
+
 .EditorState {
     position: fixed;
-    left: calc(50% - 80px);
+    right: 0px;
     bottom: 0px;
-    width: 160px;
+    width: fit-content;
     background: transparent;
     z-index: 9999;
     height: 20px;
+    margin-right: 10px;
     border-radius: 4px 0px 0px 0px;
 }
-
 
 .EditorStateText {
     text-align: center;
@@ -439,7 +522,7 @@ ul {
     border-radius: 5px 5px 0px 0px;
     border-radius: 5px 5px 0px 0px;
     font-family: Roboto;
-    font-size: 14px;
+    font-size: 25px;
     font-weight: bold;
     font-style: inherit;
 }
@@ -473,8 +556,8 @@ ul {
 }
 
 .HomeTitle {
-    background-color: snow;
-    color: #333;
+    background-color: transparent;
+    color: #e5b600;
     font-family: Roboto, sans-serif;
     font-weight: bolder;
     margin-top: 0px;
@@ -489,9 +572,9 @@ ul {
 
 .HomeTitleSub {
     font-family: Roboto, sans-serif;
-    font-weight: 800;
-    font-style: italic;
+    font-weight: 100;
     font-size: x-small;
+    color: #0a0a0a;
 }
 
 
@@ -506,7 +589,7 @@ input {
 }
 
 #CodeEditor {
-    height: calc(100vh - 31px);
+    height: calc(100vh);
 }
 
 .EditorHeader.hidden+#CodeEditor {
@@ -535,7 +618,7 @@ input {
 
 
 #SidebarLayout {
-    background-color: snow;
+    background-color: #f7f7f7;
     color: black;
     width: 230px;
     float: left;
@@ -545,7 +628,7 @@ input {
 }
 
 #dragbar {
-    background-color: slategrey;
+    background-color: #ebebeb;
     height: calc(100vh + 37px);
     width: 3px;
     cursor: col-resize;
