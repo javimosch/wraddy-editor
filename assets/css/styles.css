@@ -44,10 +44,22 @@
     color: #e5b600;
 }
 
+
+.btn-danger:hover {
+    color: #fff!important;
+    background-color: #c82333!important;
+    border-color: #bd2130!important;
+}
+.btn-danger {
+    background-color: indianred!important;
+    border-color: indianred!important;
+    
+}
+
 .btn-primary:hover {
     color: #f7f7f7!important;
-    background-color: #0a0a0a;
-    border-color: #0a0a0a;
+    background-color: #e5b600;
+    border-color: #e5b600;
     cursor: pointer;
 }
 
@@ -110,7 +122,7 @@
 .noty_theme__mint.noty_type__information {
     background-color: #ebebeb;
     border-bottom: 1px solid #ebebeb;
-    color: #fff;
+    color: dimgrey;
 }
 
 .noty_theme__mint.noty_type__warning {
@@ -265,7 +277,7 @@ ul {
     width: 30px;
     height: 30px;
     background: #ebebeb;
-    color: white;
+    color: dimgrey;
     border-radius: 3px;
     padding-left: 2px;
     opacity: 1;
@@ -305,7 +317,7 @@ ul {
 }
 
 .NiceItemText {
-    color: lightgray;
+    color: dimgrey;
     padding: 20px;
     font-family: Roboto;
     font-weight: bold;

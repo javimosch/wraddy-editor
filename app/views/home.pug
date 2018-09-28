@@ -66,6 +66,8 @@ body
 										option(value=item)!=item
 							.col-12.mt-1.d-flex.justify-content-center
 								button.Button.btn.btn-primary(:disabled="!ableToSaveFile()",:class="selectedFileIsDirty?'FileIsDirty':''",@click="saveSelectedFile") Save
+								button.Button.btn.btn-danger.ml-1(v-show="canDelete" @click="deleteSelectedFile") Delete
+
 					.row.no-gutters
 						.col-12.m-2.mt-4
 							div.Tree(v-for="(cat,index) in tree.children")

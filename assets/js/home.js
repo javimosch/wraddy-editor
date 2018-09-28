@@ -30,9 +30,11 @@ new Vue({
     computed: {
         consoleBody,
         editorState,
-        errorsLabel
+        errorsLabel,
+        canDelete
     },
     methods: {
+        deleteSelectedFile,
         openSearch,
         selectFileById,
         closeConsole,
@@ -81,6 +83,38 @@ new Vue({
         "project.label": limitProjectTitleLength
     }
 });
+
+async function deleteSelectedFile() {
+    if (window.confirm([
+            'Delete',
+            this.selectedFile.name,
+            '?'
+        ].join(' '))) {
+        try {
+            let remove = await httpPost('/rpc/deleteFile', {
+                _id: this.selectedFile._id,
+            })
+            this.selectedFile._id = ''
+            this.selectedFileOriginal = Object.assign({})
+            closeFile(this)
+            this.updateFileDirtyState()
+            this.mountTree()
+        } catch (err) {
+            console.warn(err.stack)
+            new Noty({
+                type: 'warning',
+                timeout: false,
+                text: 'Failed to delete file. Contact support!',
+                killer: true,
+                layout: "bottomRight"
+            }).show();
+        }
+    }
+}
+
+function canDelete() {
+    return this.selectedFile._id
+}
 
 function clearConsole() {
     this.consoleLogs = []
@@ -445,18 +479,6 @@ async function saveSelectedFile() {
             project: this.project._id,
             file: this.selectedFile
         })
-        /*
-        this.socket.emit('saveFile',{
-            project:{
-                name: this.project.name,
-                privateKey: this.project.privateKey
-            },file:{
-                _id: this.selectedFile._id,
-                name: this.selectedFile.name,
-                code: this.selectedFile.code,
-                type: this.selectedFile.type,
-            }
-        })*/
         this.selectedFile._id = newFile._id
         this.selectedFileOriginal = Object.assign({}, this.selectedFile)
         this.updateFileDirtyState()
@@ -481,6 +503,11 @@ async function selectFile(file) {
         single = await httpPost('/getFile', {
             _id: file._id
         })
+    }
+    if(!single){
+        console.warn('WARN [while selecting file] The file was not found')
+        closeFile(this)
+        return;
     }
 
     this.selectedFile = single
