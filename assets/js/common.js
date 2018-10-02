@@ -7,6 +7,7 @@ function showWarn(text) {
         layout: "bottomRight"
     }).show();
 }
+
 function showInfo(text, timeout) {
     new Noty({
         type: 'info',
@@ -74,7 +75,15 @@ function httpPost(url, data, options = {}) {
                 if (response.err) {
                     reject(response.err);
                 } else {
-                    resolve(response.result || response)
+                    if (status === 'parserror') {
+                        return reject(new Error('PARSE_ERROR'))
+                    }
+                    var isXhr = typeof response.abort === 'function' && typeof response.always === 'function'
+                    if (!isXhr) {
+                        resolve(response);
+                    } else {
+                        resolve(response.result)
+                    }
                 }
             });
         } catch (err) {

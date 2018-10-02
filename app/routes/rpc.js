@@ -15,6 +15,7 @@ module.exports = {
 					res.handleApiError(err)
 				}
 			} else {
+				console.log('TRACE [function name]',req.params)
 				res.handleApiError(new Error('FUNCTION_NOT_FOUND'))
 			}
 		});

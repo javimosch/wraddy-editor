@@ -5,9 +5,25 @@ body
 	#app
 		+nav()
 		.row.no-gutters
+			.col-12.mt-4.position-relative(@click="err=''")
+				p.ShortErrorMessage(v-html="err" v-show="err")
+			.col-12.mt-4.position-relative()
+				pre.text-left(v-show="result")!="{{result | pretty}}"
+			.col-12.p-5
+				label Params
+				input.form-control(placeholder="$user,true,0,1" v-model="params")
+			.col-12.p-5
+				h5.text-center Functions
+				.row.no-gutters
+					each fn,index in functions
+						.col.p-2
+							button.Button.btn.btn-primary.mx-auto.d-block(@click=`runFunction('${fn.name}')`)!=fn.name.split('.js').join('')
 			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
 				.form.LoginForm()
 					.row.position-relative
+						.col-12.mt-3
+							
+
 						.col-12.mt-3
 							h5.text-center Scripts
 							
@@ -40,10 +56,7 @@ body
 							
 							
 							
-						.col-12.mt-4.position-relative(@click="err=''")
-							p.ShortErrorMessage(v-html="err" v-show="err")
-						.col-12.mt-4.position-relative(@click="result=''")
-							p.ShortErrorMessage(v-html="result" v-show="result")
+						
 
 	+scripts('manager')
 +bottom()

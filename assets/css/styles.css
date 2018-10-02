@@ -9,6 +9,14 @@
     dorado
 */
 
+.ManagerOutput{
+    font-size: 10px;
+    display: block;
+    max-height: 200px;
+    font-family: monospace;
+    overflow: scroll;
+    font-weight: bold;
+}
     
 
 .Tree {}
@@ -61,6 +69,10 @@
     background-color: #e5b600;
     border-color: #e5b600;
     cursor: pointer;
+}
+.btn-primary.focus, .btn-primary:focus {
+    color: white!important;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.5);
 }
 
 .btn-primary.disabled,

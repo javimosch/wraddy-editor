@@ -101,6 +101,9 @@ label {
 .sidebarLink.logout:hover {
 	background-color: indianred;
 }
+.sidebarLink.logout:hover span {
+    color:white;
+}
 
 .sidebarLink:hover, .sidebarLink.active {
 	background-color: #ebebeb;
