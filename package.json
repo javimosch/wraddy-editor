@@ -6,7 +6,7 @@
   "author": "arancibiajav@gmail.com",
   "scripts": {
     "prestart": "yarn",
-    "start": "npx pm2 start ./app/index.js --name root && npx pm2 logs",
+    "start": "npx pm2 start ./app/index.js --name root --watch app && npx pm2 logs",
     "dev": "npx nodemon --exec 'node app/index.js' -e js,jsx,html --watch .env --watch app --ignore app/views/dynamic --ignore assets"
   },
   "dependencies": {

@@ -38,6 +38,7 @@ new Vue({
         setup,
         sync,
         open,
+        remove,
         checkState,
         addUser
     },
@@ -81,6 +82,17 @@ async function kickUser() {
 
 async function addUser() {
     return await saveProjectUser.apply(this, [])
+}
+
+async function remove(){
+    if(window.confirm('Sure ?')){
+        let done = await httpPost('/rpc/removeProject', {
+            projectId: this.project._id
+        });
+        if(done){
+            window.location.href="/projects";
+        }
+    }
 }
 
 async function saveProjectUser(data = {}) {
