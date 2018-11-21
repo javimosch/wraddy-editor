@@ -1,5 +1,12 @@
 module.exports = app => async data => {
-	return await app.model('file').remove({
-		_id: data._id
-	}).exec()
-}
+	try {
+		if(!data.projectId) throw new Error('projectId (400)');
+		await app.model('project').remove({
+			_id: data.projectId
+		}).exec();
+		return true;
+	} catch (err) {
+		console.error('ERROR', err.stack);
+		return false;
+	}
+};
