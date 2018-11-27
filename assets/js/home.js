@@ -320,7 +320,7 @@ function saveFileCommand(vm) {
     return {
         name: 'saveFile',
         bindKey: {
-            win: 'Alt-S',
+            win: 'Ctrl-S',
             mac: 'Command-S'
         },
         exec: function(editor) {
@@ -450,7 +450,7 @@ function closeFileShorcut(vm) {
     return {
         name: 'cancel',
         bindKey: {
-            win: 'Alt-Shift-X',
+            win: 'Ctrl-X',
             mac: 'Command-Shift-X'
         },
         exec: (editor) => {
@@ -551,7 +551,8 @@ async function search() {
 
 function initEditor(vm) {
     let editor = vm.editor = self.editor = ace.edit("CodeEditor");
-    editor.setTheme("ace/theme/monokai");
+    editor.setTheme("ace/theme/merbivore");
+    //https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/theme-tomorrow_night_blue.js
     editor.session.setMode('ace/mode/javascript');
     editor.session.setOptions({
         showInvisibles: true,

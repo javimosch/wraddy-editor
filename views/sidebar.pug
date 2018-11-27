@@ -5,19 +5,19 @@
 		-
 			var activeClass = n => sidebarActiveLink == n ? 'active':''
 
-		a(href=`/organization/${organization._id}/edit`)
+		//a(href=`/organization/${organization._id}/edit`)
 			.sidebarLink.pl-3.pr-3.pt-2.pb-2(class=activeClass("organization"))
 				i.fas.fa-building.mr-1
 				span Organization
 
 		a(href="/account")
 			.sidebarLink.pl-3.pr-3.pt-2.pb-2(class=activeClass("account"))
-				i.fas.fa-building.mr-1
+				i.fas.fa-user-circle.mr-1
 				span Account
 
 		a(href="/projects")
 			.sidebarLink.pl-3.pr-3.pt-2.pb-2(class=activeClass("projects"))
-				i.fas.fa-building.mr-1
+				i.fab.fa-docker.mr-1
 				span Projects
 
 		if(NODE_ENV==='development')
@@ -37,8 +37,8 @@
 				i.fas.fa-building.mr-1
 				span Switch Organization
 				
-		a(href="/logout")
+		//a(href="/logout")
 			.sidebarLink.pl-3.pr-3.pt-2.pb-2.logout(class=activeClass("logout"))
-				i.fa.fa-sign-out-alt.mr-1
+				i.fas.fa-building.mr-1
 				span Logout
 				

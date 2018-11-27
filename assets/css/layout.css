@@ -50,15 +50,15 @@ label {
 }
 
 .sidebarTitle {
-    color: #e5b600;
+    color: #adef9a;
     text-align: center;
     font-weight: 500;
-    font-size: 27px;
-    margin-top: 30px;
-    margin-bottom: 10px;
+    font-size: 30px;
+    margin-top: 0;
+    margin-bottom: 0;
     letter-spacing: 1px;
-    font-weight: 300;
-    padding: 0px 20px;
+    font-weight: lighter;
+    padding: 25px 0px;
     word-wrap: break-word;
 }
 
@@ -74,7 +74,7 @@ label {
 .sidebar {
     min-width: 230px;
     max-width: 230px;
-    background: #f7f7f7;
+    background: #243663;
     width: 230px;
     margin-left: -230px;
     opacity: 0;
@@ -105,21 +105,24 @@ label {
     color:white;
 }
 
-.sidebarLink:hover, .sidebarLink.active {
-	background-color: #ebebeb;
+.sidebarLink.active {
+	background-color: #4f749c;
+}
+.sidebarLink:hover{
+	color:white;
 }
 
 .sidebarLink i {
 	margin-right: 15px !important;
 }
 .sidebarLink i, .sidebarLink span {
-    color: #0a0a0a;
+    color: #d8d2d2;
     opacity: 1;
-    font-weight: 600;
+    font-weight: 100;
     font-size: 16px;
 }
 
 .sidebarLink.active i, .sidebarLink:hover i, .sidebarLink:hover span, .sidebarLink.active span {
 	opacity: 1;
-	color: #0a0a0a;
+	color: #fdfdfd;
 }

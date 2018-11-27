@@ -1,5 +1,3 @@
-
-
 new Vue({
     el: "#app",
     data: function() {
@@ -26,7 +24,8 @@ new Vue({
         canAddUser,
         itHasPORT,
         port,
-        alternativePortMessage
+        alternativePortMessage,
+        domainPlaceholder
     },
     methods: {
         kickUser,
@@ -45,20 +44,17 @@ new Vue({
     mounted() {
         onTabsChangeCreate(this)
         this.resolveEnvs()
-        if(this.project._id){
-            this.checkState()
-        }else{
-            this.state = 'Creation'
-        }
+        this.checkState();
     },
     watch: {
 
     }
 });
 
-function alternativePortMessage(){
-    return `If you are unable to view the public domain after several minutes, contact us. In the meanwhile you can use <a href="http://178.128.254.49:`+this.port+`/" target="_blank">this link.<a/>`
+function alternativePortMessage() {
+    return `If you are unable to view the public domain after several minutes, contact us. In the meanwhile you can use <a href="http://178.128.254.49:` + this.port + `/" target="_blank">this link.<a/>`
 }
+
 function addUserLabel() {
     if (this.newUserEmail) {
         let match = this.project.users.find(u => u.email == this.newUserEmail)
@@ -84,13 +80,26 @@ async function addUser() {
     return await saveProjectUser.apply(this, [])
 }
 
-async function remove(){
-    if(window.confirm('Sure ?')){
+async function remove() {
+    if (window.confirm('Sure ?')) {
+
+        let done = await httpPost('/redirect-to-manager', {
+            url: '/rpc/removeProject',
+            params: {
+                projectId: this.project._id
+            }
+        }, {
+            withCredentials: false,
+        });
+
+        /*
         let done = await httpPost('/rpc/removeProject', {
             projectId: this.project._id
         });
-        if(done){
-            window.location.href="/projects";
+        */
+
+        if (done) {
+            window.location.href = "/projects";
         }
     }
 }
@@ -183,8 +192,13 @@ function canAddUser() {
 }
 
 function checkState() {
+    const PENDING = 'Provisioning';
+    if (!this.project._id) {
+        this.state = PENDING;
+        return setTimeout(() => this.checkState, 10000);
+    }
 
-    if(!itHasPORT.apply(this,[])){
+    if (!itHasPORT.apply(this, [])) {
         return console.warn('WARN [skip state check, setup needed]')
     }
 
@@ -192,8 +206,9 @@ function checkState() {
     if (url.charAt(url.length - 1) !== '/') url += '/'
     url += 'alive'
     fetch(url).then(res => {
-        this.state = res && res.status === 200 ? 'Active' : 'Needs setup'
-    })
+        this.state = res && res.status === 200 ? 'Online' : PENDING;
+        setTimeout(() => this.checkState, 10000);
+    });
 }
 
 function resolveEnvs() {
@@ -230,6 +245,11 @@ function prepareEnvs() {
     }
 }
 
+function domainPlaceholder() {
+    let domain = (this.project.name || '').toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
+    return 'https://' + (domain || 'appname') + '.com';
+}
+
 function onTabsChangeCreate(vm) {
     window.onTabsChange = function(name) {
         vm.tab = name
@@ -237,28 +257,29 @@ function onTabsChangeCreate(vm) {
 }
 
 function defaultDomainMessage() {
-    let domain = (this.project.label || '').toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
+    let domain = (this.project.name || '').toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('')
     return `Your project is also available at ${domain}.wrapkend.com`
 }
 
-function port(){
-    try{
+function port() {
+    try {
         return this.project.settings.envs[this.server.NODE_ENV].PORT
-    }catch(err){
+    } catch (err) {
         return "";
     }
 }
-function itHasPORT(){
-    try{
+
+function itHasPORT() {
+    try {
         let a = this.project.settings.envs[this.server.NODE_ENV].PORT
         return true;
-    }catch(err){
+    } catch (err) {
         return false;
     }
 }
 
 function getUrl() {
-    this.project.settings.envs[this.server.NODE_ENV] = this.project.settings.envs[this.server.NODE_ENV]||{}
+    this.project.settings.envs[this.server.NODE_ENV] = this.project.settings.envs[this.server.NODE_ENV] || {}
     let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
     let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.server.NODE_ENV].PORT}/`;
     let ip = defaultDomain ? defaultDomain : rawIp
@@ -369,12 +390,14 @@ function ableToSave() {
     } else {
         this.err = ''
     }
-    if (this.pr.label && this.pr.label.length > 15) {
-        this.err = 'The label cannot have more than 15 characters.'
+
+    if (this.pr.name && this.pr.name.length > 15) {
+        this.err = 'The app name cannot have more than 15 characters.'
         return false;
     } else {
         this.err = ''
     }
+
     return this.pr.name
 }
 
@@ -392,7 +415,7 @@ async function save() {
             throw new Error(r.err)
         }
         if (!this.pr._id) {
-            window.location.href = "/projects"
+            this.pr._id = r._id;
         }
     } catch (err) {
         console.error('ERROR', '[when saving]', err)

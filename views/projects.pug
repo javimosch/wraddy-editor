@@ -1,12 +1,32 @@
 extends layout.pug
 block content
 	
-	include tabs.pug
-	+tabs(tabs)
+	//include tabs.pug
+	//+tabs(tabs)
 
 	#app
+		
 		.row.no-gutters.fill-available
-			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-start
+			.col-12.mb-3
+				a.Button.btn.btn-primary(href="/projects/create") New project
+				- if(projects.length>0)
+					.row.no-gutters.mt-3
+						each pr, index in projects
+							.col-12
+								.row.no-gutters
+									.col-12.clearfix.NiceItem.clickable(@click=`rowClick('${pr._id}')` v-show="tab==='my_projects'")
+										div.d-flex.justify-content-left.align-items-center.float-left
+											h4.NiceItemText.m-0.text-center.float-left!=`${pr.label}`
+										div.NiceItemIcon.float-left.d-flex.justify-content-left.align-items-center.mr-2
+											a(href=`/project/${pr._id}/edit` @click="stopPropagation($event)")
+												.EditIcon
+													i.fas.fa-cog
+										
+				//- else
+					.col-12.d-flex.justify-content-center.align-items-center(style="min-height:300px" v-show="tab==='my_projects'")
+						h1.OrganizationsEmptyText Projects
+						
+			//.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-start
 				.form.ProjectsForm.container
 					.row.no-gutters.position-relative
 						.col-12.mb-5
@@ -32,23 +52,7 @@ block content
 												.col.d-flex.justify-content-center.align-items-center.mt-1
 													div.Checkbox(readonly :checked="pr.domains[url]")
 
-						.col-12.mb-3.pl-0(v-show="tab==='my_projects'")
-							a.Button.btn.btn-primary(href="/projects/create") Create
-						- if(projects.length>0)
-							.row.no-gutters
-								each pr, index in projects
-									.col-12.col-md-6.col-lg-4
-										.row.no-gutters
-											.col-12.clearfix.NiceItem.clickable(@click=`rowClick('${pr._id}')` v-show="tab==='my_projects'")
-												div.NiceItemIcon.float-left.d-flex.justify-content-left.align-items-center
-													a(href=`/project/${pr._id}/edit` @click="stopPropagation($event)")
-														.EditIcon
-															i.fas.fa-edit
-												div.d-flex.justify-content-left.align-items-center.float-left
-													h4.NiceItemText.m-0.text-center.float-left!=`${pr.label}`
-						- else
-							.col-12.d-flex.justify-content-center.align-items-center(style="min-height:300px" v-show="tab==='my_projects'")
-								h1.OrganizationsEmptyText Create your first project
+						
 block sidebar
 	include sidebar.pug
 block scripts

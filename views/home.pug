@@ -4,7 +4,7 @@ include mixins.pug
 body
 	#app
 		include console.pug
-		.RecentFiles(v-show="recentFilesShow")
+		.RecentFiles(v-show="recentFilesShow" style="display:none;")
 			.row.no-gutters
 				.col-12
 					input.HomeSearch.form-control.mx-auto.d-block(v-model="searchText" placeholder="Search files inside project" ref="searchInput")
@@ -88,5 +88,5 @@ body
 		window.project = JSON.parse(`!{JSON.stringify(project)}`)
 	+scripts('home')
 	script.
-		window.enableAutoResizeSidebar()
+		//window.enableAutoResizeSidebar()
 +bottom()

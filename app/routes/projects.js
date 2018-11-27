@@ -145,6 +145,8 @@ module.exports = {
 				if (!req.user) {
 					return res.handleApiError(new Error(401), res, true)
 				}
+				
+				req.body.label = req.body.name; //the app name works as public domain as well
 
 				if (!req.body.label) {
 					throw new Error('LABEL_REQUIRED')
@@ -212,8 +214,13 @@ module.exports = {
 				await fixProject(payload._id.toString())
 
 				await app.fn.attachProjectToUser(req.user, payload._id)
+				
+				await app.fn.configureProject({
+					projectId: payload._id,
+					userId: req.user._id
+				});
 
-				res.status(200).json(req.body);
+				res.status(200).json(payload);
 			} catch (err) {
 				res.handleApiError(err)
 			}

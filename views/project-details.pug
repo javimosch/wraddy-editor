@@ -1,19 +1,41 @@
 extends layout.pug
 block content
 
-	include tabs.pug
-	+tabs(tabs)
+	//include tabs.pug
+	//+tabs(tabs)
 
 	#app
 		.row.no-gutters.fill-available
-			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-start
-				.form.ProjectsForm.container
+			.col-12.mt-5
+				label.SmallLabel AppName *
+				input.SmallInput.form-control.email(v-model="pr.name" v-bind:disabled="pr._id")
+			
+			.col-12.mt-3
+				label.SmallLabel Type *
+				select.SmallInput.form-control.type(v-model="pr.type")
+					option(value="node") NodeJS
+					option(value="static") Static
+				
+			.col-12.mt-3
+				label.SmallLabel Domain
+				input.SmallInput.form-control.email(v-model="pr.domain", :placeholder="domainPlaceholder")
+				//p.tinyText.m-0 Add DNS (A) Record targeting 178.128.254.49
+				//p.tinyText.m-0(v-html="defaultDomainMessage")
+		
+			.col-12.mt-3(v-show="!!project._id" style="display:none;")
+					button.Button.btn.btn-danger(@click="remove") Delete Project
+			
+			.col-12.mt-5(v-show="true" style="display:none;")
+				.d-flex.justify-content-left.align-items-center
+					button.Button.btn.btn-primary(:disabled="!ableToSave" @click="save") Save changes
+					a.Button.btn.btn-secondary.ml-2(:href="'/?projectId='+pr._id" v-show="pr._id") Open editor
+		
+			//.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-start
+				.form.ProjectsForm.container(style="display:none;" v-show="true")
 					.row.position-relative
 						.col-12.mb-5
 							#tabs
-						.col-12.d-flex.justify-content-left.align-items-center
-							button.Button.btn.btn-primary(:disabled="!ableToSave" @click="save") Save
-							a.Button.btn.btn-secondary.ml-2(:href="'/?projectId='+pr._id" v-show="pr._id") Editor
+						
 						.col-12.mt-5(v-show="tab==='users'")
 							.row.no-gutters
 								.col-12.mt-1(v-for="user,key in project.users" v-bind:key="user._id")
@@ -32,49 +54,20 @@ block content
 										
 						.col-12(v-show="tab==='general'")
 							.row.no-gutters
-								.col-12.mt-5
-									label.SmallLabel AppName (*) (You cannot change this once set)
-									input.SmallInput.form-control.email(v-model="pr.name" v-bind:disabled="pr._id")
-								.col-12.mt-3
-									label.SmallLabel Free Custom domains (optional)
-									input.SmallInput.form-control.email(v-model="pr.domain", placeholder="mysite.wrapkend.com")
-									p.tinyText.m-0.mt-2 Multiple custom domains can be separated by comma: mysite.com,alternativedomain.com
-									p.tinyText.m-0 Add DNS (A) Record targeting 178.128.254.49
-									p.tinyText.m-0(v-html="defaultDomainMessage")
-								.col-12.mt-3
+								
+								//.col-12.mt-3
 									label.SmallLabel Public name (*)
 									input.SmallInput.form-control.email(v-model="pr.label")
-								.col-12.mt-3
+								//.col-12.mt-3
 									label.SmallLabel Brief description
 									input.SmallInput.form-control.email(v-model="pr.shortText")
-								.col-12.mt-3
+								//.col-12.mt-3
 									label.SmallLabel Enviromental variables
 									textarea.SmallInput.form-control(v-model="envs")
-								.col-12.mt-3
+								//.col-12.mt-3
 									label.SmallLabel API Key
 									input.SmallInput.form-control.email(v-model="pr.privateKey" readonly)
-								.col-12.mt-3
-									label.SmallLabel.mb-3 Actions
-									div(v-show="!project._id")
-										p.tinyText.m-0 (Save the project first)
-									div(v-show="project._id")
-										button.Button.btn.btn-primary(@click="setup") Setup
-										p.tinyText.m-0.mt-1 This will install the project from the scratch and syncronize files. You should run this once after project creation or for updates.
-									div.mt-2(v-show="project._id")
-										button.Button.btn.btn-primary(@click="sync") Syncronize files
-										p.tinyText.m-0.mt-1 This will only syncronize files. You should run this only if you find inconsistencies.
-									div.mt-2(v-show="project._id")
-										button.Button.btn.btn-primary(@click="open") View
-										p.tinyText.m-0.mt-1 Open public url in new tab. 
-										p.tinyText.m-0.mt-1 Note: After Setup, the website needs several minutes to be released in the public url (xxxx.wrapkend.com).
-										p.tinyText.m-0.mt-1(v-show="itHasPORT" v-html="alternativePortMessage")
-									div.mt-2(v-show="project._id")
-										button.Button.btn.btn-danger(@click="remove") Delete Project
-										p.tinyText.m-0.mt-1 This action is not reversible
-								.col-12.mt-3
-									label
-										span.mr-1 State:
-										span(v-cloak v-html="state")
+								
 						
 						.col-12.mt-4.position-relative()
 							p.ShortErrorMessage(v-html="err" v-show="err")

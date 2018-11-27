@@ -16,6 +16,10 @@ module.exports = app => {
 		domain: {
 			type: String
 		},
+		type: {
+			type: String,
+			default: 'node'
+		},
 		privateKey: {
 			type: String,
 			index: true

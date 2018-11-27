@@ -2,18 +2,14 @@ extends layout.pug
 block content
 	#app
 		.row.no-gutters.fill-available
-			.col-12.FullscreenDiv.d-flex.justify-content-center.align-items-center
-				.form.LoginForm(action="/login" method="post")
-					.row.position-relative
+			.col-12
+					.row
 						.col-12
 							label.SmallLabel Email
 							input.SmallInput.form-control.email(value=user.email disabled)
 						.col-12.mt-3
-							h3!='Plan: '+user.plan
-						.col-12
-							p 
-								span.mr-1 To know more about available plans and pricing, please contact us though our
-								a(href="https://www.facebook.com/Wrapkend-895490107279528/" target="_blank") facebook page
+							label.SmallLabel Plan
+							p(style="font-size:14px")!=user.plan.toUpperCase()
 block sidebar
 	include sidebar.pug
 block scripts

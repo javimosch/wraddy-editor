@@ -9,6 +9,10 @@
     dorado
 */
 
+a:hover{
+    text-decoration: none!important;
+}
+
 body::-webkit-scrollbar {
     width: 15px;
 }
@@ -35,8 +39,8 @@ body::-webkit-scrollbar-thumb {
 .Tree {}
 
 .TreeCategory {
-    font-weight: 900;
-    font-size: small;
+    font-weight: 300;
+    font-size: 12px;
     text-transform: uppercase;
 }
 
@@ -60,7 +64,7 @@ body::-webkit-scrollbar-thumb {
 
 .IconLink {
     cursor: pointer;
-    color: #0a0a0a;
+    color: #fdfdfd;
 }
 
 .IconLink:hover i {
@@ -350,7 +354,7 @@ ul {
     color: dimgrey;
     padding: 20px;
     font-family: Roboto;
-    font-weight: bold;
+    font-weight: 400;
     font-size: unset;
     text-transform: uppercase;
     position: relative;
@@ -488,10 +492,9 @@ ul {
 }
 
 .SmallLabel {
-    font-size: 10px;
+    font-size: 12px;
     margin: 0px;
-    margin-bottom: 1px;
-    font-weight: bold;
+    margin-bottom: 5px;
 }
 
 .EmailListItem {
@@ -500,10 +503,10 @@ ul {
 }
 
 .SmallInput {
-    opacity: 0.5;
+    opacity: 1;
     font-family: Roboto-, sans-serif;
-    font-size: small;
-    font-weight: 100;
+    font-size: 12px;
+    font-weight: bolder;
     padding: 10px;
     max-width: 350px;
     width: -webkit-fill-available;
@@ -599,17 +602,18 @@ ul {
 
 .HomeTitle {
     background-color: transparent;
-    color: #e5b600;
+    color: #adef9a;
     font-family: Roboto, sans-serif;
-    font-weight: bolder;
+    font-weight: 500;
     margin-top: 0px;
-    letter-spacing: 11px;
+    letter-spacing: 0px;
     position: relative;
     left: 3px;
     text-transform: uppercase;
     border: 0px;
-    font-size: 20px;
+    font-size: 30px;
     text-align: center;
+    padding: 10px 0px;
 }
 
 .HomeTitleSub {
@@ -645,13 +649,13 @@ input {
 }
 
 #MainLayout {
-    background-color: dimgray;
+    background-color: #f7f5f5;
     float: right;
-    height: calc(100vh);
+    height: calc(100%);
     width: -webkit-fill-available;
     max-width: calc(100% - 230px);
-    max-height: calc(100vh);
-    overflow: scroll;
+    max-height: calc(100%);
+    overflow: hidden;
 }
 
 
@@ -661,18 +665,17 @@ input {
 
 
 #SidebarLayout {
-    background-color: #f7f7f7;
-    color: black;
+    background-color: #243663;
+    color: #fdfdfd;
     width: 230px;
     float: left;
-    height: calc(100vh);
-    overflow-y: scroll;
+    height: calc(100%);
     position: relative;
 }
 
 #dragbar {
-    background-color: #ebebeb;
-    height: calc(100vh + 37px);
+    background-color: #243663;
+    height: calc(100%);
     width: 3px;
     cursor: col-resize;
     position: absolute;
