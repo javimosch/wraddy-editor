@@ -19,12 +19,15 @@ body
 						li(v-for="(item,index) in recentFiles" class="clickable" @click="openRecentFile(item)")
 							div.RecentFile.d-flex(v-html="recentFileLabel(item, index)")
 							div.timeDifference(v-html="timeDifference(item.modified)")
+		
+		
+		
 		.clearfix
 			#SidebarLayout
 				#dragbar
 				.ContentBox
-					input.HomeTitle.text-center(v-model="project.label" placeholder="NOTITLE", disabled)
-					p.HomeTitleSub.text-center(v-html="project.shortText")
+					//input.HomeTitle.text-center(v-model="project.label" placeholder="NOTITLE", disabled)
+					//p.HomeTitleSub.text-center(v-html="project.shortText")
 					.row.no-gutters.mb-3.mt-2
 						.col.d-flex.justify-content-center.align-items-center
 							div
@@ -52,31 +55,37 @@ body
 											a.IconLink(href="/plugins?projectId="+project._id)
 												i.fa.fa-plus-square
 					
-					.FileDetails(v-cloak v-show="selectedFile && selectedFile._id", style="display: none")
-						.row.no-gutters.mt-2
-							.col-12.col-lg-12.mt-1.p-1
-								label.SmallLabel(v-html="'Id: '+selectedFile._id")
-							.col-12.col-lg-6.mt-1.p-1
-								label.SmallLabel Name
-								input.SmallInput.form-control(v-model="selectedFile.name")
-							.col-12.col-lg-6.mt-1.p-1
-								label.SmallLabel Type
-								select.SmallInput.form-control(v-model="selectedFile.type" @change="fileTypeChange")
-									each item, index in fileTypes
-										option(value=item)!=item
-							.col-12.mt-1.d-flex.justify-content-center
-								button.Button.btn.btn-primary(:disabled="!ableToSaveFile()",:class="selectedFileIsDirty?'FileIsDirty':''",@click="saveSelectedFile") Save
-								button.Button.btn.btn-danger.ml-1(v-show="canDelete" @click="deleteSelectedFile") Delete
-
-					.row.no-gutters
-						.col-12.m-2.mt-4
-							div.Tree(v-for="(cat,index) in tree.children")
-								.TreeCategory(v-html="cat.name")
-								.row.no-gutters
-									.col-12(v-for="(file,inde) in cat.children")
-										.TreeFile(v-html="file.name" :selected="selectedFile && selectedFile._id == file._id" @click="selectFileById(file._id)")
-						.col-12.mt-3.d-none
-							.tree.ProjectTree(ref="tree")
+					.row.no-gutters.mb-3
+						.col-12
+							tree(@nodeclick="nodeClick")
+					
+					div(v-show="!isStaticProject")
+						.FileDetails(v-cloak v-show="selectedFile && selectedFile._id", style="display: none")
+							.row.no-gutters.mt-2
+								.col-12.col-lg-12.mt-1.p-1
+									label.SmallLabel(v-html="'Id: '+selectedFile._id")
+								.col-12.col-lg-6.mt-1.p-1
+									label.SmallLabel Name
+									input.SmallInput.form-control(v-model="selectedFile.name")
+								.col-12.col-lg-6.mt-1.p-1
+									label.SmallLabel Type
+									select.SmallInput.form-control(v-model="selectedFile.type" @change="fileTypeChange")
+										each item, index in fileTypes
+											option(value=item)!=item
+								.col-12.mt-1.d-flex.justify-content-center
+									button.Button.btn.btn-primary(:disabled="!ableToSaveFile()",:class="selectedFileIsDirty?'FileIsDirty':''",@click="saveSelectedFile") Save
+									button.Button.btn.btn-danger.ml-1(v-show="canDelete" @click="deleteSelectedFile") Delete
+	
+						.row.no-gutters
+							.col-12.m-2.mt-4
+								div.Tree(v-for="(cat,index) in tree.children")
+									.TreeCategory(v-html="cat.name")
+									.row.no-gutters
+										.col-12(v-for="(file,inde) in cat.children")
+											.TreeFile(v-html="file.name" :selected="selectedFile && selectedFile._id == file._id" @click="selectFileById(file._id)")
+							.col-12.mt-3.d-none
+								.tree.ProjectTree(ref="tree")
+							
 			#MainLayout
 				//+editorNav()
 				#CodeEditorWrapper

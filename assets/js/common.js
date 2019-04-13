@@ -1,3 +1,28 @@
+const ba = {
+    fs: {
+        custom: async function(params) {
+            return await httpPost('/redirect-to-manager', {
+                url: '/rpc/fsOperation',
+                params: params
+            }, {
+                withCredentials: false,
+            });
+        },
+        readdir: async function() {
+            return await this.custom({
+                type: 'readdir',
+                path: 'misitioba'
+            });
+        },
+        findit: async function() {
+            return await this.custom({
+                type: 'findit',
+                path: 'misitioba'
+            });
+        }
+    }
+}
+
 function showWarn(text) {
     new Noty({
         type: 'warning',
@@ -246,3 +271,4 @@ function objectDeepCompare(obj1, obj2) {
     }
     return true;
 };
+

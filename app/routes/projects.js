@@ -18,7 +18,7 @@ function getUrl(pr, app) {
 module.exports = {
 	order: 0,
 	handler(app) {
-		app.get('/projects', async (req, res) => {
+		app.get('/projects', async(req, res) => {
 			if (!req.user) {
 				return res.redirect('/login')
 			}
@@ -80,7 +80,7 @@ module.exports = {
 			})
 		});
 
-		app.get('/project/:id/edit', async (req, res) => {
+		app.get('/project/:id/edit', async(req, res) => {
 			if (!req.user) {
 				return res.redirect('/login')
 			}
@@ -111,7 +111,7 @@ module.exports = {
 			})
 		});
 
-		app.get('/projects/create', async (req, res) => {
+		app.get('/projects/create', async(req, res) => {
 			if (!req.user) {
 				return res.redirect('/login')
 			}
@@ -140,12 +140,12 @@ module.exports = {
 			})
 		});
 
-		app.post('/saveProject', app.fn.parseJson, async (req, res) => {
+		app.post('/saveProject', app.fn.parseJson, async(req, res) => {
 			try {
 				if (!req.user) {
 					return res.handleApiError(new Error(401), res, true)
 				}
-				
+
 				req.body.label = req.body.name; //the app name works as public domain as well
 
 				if (!req.body.label) {
@@ -209,16 +209,18 @@ module.exports = {
 					payload._id = req.body._id
 				}
 
-
+				payload.state = payload.state || 'created'
 
 				await fixProject(payload._id.toString())
 
 				await app.fn.attachProjectToUser(req.user, payload._id)
-				
-				await app.fn.configureProject({
-					projectId: payload._id,
-					userId: req.user._id
-				});
+
+				if (payload.state === 'created') {
+					await app.fn.configureProject({
+						projectId: payload._id,
+						userId: req.user._id
+					});
+				}
 
 				res.status(200).json(payload);
 			} catch (err) {
@@ -236,7 +238,7 @@ async function fixProject(pr) {
 	pr = pr.toJSON()
 	pr.settings = pr.settings || {}
 	pr.settings.envs = pr.settings.envs || {}
-	//await pr.save();
+		//await pr.save();
 	console.log('DEBUG [after fix project]', pr)
 	return pr;
 }

@@ -4,6 +4,8 @@ new Vue({
     el: "#app",
     data: function() {
         return Object.assign(window.initialState || {}, {
+            staticFileReadPath:'',
+            treeDisplayData: [],
             socket: null,
             user: window.user,
             server: window.server,
@@ -28,35 +30,46 @@ new Vue({
         })
     },
     computed: {
+        isStaticProject(){
+            return this.project && this.project.type === 'static';
+        },
         consoleBody,
         editorState,
         errorsLabel,
         canDelete
     },
     methods: {
-        deleteSelectedFile,
-        openSearch,
-        selectFileById,
-        closeConsole,
-        clearConsole,
-        viewProject,
-        viewConsole,
-        ableToSaveFile,
-        search,
-        selectFile,
-        fileTypeChange,
-        updateFileDirtyState,
-        saveSelectedFile,
-        toggleHeader,
-        newFile,
-        mountTree,
-        mapDirectoryTreeToJsTreeNode,
-        openRecentFile,
-        viewErrors,
-        addRecentFile,
-        recentFileLabel,
-        timeDifference,
-        initializateSocket
+        nodeClick(node) {
+                console.log('MAIN NODE CLICK', node);
+                if (node.type === 'file') {
+                    console.log('open', node.path)
+                    this.selectStaticFile(node.path);
+                }
+            },
+            selectStaticFile,
+            deleteSelectedFile,
+            openSearch,
+            selectFileById,
+            closeConsole,
+            clearConsole,
+            viewProject,
+            viewConsole,
+            ableToSaveFile,
+            search,
+            selectFile,
+            fileTypeChange,
+            updateFileDirtyState,
+            saveSelectedFile,
+            toggleHeader,
+            newFile,
+            mountTree,
+            mapDirectoryTreeToJsTreeNode,
+            openRecentFile,
+            viewErrors,
+            addRecentFile,
+            recentFileLabel,
+            timeDifference,
+            initializateSocket
     },
     async mounted() {
         initEditor(this)
@@ -65,7 +78,9 @@ new Vue({
         await this.mountTree()
         window.$(this.$refs.header).fadeIn(true)
         this.initializateSocket(this)
-        delete window.user
+        delete window.user;
+
+
 
         $(document).on('keyup', (e) => {
             if (e.keyCode === 27) {
@@ -219,7 +234,11 @@ function recentFileLabel(item, index) {
 }
 
 function errorsLabel() {
-    return `Errors ${this.errors.length>0?`(${this.errors.length})`:``}`
+    return `Errors ${this.errors.length>0?` ($ {
+        this.errors.length
+    })
+    `:`
+    `}`
 }
 
 function mapDirectoryTreeToJsTreeNode(item, index) {
@@ -252,7 +271,7 @@ function getAceMode(type) {
     else if (['python'].includes(type))
         return "ace/mode/python"
     else if (['php'].includes(type))
-        return "ace/mode/php"
+        return "editor/mode/php"
     return ""
 }
 
@@ -339,7 +358,7 @@ function formatCodeCommand(vm) {
             mac: 'Command-B'
         },
         exec: function(editor) {
-            beautifyAceEditor(editor, vm.selectedFile)
+            beautifyeditorEditor(editor, vm.selectedFile)
         },
         readOnly: false
     }
@@ -360,7 +379,7 @@ function toggleHeader() {
 
 async function viewProject() {
     try {
-        let defaultDomain = this.project.label ? this.project.label.toLowerCase().replace(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
+        let defaultDomain = this.project.label ? this.project.label.toLowerCase().repleditor(/[^\w\s]/gi, '').split('_').join('').split('.').join('') + '.wrapkend.com' : ''
         let rawIp = `http://${this.server.WRAPKEND_IP}:${this.project.settings.envs[this.NODE_ENV].PORT}/`;
         let ip = defaultDomain ? defaultDomain : rawIp
         window.open('https://' + ip.split('https://').join('https://'))
@@ -495,6 +514,16 @@ async function saveSelectedFile() {
     }
 }
 
+async function selectStaticFile(path) {
+    var readPath = `misitioba${path}`;
+    var res = await ba.fs.custom({
+        type: 'readFile',
+        path: readPath
+    });
+    this.staticFileReadPath = readPath;
+    this.editor.setValue(res.result, -1);
+}
+
 async function selectFile(file) {
     var single
     if (file._id === 'local') {
@@ -504,7 +533,7 @@ async function selectFile(file) {
             _id: file._id
         })
     }
-    if(!single){
+    if (!single) {
         console.warn('WARN [while selecting file] The file was not found')
         closeFile(this)
         return;
@@ -516,7 +545,7 @@ async function selectFile(file) {
     this.searchText = '';
     this.searchResults = []
     this.selectedFileOriginal = Object.assign({}, this.selectedFile)
-    this.editor.session.setMode(getAceMode(single.type));
+    this.editor.session.setMode(geteditorMode(single.type));
     qs('fileId', single._id)
     this.addRecentFile(this.selectedFile)
 }
@@ -551,7 +580,7 @@ async function search() {
 
 function initEditor(vm) {
     let editor = vm.editor = self.editor = ace.edit("CodeEditor");
-    editor.setTheme("ace/theme/merbivore");
+    editor.setTheme("ace/theme/chrome");
     //https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/theme-tomorrow_night_blue.js
     editor.session.setMode('ace/mode/javascript');
     editor.session.setOptions({
