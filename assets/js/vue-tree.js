@@ -70,7 +70,7 @@ Vue.component('tree', {
 	created() {
 		ba.fs.custom({
 			type: 'tree',
-			path: 'misitioba'
+			path: 'bauges'
 		}).then(res => {
 			if (!res.err) {
 				this.mainNode = res.result[0];

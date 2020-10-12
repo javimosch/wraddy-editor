@@ -401,11 +401,12 @@ function ableToSave() {
     return this.pr.name
 }
 
-
-
 async function save() {
     try {
-
+        
+        
+        this.pr.type = 'static';
+        
         this.prepareEnvs()
 
         this.processing = true

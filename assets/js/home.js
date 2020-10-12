@@ -14,7 +14,9 @@ new Vue({
             searchText: '',
             searchResults: [],
             selectedFile: {
-                code: ''
+                code: '',
+                basePath:'',
+                filename:''
             },
             selectedFileIsDirty: false,
             selectedFileOriginal: {},
@@ -43,10 +45,10 @@ new Vue({
                 console.log('MAIN NODE CLICK', node);
                 if (node.type === 'file') {
                     console.log('open', node.path)
-                    this.selectStaticFile(node.path);
+                    this.staticFileSelect(node.path);
                 }
             },
-            selectStaticFile,
+            staticFileSelect,
             deleteSelectedFile,
             openSearch,
             selectFileById,
@@ -514,13 +516,17 @@ async function saveSelectedFile() {
     }
 }
 
-async function selectStaticFile(path) {
-    var readPath = `misitioba${path}`;
+async function staticFileSelect(path) {
+    var readPath = `bauges${path}`;
     var res = await ba.fs.custom({
         type: 'readFile',
         path: readPath
     });
     this.staticFileReadPath = readPath;
+    
+    this.selectedFile.basePath = readPath.substring(0,readPath.lastIndexOf('/')+1);
+    this.selectedFile.filename = readPath.substring(readPath.lastIndexOf('/')+1)
+    
     this.editor.setValue(res.result, -1);
 }
 
