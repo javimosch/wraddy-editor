@@ -27,7 +27,7 @@
     "nodemon": "^1.18.3",
     "pm2": "^3.0.0",
     "promise-sequential": "^1.1.1",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "request-promise": "^4.2.2",
     "require-from-string": "^2.0.2",
     "require-install": "^0.3.3",
