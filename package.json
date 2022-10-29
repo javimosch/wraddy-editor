@@ -33,8 +33,8 @@
     "require-install": "^0.3.3",
     "sander": "^0.6.0",
     "shelljs": "^0.8.2",
-    "socket.io": "^2.1.1",
-    "socket.io-client": "^2.1.1",
+    "socket.io": "^2.5.0",
+    "socket.io-client": "^2.5.0",
     "uniqid": "^5.0.3",
     "yargs": "^12.0.1"
   }
